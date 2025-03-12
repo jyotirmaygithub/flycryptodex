@@ -20,12 +20,12 @@ export default function Home() {
   const [, navigate] = useLocation();
   
   const handleGetStarted = () => {
-    navigate("/trading");
+    navigate("/select-blockchain");
   };
   
   const handleSelectTrading = (category: string) => {
-    // Just navigate to trading for now
-    navigate("/trading");
+    // First go to blockchain selection
+    navigate("/select-blockchain", { state: { nextCategory: category } });
   };
 
   // Static blockchain data for the MVP
@@ -47,7 +47,7 @@ export default function Home() {
           <ThemeToggle />
           
           <Button 
-            onClick={() => navigate("/trading")} 
+            onClick={() => navigate("/select-blockchain")} 
             className="bg-accent-500 hover:bg-accent-600 text-white"
           >
             Dashboard
@@ -77,7 +77,7 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button 
-                  onClick={() => navigate("/trading")} 
+                  onClick={() => navigate("/select-blockchain")} 
                   variant="outline" 
                   className="text-accent-500 border-accent-500 hover:bg-accent-500/10 text-lg py-6 px-8"
                 >
@@ -217,7 +217,7 @@ export default function Home() {
               <Card 
                 key={blockchain.id}
                 className="bg-primary-700 border-primary-600 hover:border-accent-500 transition-colors cursor-pointer"
-                onClick={() => navigate("/trading")}
+                onClick={() => navigate("/select-blockchain")}
               >
                 <CardContent className="pt-6 flex flex-col items-center text-center">
                   <div className="mb-4 bg-accent-500/20 w-16 h-16 rounded-full flex items-center justify-center">

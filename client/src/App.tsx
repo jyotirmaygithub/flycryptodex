@@ -3,12 +3,22 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Trading from "@/pages/Trading";
+import BlockchainSelection from "@/pages/BlockchainSelection";
+import CategorySelection from "@/pages/CategorySelection";
+import ForexTrading from "@/pages/ForexTrading";
+import CryptoTrading from "@/pages/CryptoTrading";
+import CommodityTrading from "@/pages/CommodityTrading";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/select-blockchain" component={BlockchainSelection} />
+      <Route path="/select-category" component={CategorySelection} />
       <Route path="/trading/:pair?" component={Trading} />
+      <Route path="/forex-trading/:pair?" component={ForexTrading} />
+      <Route path="/crypto-trading/:pair?" component={CryptoTrading} />
+      <Route path="/commodity-trading/:pair?" component={CommodityTrading} />
       <Route component={NotFound} />
     </Switch>
   );
