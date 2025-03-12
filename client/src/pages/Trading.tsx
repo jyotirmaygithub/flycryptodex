@@ -107,17 +107,18 @@ export default function Trading() {
           <h2 className="font-semibold mb-3">Trading Pairs</h2>
           <div className="space-y-2">
             {tradingPairs.map(pair => (
-              <Link key={pair.id} href={`/trading/${encodeURIComponent(pair.name)}`}>
-                <a className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}>
-                  <span>{pair.name}</span>
-                  <div className="text-right">
-                    <div className="font-mono">{pair.price}</div>
-                    <div className={pair.change24h >= 0 ? 'text-success text-xs' : 'text-error text-xs'}>
-                      {pair.change24h >= 0 ? '+' : ''}{pair.change24h}%
-                    </div>
+              <div key={pair.id} 
+                className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 cursor-pointer ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}
+                onClick={() => window.location.href = `/trading/${encodeURIComponent(pair.name)}`}
+              >
+                <span>{pair.name}</span>
+                <div className="text-right">
+                  <div className="font-mono">{pair.price}</div>
+                  <div className={pair.change24h >= 0 ? 'text-success text-xs' : 'text-error text-xs'}>
+                    {pair.change24h >= 0 ? '+' : ''}{pair.change24h}%
                   </div>
-                </a>
-              </Link>
+                </div>
+              </div>
             ))}
           </div>
         </div>
