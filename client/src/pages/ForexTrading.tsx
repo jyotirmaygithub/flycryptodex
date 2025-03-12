@@ -36,8 +36,11 @@ const forexPairs = [
 // Mock chart component
 function PlaceholderChart() {
   return (
-    <div className="w-full h-96 bg-primary-800 rounded-lg border border-primary-700 flex items-center justify-center mb-4">
-      <TrendingUp className="w-16 h-16 text-accent-500 opacity-20" />
+    <div className="w-full h-[500px] bg-primary-800 rounded-lg border border-primary-700 flex items-center justify-center mb-4 p-4">
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        <TrendingUp className="w-16 h-16 text-accent-500 opacity-20 mb-4" />
+        <div className="text-sm text-muted-foreground">Interactive chart loading...</div>
+      </div>
     </div>
   );
 }
