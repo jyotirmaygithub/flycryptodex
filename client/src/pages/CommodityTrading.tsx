@@ -15,386 +15,68 @@ import {
   Clock,
   Calendar,
   Info,
-  AlertCircle
+  AlertCircle,
+  Package,
+  CircleDollarSign,
+  Percent,
+  Gauge,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 // Mock trading pairs for commodities
 const commodityPairs = [
-  { id: 1, name: 'GOLD/USD', baseAsset: 'XAU', quoteAsset: 'USD', price: 2384.56, change24h: 0.42, categoryId: 3, isActive: true },
-  { id: 2, name: 'SILVER/USD', baseAsset: 'XAG', quoteAsset: 'USD', price: 28.12, change24h: 0.81, categoryId: 3, isActive: true },
-  { id: 3, name: 'OIL/USD', baseAsset: 'OIL', quoteAsset: 'USD', price: 78.35, change24h: -1.23, categoryId: 3, isActive: true },
-  { id: 4, name: 'NAT_GAS/USD', baseAsset: 'NG', quoteAsset: 'USD', price: 2.15, change24h: 1.54, categoryId: 3, isActive: true },
-  { id: 5, name: 'COPPER/USD', baseAsset: 'COPPER', quoteAsset: 'USD', price: 4.28, change24h: 0.22, categoryId: 3, isActive: true },
-  { id: 6, name: 'WHEAT/USD', baseAsset: 'WHEAT', quoteAsset: 'USD', price: 612.75, change24h: -0.75, categoryId: 3, isActive: true },
+  {
+    id: 1,
+    name: "GOLD/USD",
+    baseAsset: "GOLD",
+    quoteAsset: "USD",
+    price: 2320.45,
+    change24h: 1.25,
+    categoryId: 3,
+    isActive: true
+  },
+  {
+    id: 2,
+    name: "SILVER/USD",
+    baseAsset: "SILVER",
+    quoteAsset: "USD",
+    price: 29.85,
+    change24h: 0.75,
+    categoryId: 3,
+    isActive: true
+  },
+  {
+    id: 3,
+    name: "OIL/USD",
+    baseAsset: "OIL",
+    quoteAsset: "USD",
+    price: 78.30,
+    change24h: -1.20,
+    categoryId: 3,
+    isActive: true
+  },
+  {
+    id: 4,
+    name: "NATGAS/USD",
+    baseAsset: "NATGAS",
+    quoteAsset: "USD",
+    price: 2.45,
+    change24h: -0.5,
+    categoryId: 3,
+    isActive: true
+  },
+  {
+    id: 5,
+    name: "COPPER/USD",
+    baseAsset: "COPPER",
+    quoteAsset: "USD",
+    price: 4.25,
+    change24h: 0.35,
+    categoryId: 3,
+    isActive: true
+  }
 ];
-
-// Mock chart component
-function PlaceholderChart() {
-  return (
-    <div className="w-full h-96 bg-primary-800 rounded-lg border border-primary-700 flex items-center justify-center mb-4">
-      <TrendingUp className="w-16 h-16 text-accent-500 opacity-20" />
-    </div>
-  );
-}
-
-function ContractSpecifications({ pair }: { pair: TradingPair }) {
-  // Mock contract specifications based on commodity type
-  const specs = {
-    'GOLD/USD': {
-      contractSize: '100 troy oz',
-      minTick: '$0.10',
-      value: '$10 per $0.10',
-      margin: '5%',
-      tradingHours: '23/5',
-      delivery: 'Cash settled',
-      expiry: 'Last trading day of month'
-    },
-    'SILVER/USD': {
-      contractSize: '5000 troy oz',
-      minTick: '$0.005',
-      value: '$25 per $0.005',
-      margin: '5%',
-      tradingHours: '23/5',
-      delivery: 'Cash settled',
-      expiry: 'Last trading day of month'
-    },
-    'OIL/USD': {
-      contractSize: '1000 barrels',
-      minTick: '$0.01',
-      value: '$10 per $0.01',
-      margin: '8%',
-      tradingHours: '23/5',
-      delivery: 'Cash settled',
-      expiry: '20th calendar day of month'
-    },
-    'NAT_GAS/USD': {
-      contractSize: '10,000 MMBtu',
-      minTick: '$0.001',
-      value: '$10 per $0.001',
-      margin: '10%',
-      tradingHours: '23/5',
-      delivery: 'Cash settled',
-      expiry: '3rd business day prior to month'
-    },
-    'COPPER/USD': {
-      contractSize: '25,000 lbs',
-      minTick: '$0.005',
-      value: '$125 per $0.005',
-      margin: '6%',
-      tradingHours: '23/5',
-      delivery: 'Cash settled',
-      expiry: 'Last trading day of month'
-    },
-    'WHEAT/USD': {
-      contractSize: '5,000 bushels',
-      minTick: '$0.25',
-      value: '$12.50 per $0.25',
-      margin: '7%',
-      tradingHours: '23/5',
-      delivery: 'Cash settled',
-      expiry: '15th calendar day of month'
-    }
-  };
-  
-  const currentSpecs = specs[pair.name as keyof typeof specs] || {
-    contractSize: 'Varies',
-    minTick: 'Varies',
-    value: 'Varies',
-    margin: 'Varies',
-    tradingHours: '23/5',
-    delivery: 'Cash settled',
-    expiry: 'Varies'
-  };
-
-  return (
-    <div className="bg-primary-800 p-4 rounded-lg border border-primary-700">
-      <h3 className="font-medium mb-3">Contract Specifications</h3>
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Contract Size:</span>
-          <span>{currentSpecs.contractSize}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Min. Price Tick:</span>
-          <span>{currentSpecs.minTick}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Tick Value:</span>
-          <span>{currentSpecs.value}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Initial Margin:</span>
-          <span>{currentSpecs.margin}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Trading Hours:</span>
-          <span>{currentSpecs.tradingHours}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Settlement:</span>
-          <span>{currentSpecs.delivery}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Expiry:</span>
-          <span>{currentSpecs.expiry}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DeliverySchedule({ pair }: { pair: TradingPair }) {
-  // Mock future contract months
-  const futureMonths = [
-    { month: "May 2025", status: "active", price: pair.price * 0.995 },
-    { month: "June 2025", status: "active", price: pair.price * 1.01 },
-    { month: "July 2025", status: "active", price: pair.price * 1.02 },
-    { month: "August 2025", status: "active", price: pair.price * 1.025 },
-    { month: "September 2025", status: "active", price: pair.price * 1.03 }
-  ];
-
-  return (
-    <div className="bg-primary-800 p-4 rounded-lg border border-primary-700">
-      <h3 className="font-medium mb-3">Future Contracts</h3>
-      <div className="space-y-1">
-        {futureMonths.map((contract, index) => (
-          <div key={`contract-${index}`} className="flex justify-between items-center p-2 rounded-lg hover:bg-primary-700 cursor-pointer">
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 text-accent-500 mr-2" />
-              <span>{contract.month}</span>
-            </div>
-            <div className="text-right">
-              <div>${contract.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-              <div className="text-xs text-neutral-400">
-                {index === 0 ? "Current" : `+${((contract.price / pair.price - 1) * 100).toFixed(2)}%`}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CommodityOrderForm({ pair }: { pair: TradingPair }) {
-  const [orderType, setOrderType] = useState<string>('Market');
-  const [orderSide, setOrderSide] = useState<string>('buy');
-  const [amount, setAmount] = useState<number>(1);
-  const [price, setPrice] = useState<number>(pair.price);
-  const [expiryMonth, setExpiryMonth] = useState<string>("May 2025");
-  const [goodUntilCanceled, setGoodUntilCanceled] = useState<boolean>(true);
-  
-  const handlePlaceOrder = () => {
-    console.log('Placing order:', {
-      pair: pair.name,
-      type: orderType,
-      side: orderSide,
-      amount,
-      price: orderType !== 'Market' ? price : undefined,
-      expiryMonth,
-      goodUntilCanceled
-    });
-    
-    // Here you would call the API to place the order
-    alert(`Order placed: ${orderSide.toUpperCase()} ${amount} ${pair.name} ${expiryMonth} at ${orderType === 'Market' ? 'market price' : '$' + price}`);
-  };
-
-  return (
-    <div className="bg-primary-800 rounded-lg border border-primary-700 p-4">
-      <h3 className="font-semibold mb-4">Place Order</h3>
-      
-      <div className="mb-4">
-        <Tabs defaultValue="Market" onValueChange={setOrderType}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="Market">Market</TabsTrigger>
-            <TabsTrigger value="Limit">Limit</TabsTrigger>
-            <TabsTrigger value="Stop">Stop</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-      
-      <div className="mb-4 grid grid-cols-2 gap-4">
-        <Button 
-          className={`py-4 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
-          onClick={() => setOrderSide('buy')}
-        >
-          Buy / Long
-        </Button>
-        <Button 
-          className={`py-4 ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
-          onClick={() => setOrderSide('sell')}
-        >
-          Sell / Short
-        </Button>
-      </div>
-      
-      <div className="space-y-4 mb-6">
-        <div>
-          <Label htmlFor="amount">Contracts</Label>
-          <Input 
-            id="amount" 
-            className="bg-primary-700 border-primary-600"
-            value={amount} 
-            onChange={(e) => setAmount(parseInt(e.target.value) || 0)}
-            type="number"
-            min={1}
-            step={1}
-          />
-          <div className="text-xs text-right mt-1 text-neutral-400">
-            Notional: ${(amount * pair.price).toLocaleString()}
-          </div>
-        </div>
-        
-        {orderType !== 'Market' && (
-          <div>
-            <Label htmlFor="price">Price</Label>
-            <Input 
-              id="price" 
-              className="bg-primary-700 border-primary-600"
-              value={price} 
-              onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
-              type="number"
-              step={0.01}
-            />
-          </div>
-        )}
-        
-        <div>
-          <Label htmlFor="expiry" className="mb-2 block">Contract Month</Label>
-          <select 
-            id="expiry"
-            className="w-full bg-primary-700 border-primary-600 rounded p-2"
-            value={expiryMonth}
-            onChange={(e) => setExpiryMonth(e.target.value)}
-          >
-            <option value="May 2025">May 2025</option>
-            <option value="June 2025">June 2025</option>
-            <option value="July 2025">July 2025</option>
-            <option value="August 2025">August 2025</option>
-            <option value="September 2025">September 2025</option>
-          </select>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Switch 
-            id="goodUntilCanceled" 
-            checked={goodUntilCanceled} 
-            onCheckedChange={setGoodUntilCanceled} 
-          />
-          <Label htmlFor="goodUntilCanceled" className="text-sm">Good Until Canceled (GTC)</Label>
-        </div>
-      </div>
-      
-      <div className="pt-2 border-t border-primary-700">
-        <Button 
-          className={`w-full py-6 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
-          onClick={handlePlaceOrder}
-        >
-          {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.name} {expiryMonth}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function MarketStatsPanel({ pair }: { pair: TradingPair }) {
-  // Mock market data
-  const data = {
-    'GOLD/USD': {
-      inventory: '8.2M oz',
-      totalValue: '$19.6B',
-      volatility: 'Medium',
-      majorProducers: 'China, Australia, Russia',
-      majorConsumers: 'Jewelry, Tech, Investment'
-    },
-    'SILVER/USD': {
-      inventory: '54.3M oz',
-      totalValue: '$1.5B',
-      volatility: 'High',
-      majorProducers: 'Mexico, Peru, China',
-      majorConsumers: 'Industrial, Tech, Investment'
-    },
-    'OIL/USD': {
-      inventory: '427.1M barrels',
-      totalValue: '$33.5B',
-      volatility: 'High',
-      majorProducers: 'USA, Saudi Arabia, Russia',
-      majorConsumers: 'Transportation, Industry, Power'
-    },
-    'NAT_GAS/USD': {
-      inventory: '2.9T cubic feet',
-      totalValue: '$6.2B',
-      volatility: 'Very High',
-      majorProducers: 'USA, Russia, Iran',
-      majorConsumers: 'Power, Heating, Industry'
-    },
-    'COPPER/USD': {
-      inventory: '214.3K tonnes',
-      totalValue: '$917.2M',
-      volatility: 'Medium',
-      majorProducers: 'Chile, Peru, China',
-      majorConsumers: 'Construction, Electrical, Transport'
-    },
-    'WHEAT/USD': {
-      inventory: '324.2M bushels',
-      totalValue: '$1.98B',
-      volatility: 'Medium-High',
-      majorProducers: 'China, India, Russia',
-      majorConsumers: 'Food, Animal Feed, Biofuel'
-    }
-  };
-  
-  const currentStats = data[pair.name as keyof typeof data] || {
-    inventory: 'Unknown',
-    totalValue: 'Unknown',
-    volatility: 'Unknown',
-    majorProducers: 'Unknown',
-    majorConsumers: 'Unknown'
-  };
-
-  return (
-    <div className="bg-primary-800 rounded-lg border border-primary-700 p-4">
-      <h3 className="font-semibold mb-4">Market Overview</h3>
-      
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">Inventory Levels</div>
-          <div>{currentStats.inventory}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">Total Market Value</div>
-          <div>{currentStats.totalValue}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">Price Volatility</div>
-          <div>{currentStats.volatility}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">Major Producers</div>
-          <div>{currentStats.majorProducers}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">Major Consumers</div>
-          <div>{currentStats.majorConsumers}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">24h High</div>
-          <div>${(pair.price * 1.01).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">24h Low</div>
-          <div>${(pair.price * 0.99).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function CommodityTrading() {
   const { pair: pairParam } = useParams();
@@ -402,34 +84,62 @@ export default function CommodityTrading() {
   const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
   const [leverage, setLeverage] = useState<number>(10);
   const [currentPair, setCurrentPair] = useState<TradingPair>(commodityPairs[0]);
-  
+  const [orderType, setOrderType] = useState<string>('market');
+  const [orderSide, setOrderSide] = useState<string>('buy');
+  const [amount, setAmount] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
+
   useEffect(() => {
     // Get blockchain selection from localStorage
     const blockchainName = localStorage.getItem('selectedBlockchainName');
     if (!blockchainName) {
       navigate("/select-blockchain");
     }
-    
+
     // Set the current pair based on URL param or default to first pair
     if (pairParam) {
       const foundPair = commodityPairs.find(p => p.name === decodeURIComponent(pairParam));
       if (foundPair) {
         setCurrentPair(foundPair);
+        setPrice(foundPair.price.toString());
       }
     }
   }, [pairParam, navigate]);
 
+  const handleLeverageChange = (newLeverage: number) => {
+    if (newLeverage >= 1 && newLeverage <= 100) {
+      setLeverage(newLeverage);
+    }
+  };
+
+  const handlePlaceOrder = () => {
+    // Mock order placement
+    console.log("Placing CFD order:", {
+      pair: currentPair.name,
+      type: orderType,
+      side: orderSide,
+      amount: parseFloat(amount),
+      price: orderType === 'market' ? currentPair.price : parseFloat(price),
+      leverage: leverage
+    });
+
+    // Reset form
+    setAmount('');
+    setPrice('');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
       {/* Header */}
-      <header className="border-b border-primary-700 bg-primary-800 py-3 px-4 sm:px-6 flex items-center justify-between">
+      <header className="border-b border-primary-700 bg-primary-800 py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-50 backdrop-blur-sm bg-opacity-80">
         <div className="flex items-center">
           <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+          <span className="ml-4 py-1 px-3 bg-accent-500/20 text-accent-500 rounded-full text-xs font-semibold">CFD Trading</span>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <ThemeToggle />
-          
+
           <Button 
             onClick={() => navigate("/")} 
             variant="ghost"
@@ -441,123 +151,337 @@ export default function CommodityTrading() {
           </Button>
         </div>
       </header>
-      
-      <div className="flex-1 flex">
+
+      <div className="flex-1 flex flex-col md:flex-row">
         {/* Sidebar */}
-        <div className="hidden md:block w-64 border-r border-primary-700 bg-primary-800 p-4">
-          <h2 className="font-semibold mb-3">Commodity Futures</h2>
-          <div className="space-y-2">
+        <div className="w-full md:w-64 border-r border-primary-700 bg-primary-800 p-4 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold mb-3">Commodity CFDs</h2>
+            <span className="text-xs bg-accent-600/20 text-accent-400 rounded-full px-2 py-0.5">0% Commission</span>
+          </div>
+
+          <div className="space-y-2 max-h-48 overflow-auto custom-scrollbar">
             {commodityPairs.map(pair => (
               <div key={pair.id} 
-                className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 cursor-pointer ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}
-                onClick={() => window.location.href = `/commodity-trading/${encodeURIComponent(pair.name)}`}
+                className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 cursor-pointer transition-all ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}
+                onClick={() => navigate(`/commodity-trading/${encodeURIComponent(pair.name)}`)}
               >
-                <span>{pair.name}</span>
+                <div className="flex items-center">
+                  <Package className="h-4 w-4 text-accent-500 mr-2" />
+                  <span>{pair.name}</span>
+                </div>
                 <div className="text-right">
                   <div className="font-mono">${pair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                  <div className={pair.change24h >= 0 ? 'text-green-500 text-xs' : 'text-red-500 text-xs'}>
-                    {pair.change24h >= 0 ? '+' : ''}{pair.change24h}%
+                  <div className={pair.change24h >= 0 ? 'text-green-500 text-xs flex items-center' : 'text-red-500 text-xs flex items-center'}>
+                    {pair.change24h >= 0 ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    {Math.abs(pair.change24h)}%
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          
+
           <div className="mt-6 p-4 bg-primary-700 rounded-lg">
-            <h3 className="font-semibold mb-2">Commodity Features</h3>
+            <h3 className="font-semibold mb-2 flex items-center">
+              <Info className="h-4 w-4 text-accent-500 mr-2" />
+              CFD Benefits
+            </h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Multiple Future Contracts
+                <CircleDollarSign className="h-4 w-4 text-green-500 mr-2" />
+                Trade with Leverage
               </li>
               <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Contract Specifications
+                <Gauge className="h-4 w-4 text-blue-500 mr-2" />
+                No Physical Delivery
               </li>
               <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Physical Delivery Options
+                <Percent className="h-4 w-4 text-purple-500 mr-2" />
+                Profit from Both Directions
               </li>
               <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Roll-over Support
+                <TrendingUp className="h-4 w-4 text-orange-500 mr-2" />
+                Low Capital Requirements
               </li>
             </ul>
           </div>
+
+          <div className="mt-4 p-4 bg-gradient-to-r from-accent-500/20 to-primary-700 rounded-lg">
+            <h3 className="font-semibold mb-2">Risk Warning</h3>
+            <p className="text-xs text-neutral-300">
+              CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 78% of retail investor accounts lose money when trading CFDs. Consider if you understand how CFDs work and if you can afford the high risk of losing your money.
+            </p>
+          </div>
         </div>
-        
+
         {/* Main Trading Area */}
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 p-4">
           {/* Top Trading Bar */}
-          <div className="border-b border-primary-700 bg-primary-800 p-3 flex items-center justify-between">
-            <div className="flex items-center">
-              <h1 className="text-lg font-semibold mr-3">{currentPair.name}</h1>
-              <span className="font-mono">${currentPair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-              <span className={`ml-2 text-xs ${currentPair.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {currentPair.change24h >= 0 ? '+' : ''}{currentPair.change24h}%
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm">Margin:</span>
-                <div className="flex rounded-md bg-primary-700 p-1">
-                  <Button 
-                    size="sm"
-                    variant={marginMode === "cross" ? "default" : "ghost"}
-                    className={marginMode === "cross" ? "bg-accent-500 text-white" : "text-neutral-300"}
-                    onClick={() => setMarginMode("cross")}
-                  >
-                    Cross
-                  </Button>
-                  <Button 
-                    size="sm"
-                    variant={marginMode === "isolated" ? "default" : "ghost"}
-                    className={marginMode === "isolated" ? "bg-accent-500 text-white" : "text-neutral-300"}
-                    onClick={() => setMarginMode("isolated")}
-                  >
-                    Isolated
-                  </Button>
-                </div>
+          <div className="bg-primary-800 p-4 rounded-lg mb-4 border border-primary-700">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold flex items-center">
+                  <Package className="mr-2 h-6 w-6 text-accent-500" />
+                  {currentPair.name} <span className="ml-2 text-sm bg-primary-700 px-2 py-1 rounded">CFD</span>
+                </h1>
+                <p className="text-neutral-300 text-sm mt-1">
+                  Contract for Difference | Multiplier: {leverage}x
+                </p>
               </div>
-              
-              <div className="flex items-center space-x-2">
-                <span className="text-sm">Leverage:</span>
-                <select 
-                  className="bg-primary-700 rounded border-none text-sm p-1"
-                  value={leverage}
-                  onChange={(e) => setLeverage(Number(e.target.value))}
-                >
-                  <option value="2">2x</option>
-                  <option value="5">5x</option>
-                  <option value="10">10x</option>
-                  <option value="20">20x</option>
-                </select>
+
+              <div className="mt-4 md:mt-0 flex flex-col items-end">
+                <div className="flex items-center mb-1">
+                  <span className="text-2xl font-bold">${currentPair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                  <span className={`ml-2 px-2 py-1 rounded text-sm ${currentPair.change24h >= 0 ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                    {currentPair.change24h >= 0 ? '+' : ''}{currentPair.change24h}%
+                  </span>
+                </div>
+                <span className="text-xs text-neutral-400">Last updated: {new Date().toLocaleTimeString()}</span>
               </div>
             </div>
           </div>
-          
-          <div className="flex flex-1 overflow-auto p-4">
-            {/* Chart Area */}
-            <div className="flex-1 flex flex-col">
-              <PlaceholderChart />
-              
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                {/* Left column */}
-                <div className="md:col-span-8 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CommodityOrderForm pair={currentPair} />
-                    <MarketStatsPanel pair={currentPair} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Order Form */}
+            <Card className="bg-primary-800 border-primary-700 col-span-1">
+              <CardContent className="pt-6">
+                <h2 className="text-xl font-bold mb-4">Place CFD Order</h2>
+
+                <Tabs defaultValue="market" className="mb-4" onValueChange={(value) => setOrderType(value)}>
+                  <TabsList className="grid grid-cols-2">
+                    <TabsTrigger value="market">Market</TabsTrigger>
+                    <TabsTrigger value="limit">Limit</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <div className="flex mb-4">
+                  <Button 
+                    className={`flex-1 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
+                    onClick={() => setOrderSide('buy')}
+                  >
+                    Buy
+                  </Button>
+                  <Button 
+                    className={`flex-1 ml-2 ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
+                    onClick={() => setOrderSide('sell')}
+                  >
+                    Sell
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="amount">Amount</Label>
+                    <div className="relative">
+                      <Input 
+                        id="amount" 
+                        type="number" 
+                        placeholder="0.00" 
+                        className="pr-12"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-400">
+                        Units
+                      </div>
+                    </div>
+                  </div>
+
+                  {orderType === 'limit' && (
+                    <div>
+                      <Label htmlFor="price">Price</Label>
+                      <div className="relative">
+                        <Input 
+                          id="price" 
+                          type="number" 
+                          placeholder={currentPair.price.toString()} 
+                          className="pr-12"
+                          value={price}
+                          onChange={(e) => setPrice(e.target.value)}
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-400">
+                          USD
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <Label htmlFor="leverage">Leverage: {leverage}x</Label>
+                    <div className="flex items-center">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleLeverageChange(leverage - 1)}
+                        disabled={leverage <= 1}
+                      >
+                        -
+                      </Button>
+                      <Input 
+                        id="leverage" 
+                        type="range" 
+                        min="1" 
+                        max="100" 
+                        value={leverage} 
+                        onChange={(e) => handleLeverageChange(parseInt(e.target.value))}
+                        className="mx-2"
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleLeverageChange(leverage + 1)}
+                        disabled={leverage >= 100}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-neutral-400">Margin Mode</span>
+                      <div className="flex items-center space-x-2">
+                        <Switch 
+                          id="margin-mode" 
+                          checked={marginMode === 'cross'} 
+                          onCheckedChange={(checked) => setMarginMode(checked ? 'cross' : 'isolated')}
+                        />
+                        <Label htmlFor="margin-mode">{marginMode === 'cross' ? 'Cross' : 'Isolated'}</Label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mb-2 text-sm">
+                      <span className="text-neutral-400">Required Margin</span>
+                      <span className="font-mono">
+                        ${amount && !isNaN(parseFloat(amount)) 
+                          ? ((parseFloat(amount) * (orderType === 'limit' ? parseFloat(price) || currentPair.price : currentPair.price)) / leverage).toFixed(2) 
+                          : '0.00'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between mb-2 text-sm">
+                      <span className="text-neutral-400">Fees</span>
+                      <span className="font-mono text-green-500">$0.00</span>
+                    </div>
+                  </div>
+
+                  <Button 
+                    className={`w-full ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                    disabled={!amount || parseFloat(amount) <= 0}
+                    onClick={handlePlaceOrder}
+                  >
+                    {orderSide === 'buy' ? 'Buy' : 'Sell'} {currentPair.baseAsset} CFD
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Price Chart Placeholder */}
+            <Card className="bg-primary-800 border-primary-700 col-span-1 lg:col-span-2">
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">{currentPair.name} Price Chart</h2>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm">1H</Button>
+                    <Button variant="outline" size="sm">4H</Button>
+                    <Button variant="outline" size="sm" className="bg-accent-500">1D</Button>
+                    <Button variant="outline" size="sm">1W</Button>
                   </div>
                 </div>
-                
-                {/* Right column */}
-                <div className="md:col-span-4 space-y-4">
-                  <DeliverySchedule pair={currentPair} />
-                  <ContractSpecifications pair={currentPair} />
+
+                <div className="h-64 bg-primary-700 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <BarChart4 className="h-12 w-12 text-primary-500 mx-auto mb-4" />
+                    <p>Chart visualization will appear here</p>
+                    <p className="text-sm text-neutral-400">For advanced trading features, use the Pro version</p>
+                    <Button className="mt-4" variant="outline" onClick={() => navigate(`/commodity-trading-pro/${encodeURIComponent(currentPair.name)}`)}>
+                      Switch to Pro View
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Market Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <Card className="bg-primary-800 border-primary-700">
+              <CardContent className="pt-6">
+                <h2 className="text-xl font-bold mb-4">CFD Contract Specifications</h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">Contract Type</span>
+                    <span>Contracts for Difference (CFD)</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">Trading Hours</span>
+                    <span>24/7</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">Min Contract Size</span>
+                    <span>0.01 Units</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">Max Leverage</span>
+                    <span>Up to 100x</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">Spread</span>
+                    <span>Variable (Market Conditions)</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-neutral-400">Settlement</span>
+                    <span>Cash Settlement Only</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-primary-800 border-primary-700">
+              <CardContent className="pt-6">
+                <h2 className="text-xl font-bold mb-4">Market Information</h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">24h Volume</span>
+                    <span>$12.5M</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">24h High</span>
+                    <span>${(currentPair.price * 1.02).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">24h Low</span>
+                    <span>${(currentPair.price * 0.98).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">Open Interest</span>
+                    <span>$8.3M</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-primary-700">
+                    <span className="text-neutral-400">Funding Rate</span>
+                    <span className="text-green-500">+0.01%</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-neutral-400">Funding Interval</span>
+                    <span>8 Hours</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Open Positions and Market News */}
+          <div className="grid grid-cols-1 gap-4 mt-4">
+            <Card className="bg-primary-800 border-primary-700">
+              <CardContent className="pt-6">
+                <h2 className="text-xl font-bold mb-4">Your Open CFD Positions</h2>
+                <div className="text-center py-8 text-neutral-400">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>You don't have any open positions yet.</p>
+                  <p className="text-sm mt-2">Place a trade to get started!</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </main>
       </div>
