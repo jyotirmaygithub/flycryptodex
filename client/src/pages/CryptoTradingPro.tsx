@@ -202,45 +202,45 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
   };
 
   return (
-    <div className="rounded-lg border border-primary-700 bg-primary-800">
-      <div className="border-b border-primary-700 px-4 py-3">
-        <h3 className="font-medium text-sm">Place Order</h3>
+    <div className="rounded-lg border border-primary-700 bg-primary-800 h-full flex flex-col">
+      <div className="border-b border-primary-700 px-2 py-2">
+        <h3 className="font-medium text-xs">Place Order</h3>
       </div>
       
-      <div className="p-4">
-        <div className="mb-4">
+      <div className="p-3 flex-1 flex flex-col">
+        <div className="mb-2">
           <Tabs defaultValue="Market" onValueChange={setOrderType}>
-            <TabsList className="grid w-full grid-cols-3 h-8">
-              <TabsTrigger value="Market" className="text-xs">Market</TabsTrigger>
-              <TabsTrigger value="Limit" className="text-xs">Limit</TabsTrigger>
-              <TabsTrigger value="Stop" className="text-xs">Stop</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 h-7">
+              <TabsTrigger value="Market" className="text-xs h-6 px-1">Market</TabsTrigger>
+              <TabsTrigger value="Limit" className="text-xs h-6 px-1">Limit</TabsTrigger>
+              <TabsTrigger value="Stop" className="text-xs h-6 px-1">Stop</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
         
-        <div className="mb-4 grid grid-cols-2 gap-2">
+        <div className="mb-2 grid grid-cols-2 gap-1">
           <Button 
-            className={`py-3 text-sm ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
+            className={`h-8 text-xs px-2 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
             onClick={() => setOrderSide('buy')}
           >
             Buy / Long
           </Button>
           <Button 
-            className={`py-3 text-sm ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
+            className={`h-8 text-xs px-2 ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
             onClick={() => setOrderSide('sell')}
           >
             Sell / Short
           </Button>
         </div>
         
-        <div className="space-y-3 mb-4">
+        <div className="space-y-2 mb-2">
           {orderType !== 'Market' && (
             <div>
               <Label htmlFor="price" className="text-xs text-neutral-400">Limit Price</Label>
               <div className="relative mt-1">
                 <Input 
                   id="price" 
-                  className="bg-primary-700 border-primary-600 h-8"
+                  className="bg-primary-700 border-primary-600 h-7 text-xs"
                   value={price} 
                   onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
                   type="number"
@@ -256,7 +256,7 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
             <div className="relative mt-1">
               <Input 
                 id="amount" 
-                className="bg-primary-700 border-primary-600 h-8"
+                className="bg-primary-700 border-primary-600 h-7 text-xs"
                 value={amount} 
                 onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
                 type="number"
@@ -266,18 +266,18 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
             </div>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex gap-2 justify-between">
             <div className="flex items-center">
               <Switch 
                 id="postOnly" 
                 checked={usePostOnly} 
                 onCheckedChange={setUsePostOnly} 
-                className="h-4 w-8"
+                className="h-3 w-6"
                 disabled={orderType === 'Market'}
               />
               <Label 
                 htmlFor="postOnly" 
-                className="ml-2 text-xs text-neutral-400"
+                className="ml-1 text-[10px] text-neutral-400"
               >
                 Post Only
               </Label>
@@ -288,11 +288,11 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
                 id="reduceOnly" 
                 checked={useReduceOnly} 
                 onCheckedChange={setUseReduceOnly} 
-                className="h-4 w-8"
+                className="h-3 w-6"
               />
               <Label 
                 htmlFor="reduceOnly" 
-                className="ml-2 text-xs text-neutral-400"
+                className="ml-1 text-[10px] text-neutral-400"
               >
                 Reduce Only
               </Label>
@@ -300,27 +300,24 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
           </div>
         </div>
         
-        <div className="space-y-3 mb-4">
-          <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="space-y-1 mb-3 border-t border-primary-700/50 pt-2">
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
             <div className="text-neutral-400">Cost</div>
             <div className="text-right">${(amount * pair.price).toFixed(2)}</div>
           </div>
           
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
             <div className="text-neutral-400">Max Position</div>
             <div className="text-right">${(amount * pair.price * 10).toFixed(2)}</div>
           </div>
         </div>
         
-        <div className="pt-2 border-t border-primary-700">
+        <div className="mt-auto">
           <Button 
-            className={`w-full py-4 text-sm ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+            className={`w-full py-2 text-xs ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
             onClick={handlePlaceOrder}
           >
-            {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.name}
-            {orderType === 'Market' 
-              ? ' at Market' 
-              : ` at $${price.toFixed(2)}`}
+            {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.baseAsset}
           </Button>
         </div>
       </div>
@@ -330,12 +327,12 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
 
 function OrderBook({ pair }: { pair: TradingPair }) {
   // Generate the orderbook with bids and asks
-  const { asks, bids } = generateMockOrderBook(pair.price, 15);
+  const { asks, bids } = generateMockOrderBook(pair.price, 8);
 
   return (
     <div className="rounded-lg border border-primary-700 bg-primary-800 h-full flex flex-col">
-      <div className="border-b border-primary-700 px-4 py-3 flex items-center justify-between">
-        <h3 className="font-medium text-sm">Order Book</h3>
+      <div className="border-b border-primary-700 px-2 py-2 flex items-center justify-between">
+        <h3 className="font-medium text-xs">Order Book</h3>
         <div className="text-xs">
           Spread: <span className="text-accent-500 font-medium">${((asks[0].price - bids[0].price) * 100).toFixed(2)}</span>
         </div>
@@ -343,43 +340,55 @@ function OrderBook({ pair }: { pair: TradingPair }) {
       
       <div className="flex-1 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="grid grid-cols-4 text-xs text-neutral-400 p-2 border-b border-primary-700 bg-primary-800 sticky top-0">
+        <div className="grid grid-cols-3 text-xs text-neutral-400 p-1 border-b border-primary-700 bg-primary-800 sticky top-0">
           <div>Price</div>
           <div className="text-right">Size</div>
           <div className="text-right">Total</div>
-          <div className="text-right">Sum($)</div>
         </div>
         
         {/* Asks (Sells) */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
-          <div className="space-y-[2px]">
+          <div>
             {asks.map((ask, index) => (
-              <div key={`ask-${index}`} className="grid grid-cols-4 text-xs px-2 py-1 hover:bg-primary-700">
+              <div 
+                key={`ask-${index}`} 
+                className="grid grid-cols-3 text-xs px-2 py-[3px] hover:bg-primary-700 border-b border-primary-700/20"
+                style={{
+                  background: `linear-gradient(to left, rgba(239, 68, 68, 0.05) ${Math.min(ask.total * 20, 100)}%, transparent 0%)`
+                }}
+              >
                 <div className="text-red-500">${ask.price.toFixed(2)}</div>
                 <div className="text-right">{ask.size.toFixed(3)}</div>
-                <div className="text-right">{ask.total.toFixed(3)}</div>
-                <div className="text-right">${(ask.total * ask.price).toFixed(2)}</div>
+                <div className="text-right text-neutral-400">{ask.total.toFixed(3)}</div>
               </div>
             ))}
           </div>
         </div>
         
         {/* Current price */}
-        <div className="py-2 px-2 text-center font-bold text-sm bg-primary-700/50 border-y border-primary-700">
+        <div className="py-1 px-2 text-center font-medium text-xs bg-primary-700/50 border-y border-primary-700">
           <span className={pair.change24h >= 0 ? 'text-green-500' : 'text-red-500'}>
             ${pair.price.toFixed(2)}
+          </span>
+          <span className="text-xs text-neutral-400 ml-2">
+            {pair.change24h >= 0 ? '↑' : '↓'} {Math.abs(pair.change24h).toFixed(2)}%
           </span>
         </div>
         
         {/* Bids (Buys) */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
-          <div className="space-y-[2px]">
+          <div>
             {bids.map((bid, index) => (
-              <div key={`bid-${index}`} className="grid grid-cols-4 text-xs px-2 py-1 hover:bg-primary-700">
+              <div 
+                key={`bid-${index}`} 
+                className="grid grid-cols-3 text-xs px-2 py-[3px] hover:bg-primary-700 border-b border-primary-700/20"
+                style={{
+                  background: `linear-gradient(to left, rgba(34, 197, 94, 0.05) ${Math.min(bid.total * 20, 100)}%, transparent 0%)`
+                }}
+              >
                 <div className="text-green-500">${bid.price.toFixed(2)}</div>
                 <div className="text-right">{bid.size.toFixed(3)}</div>
-                <div className="text-right">{bid.total.toFixed(3)}</div>
-                <div className="text-right">${(bid.total * bid.price).toFixed(2)}</div>
+                <div className="text-right text-neutral-400">{bid.total.toFixed(3)}</div>
               </div>
             ))}
           </div>
@@ -700,8 +709,8 @@ export default function CryptoTradingPro() {
             
             {/* Main grid layout */}
             <div className="grid grid-cols-12 gap-4">
-              {/* Chart area - spans 9 columns on large screens */}
-              <div className="col-span-12 lg:col-span-9">
+              {/* Chart area - spans 8 columns on large screens */}
+              <div className="col-span-12 lg:col-span-8">
                 <TradingViewChart candleData={candleData} height={500} />
                 
                 <div className="mt-4">
@@ -709,11 +718,15 @@ export default function CryptoTradingPro() {
                 </div>
               </div>
               
-              {/* Right sidebar - spans 3 columns on large screens */}
-              <div className="col-span-12 lg:col-span-3 space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <CryptoOrderForm pair={currentPair} />
-                  <OrderBook pair={currentPair} />
+              {/* Right sidebar - spans 4 columns on large screens */}
+              <div className="col-span-12 lg:col-span-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                  <div className="sm:col-span-1 lg:col-span-1">
+                    <CryptoOrderForm pair={currentPair} />
+                  </div>
+                  <div className="sm:col-span-1 lg:col-span-1 h-[280px]">
+                    <OrderBook pair={currentPair} />
+                  </div>
                 </div>
               </div>
             </div>

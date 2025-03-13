@@ -1,6 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CandlestickData } from '@shared/schema';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  AreaChart,
+  Area
+} from 'recharts';
 
 interface TradingViewChartProps {
   candleData: CandlestickData[];
@@ -15,119 +26,18 @@ export default function TradingViewChart({
   autosize = true,
   theme = 'dark'
 }: TradingViewChartProps) {
-  const chartContainerRef = useRef<HTMLDivElement>(null);
   const [timeframe, setTimeframe] = useState<string>('1h');
-  const [chartType, setChartType] = useState<'candlestick' | 'line'>('candlestick');
-  const chartRef = useRef<any>(null);
-  const seriesRef = useRef<any>(null);
+  const [chartType, setChartType] = useState<'candlestick' | 'line'>('line');
   
-  // Initialize chart with lightweight-charts
-  useEffect(() => {
-    const initChart = async () => {
-      if (!chartContainerRef.current) return;
-      
-      try {
-        // Dynamically import lightweight-charts
-        const { createChart } = await import('lightweight-charts');
-        
-        // Clean up any previous chart
-        if (chartRef.current) {
-          chartRef.current.remove();
-        }
-        
-        // Determine colors based on theme
-        const isDark = theme === 'dark';
-        const backgroundColor = isDark ? '#111827' : '#ffffff';
-        const textColor = isDark ? '#d1d5db' : '#374151';
-        const gridColor = isDark ? '#1f2937' : '#e5e7eb';
-        const borderColor = isDark ? '#374151' : '#e5e7eb';
-        
-        // Create chart
-        const chart = createChart(chartContainerRef.current, {
-          width: chartContainerRef.current.clientWidth,
-          height,
-          layout: {
-            background: { color: backgroundColor },
-            textColor: textColor,
-          },
-          grid: {
-            vertLines: { color: gridColor },
-            horzLines: { color: gridColor },
-          },
-          timeScale: {
-            borderColor: borderColor,
-            timeVisible: true,
-          },
-          rightPriceScale: {
-            borderColor: borderColor,
-          },
-        });
-        
-        chartRef.current = chart;
-        
-        // Convert data to the format required by lightweight-charts
-        const formattedData = candleData.map(candle => ({
-          time: Math.floor(candle.time / 1000),
-          open: candle.open,
-          high: candle.high,
-          low: candle.low,
-          close: candle.close,
-        }));
-        
-        // Add the appropriate series based on chartType
-        if (chartType === 'candlestick') {
-          const candleSeries = chart.addCandlestickSeries({
-            upColor: '#22c55e',
-            downColor: '#ef4444',
-            borderVisible: false,
-            wickUpColor: '#22c55e',
-            wickDownColor: '#ef4444',
-          });
-          
-          candleSeries.setData(formattedData);
-          seriesRef.current = candleSeries;
-        } else {
-          const lineSeries = chart.addLineSeries({
-            color: '#3b82f6',
-            lineWidth: 2,
-          });
-          
-          lineSeries.setData(formattedData.map(d => ({
-            time: d.time,
-            value: d.close,
-          })));
-          seriesRef.current = lineSeries;
-        }
-        
-        // Fit chart to show all data
-        chart.timeScale().fitContent();
-        
-        // Handle window resize if autosize is enabled
-        const handleResize = () => {
-          if (chartRef.current && chartContainerRef.current) {
-            chartRef.current.applyOptions({ 
-              width: chartContainerRef.current.clientWidth 
-            });
-            chartRef.current.timeScale().fitContent();
-          }
-        };
-        
-        window.addEventListener('resize', handleResize);
-        
-        return () => {
-          window.removeEventListener('resize', handleResize);
-          if (chartRef.current) {
-            chartRef.current.remove();
-            chartRef.current = null;
-          }
-        };
-      } catch (error) {
-        console.error('Error initializing chart:', error);
-      }
-    };
-    
-    initChart();
-  }, [candleData, chartType, theme, height]);
+  // Format data for recharts
+  const formattedData = candleData.map(candle => ({
+    time: new Date(candle.time).toLocaleTimeString(),
+    open: candle.open,
+    high: candle.high,
+    low: candle.low,
+    close: candle.close,
+    value: candle.close,
+  }));
   
   // Change timeframe handler
   const handleTimeframeChange = (newTimeframe: string) => {
@@ -141,6 +51,10 @@ export default function TradingViewChart({
       setChartType(newType);
     }
   };
+
+  // Get chart color based on data trend
+  const isPositive = formattedData[0]?.close < formattedData[formattedData.length - 1]?.close;
+  const chartColor = isPositive ? "#22c55e" : "#ef4444";
 
   return (
     <div className="rounded-lg border border-primary-700 bg-primary-800 overflow-hidden">
@@ -183,7 +97,99 @@ export default function TradingViewChart({
         </div>
       </div>
       
-      <div className="w-full" ref={chartContainerRef} style={{ height: `${height}px` }}></div>
+      <div className="p-4" style={{ height: `${height}px` }}>
+        <ResponsiveContainer width="100%" height="100%">
+          {chartType === 'line' ? (
+            <AreaChart
+              data={formattedData}
+              margin={{
+                top: 10,
+                right: 30,
+                left: 0,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="time" stroke="#9ca3af" />
+              <YAxis 
+                stroke="#9ca3af" 
+                domain={['auto', 'auto']} 
+                tickFormatter={(value) => value.toFixed(2)} 
+              />
+              <Tooltip
+                contentStyle={{ 
+                  backgroundColor: '#1f2937', 
+                  border: '1px solid #374151',
+                  color: '#d1d5db'
+                }}
+              />
+              <defs>
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={chartColor} stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <Area 
+                type="monotone" 
+                dataKey="value" 
+                stroke={chartColor} 
+                strokeWidth={2}
+                fillOpacity={1} 
+                fill="url(#chartGradient)" 
+              />
+            </AreaChart>
+          ) : (
+            <LineChart
+              data={formattedData}
+              margin={{
+                top: 10,
+                right: 30,
+                left: 0,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="time" stroke="#9ca3af" />
+              <YAxis 
+                stroke="#9ca3af" 
+                domain={['auto', 'auto']} 
+                tickFormatter={(value) => value.toFixed(2)} 
+              />
+              <Tooltip
+                contentStyle={{ 
+                  backgroundColor: '#1f2937', 
+                  border: '1px solid #374151',
+                  color: '#d1d5db'
+                }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="high" 
+                stroke="#22c55e" 
+                dot={false} 
+                strokeWidth={1}
+                name="High"
+              />
+              <Line 
+                type="monotone" 
+                dataKey="low" 
+                stroke="#ef4444" 
+                dot={false} 
+                strokeWidth={1}
+                name="Low"
+              />
+              <Line 
+                type="monotone" 
+                dataKey="close" 
+                stroke="#3b82f6" 
+                dot={false} 
+                strokeWidth={2}
+                name="Close"
+              />
+            </LineChart>
+          )}
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
