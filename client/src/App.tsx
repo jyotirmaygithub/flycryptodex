@@ -8,6 +8,9 @@ import CategorySelection from "@/pages/CategorySelection";
 import ForexTrading from "@/pages/ForexTrading";
 import CryptoTrading from "@/pages/CryptoTrading";
 import CommodityTrading from "@/pages/CommodityTrading";
+import ForexTradingPro from "@/pages/ForexTradingPro";
+import CryptoTradingPro from "@/pages/CryptoTradingPro";
+import CommodityTradingPro from "@/pages/CommodityTradingPro";
 
 function Router() {
   return (
@@ -16,9 +19,17 @@ function Router() {
       <Route path="/select-blockchain" component={BlockchainSelection} />
       <Route path="/select-category" component={CategorySelection} />
       <Route path="/trading/:pair?" component={Trading} />
+      
+      {/* Original trading interfaces */}
       <Route path="/forex-trading/:pair?" component={ForexTrading} />
       <Route path="/crypto-trading/:pair?" component={CryptoTrading} />
       <Route path="/commodity-trading/:pair?" component={CommodityTrading} />
+      
+      {/* Professional trading interfaces with TradingView charts */}
+      <Route path="/forex-trading-pro/:pair?" component={ForexTradingPro} />
+      <Route path="/crypto-trading-pro/:pair?" component={CryptoTradingPro} />
+      <Route path="/commodity-trading-pro/:pair?" component={CommodityTradingPro} />
+      
       <Route component={NotFound} />
     </Switch>
   );

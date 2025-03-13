@@ -3,12 +3,16 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   ArrowRight,
   DollarSign,
   Package,
   Home as HomeIcon,
-  ArrowLeft
+  ArrowLeft,
+  BarChart3,
+  LineChart
 } from "lucide-react";
 import { Bitcoin } from "lucide-react";
 
@@ -29,9 +33,30 @@ export default function CategorySelection() {
 
   // Trading categories
   const categories = [
-    { id: 1, name: 'Forex Derivatives', route: '/forex-trading', icon: <DollarSign className="h-6 w-6 text-accent-500" />, description: 'Trade major, minor and exotic currency pairs with tight spreads and SL/TP features.' },
-    { id: 2, name: 'Crypto Perpetuals', route: '/crypto-trading', icon: <Bitcoin className="h-6 w-6 text-accent-500" />, description: 'Trade perpetual futures on major cryptocurrencies with up to 100x leverage.' },
-    { id: 3, name: 'Commodity Trading', route: '/commodity-trading', icon: <Package className="h-6 w-6 text-accent-500" />, description: 'Trade gold, silver, oil and other commodities with competitive pricing.' }
+    { 
+      id: 1, 
+      name: 'Forex Derivatives', 
+      route: '/forex-trading', 
+      proRoute: '/forex-trading-pro',
+      icon: <DollarSign className="h-6 w-6 text-accent-500" />, 
+      description: 'Trade major, minor and exotic currency pairs with tight spreads and SL/TP features.' 
+    },
+    { 
+      id: 2, 
+      name: 'Crypto Perpetuals', 
+      route: '/crypto-trading', 
+      proRoute: '/crypto-trading-pro',
+      icon: <Bitcoin className="h-6 w-6 text-accent-500" />, 
+      description: 'Trade perpetual futures on major cryptocurrencies with up to 100x leverage.' 
+    },
+    { 
+      id: 3, 
+      name: 'Commodity Trading', 
+      route: '/commodity-trading', 
+      proRoute: '/commodity-trading-pro',
+      icon: <Package className="h-6 w-6 text-accent-500" />, 
+      description: 'Trade gold, silver, oil and other commodities with competitive pricing.' 
+    }
   ];
 
   const handleSelectCategory = (categoryName: string) => {
