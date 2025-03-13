@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { createChart, CrosshairMode, IChartApi, ISeriesApi, Time } from 'lightweight-charts';
-import { CandlestickData } from '@shared/schema';
-import { formatCandlestickData } from '@/lib/mockData';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CandlestickData } from '@shared/schema';
 
 interface TradingViewChartProps {
   candleData: CandlestickData[];
@@ -18,130 +16,118 @@ export default function TradingViewChart({
   theme = 'dark'
 }: TradingViewChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi | null>(null);
-  const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const [timeframe, setTimeframe] = useState<string>('1h');
   const [chartType, setChartType] = useState<'candlestick' | 'line'>('candlestick');
-  const lineSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const chartRef = useRef<any>(null);
+  const seriesRef = useRef<any>(null);
   
-  // Format the data for the chart
-  const formattedData = formatCandlestickData(candleData);
-
-  // Chart options based on theme
-  const getChartOptions = () => {
-    const isDark = theme === 'dark';
-    
-    return {
-      width: chartContainerRef.current?.clientWidth || 600,
-      height,
-      layout: {
-        background: {
-          color: isDark ? '#111827' : '#ffffff',
-        },
-        textColor: isDark ? '#d1d5db' : '#374151',
-      },
-      grid: {
-        vertLines: {
-          color: isDark ? '#1f2937' : '#e5e7eb',
-        },
-        horzLines: {
-          color: isDark ? '#1f2937' : '#e5e7eb',
-        },
-      },
-      crosshair: {
-        mode: CrosshairMode.Normal,
-        vertLine: {
-          width: 1,
-          color: isDark ? '#6b7280' : '#9ca3af',
-          style: 0,
-        },
-        horzLine: {
-          width: 1,
-          color: isDark ? '#6b7280' : '#9ca3af',
-          style: 0,
-        },
-      },
-      timeScale: {
-        borderColor: isDark ? '#374151' : '#e5e7eb',
-        timeVisible: true,
-        secondsVisible: false,
-      },
-      rightPriceScale: {
-        borderColor: isDark ? '#374151' : '#e5e7eb',
-      },
-      handleScroll: {
-        vertTouchDrag: false,
-      },
-    };
-  };
-
-  // Initialize chart
+  // Initialize chart with lightweight-charts
   useEffect(() => {
-    if (chartContainerRef.current) {
-      chartRef.current = createChart(chartContainerRef.current, getChartOptions());
+    const initChart = async () => {
+      if (!chartContainerRef.current) return;
       
-      // Create the series based on chart type
-      if (chartType === 'candlestick') {
-        candlestickSeriesRef.current = chartRef.current.addCandlestickSeries({
-          upColor: '#22c55e',
-          downColor: '#ef4444',
-          borderVisible: false,
-          wickUpColor: '#22c55e',
-          wickDownColor: '#ef4444',
-        });
+      try {
+        // Dynamically import lightweight-charts
+        const { createChart } = await import('lightweight-charts');
         
-        candlestickSeriesRef.current.setData(formattedData);
-      } else {
-        lineSeriesRef.current = chartRef.current.addLineSeries({
-          color: '#3b82f6',
-          lineWidth: 2,
-        });
-        
-        lineSeriesRef.current.setData(formattedData.map(d => ({
-          time: d.time as Time,
-          value: d.close,
-        })));
-      }
-      
-      // Fit content to display all candles
-      chartRef.current.timeScale().fitContent();
-      
-      // Handle window resize
-      const handleResize = () => {
-        if (chartRef.current && autosize && chartContainerRef.current) {
-          chartRef.current.applyOptions({ 
-            width: chartContainerRef.current.clientWidth 
-          });
-        }
-      };
-      
-      window.addEventListener('resize', handleResize);
-      
-      return () => {
-        window.removeEventListener('resize', handleResize);
+        // Clean up any previous chart
         if (chartRef.current) {
           chartRef.current.remove();
-          chartRef.current = null;
         }
-      };
-    }
-  }, [chartType, theme]);
-  
-  // Update data when candleData changes
-  useEffect(() => {
-    if (chartRef.current) {
-      if (chartType === 'candlestick' && candlestickSeriesRef.current) {
-        candlestickSeriesRef.current.setData(formattedData);
-      } else if (chartType === 'line' && lineSeriesRef.current) {
-        lineSeriesRef.current.setData(formattedData.map(d => ({
-          time: d.time as Time,
-          value: d.close,
-        })));
+        
+        // Determine colors based on theme
+        const isDark = theme === 'dark';
+        const backgroundColor = isDark ? '#111827' : '#ffffff';
+        const textColor = isDark ? '#d1d5db' : '#374151';
+        const gridColor = isDark ? '#1f2937' : '#e5e7eb';
+        const borderColor = isDark ? '#374151' : '#e5e7eb';
+        
+        // Create chart
+        const chart = createChart(chartContainerRef.current, {
+          width: chartContainerRef.current.clientWidth,
+          height,
+          layout: {
+            background: { color: backgroundColor },
+            textColor: textColor,
+          },
+          grid: {
+            vertLines: { color: gridColor },
+            horzLines: { color: gridColor },
+          },
+          timeScale: {
+            borderColor: borderColor,
+            timeVisible: true,
+          },
+          rightPriceScale: {
+            borderColor: borderColor,
+          },
+        });
+        
+        chartRef.current = chart;
+        
+        // Convert data to the format required by lightweight-charts
+        const formattedData = candleData.map(candle => ({
+          time: Math.floor(candle.time / 1000),
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close,
+        }));
+        
+        // Add the appropriate series based on chartType
+        if (chartType === 'candlestick') {
+          const candleSeries = chart.addCandlestickSeries({
+            upColor: '#22c55e',
+            downColor: '#ef4444',
+            borderVisible: false,
+            wickUpColor: '#22c55e',
+            wickDownColor: '#ef4444',
+          });
+          
+          candleSeries.setData(formattedData);
+          seriesRef.current = candleSeries;
+        } else {
+          const lineSeries = chart.addLineSeries({
+            color: '#3b82f6',
+            lineWidth: 2,
+          });
+          
+          lineSeries.setData(formattedData.map(d => ({
+            time: d.time,
+            value: d.close,
+          })));
+          seriesRef.current = lineSeries;
+        }
+        
+        // Fit chart to show all data
+        chart.timeScale().fitContent();
+        
+        // Handle window resize if autosize is enabled
+        const handleResize = () => {
+          if (chartRef.current && chartContainerRef.current) {
+            chartRef.current.applyOptions({ 
+              width: chartContainerRef.current.clientWidth 
+            });
+            chartRef.current.timeScale().fitContent();
+          }
+        };
+        
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          if (chartRef.current) {
+            chartRef.current.remove();
+            chartRef.current = null;
+          }
+        };
+      } catch (error) {
+        console.error('Error initializing chart:', error);
       }
-      
-      chartRef.current.timeScale().fitContent();
-    }
-  }, [candleData]);
+    };
+    
+    initChart();
+  }, [candleData, chartType, theme, height]);
   
   // Change timeframe handler
   const handleTimeframeChange = (newTimeframe: string) => {
@@ -153,12 +139,6 @@ export default function TradingViewChart({
   const handleChartTypeChange = (newType: 'candlestick' | 'line') => {
     if (newType !== chartType) {
       setChartType(newType);
-      
-      // Clear the chart and recreate with new type
-      if (chartRef.current) {
-        chartRef.current.remove();
-        chartRef.current = null;
-      }
     }
   };
 
