@@ -20,6 +20,7 @@ export default function CategorySelection() {
   const [, navigate] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [blockchainName, setBlockchainName] = useState<string>("");
+  const [useProfessionalMode, setUseProfessionalMode] = useState<boolean>(true);
   
   useEffect(() => {
     // Get blockchain selection from localStorage
@@ -67,11 +68,14 @@ export default function CategorySelection() {
     if (selectedCategory) {
       // Save category selection to localStorage
       localStorage.setItem('selectedCategory', selectedCategory);
+      localStorage.setItem('useProfessionalMode', String(useProfessionalMode));
       
       // Navigate to the appropriate trading page
       const category = categories.find(c => c.name === selectedCategory);
       if (category) {
-        navigate(category.route);
+        // Use pro route if professional mode is enabled, otherwise use regular route
+        const route = useProfessionalMode ? category.proRoute : category.route;
+        navigate(route);
       }
     }
   };
@@ -113,6 +117,29 @@ export default function CategorySelection() {
               Choose the type of market you want to trade on. Each category offers
               specialized tools and features designed for that market.
             </p>
+          </div>
+          
+          {/* Interface Mode Toggle */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-primary-800 rounded-lg p-3 flex items-center">
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center space-x-2">
+                  <BarChart3 className={`h-4 w-4 ${!useProfessionalMode ? 'text-accent-500' : 'text-neutral-400'}`} />
+                  <span className={`text-sm ${!useProfessionalMode ? 'text-white font-medium' : 'text-neutral-400'}`}>Basic Interface</span>
+                </div>
+                
+                <Switch 
+                  checked={useProfessionalMode} 
+                  onCheckedChange={setUseProfessionalMode}
+                  className="data-[state=checked]:bg-accent-500"
+                />
+                
+                <div className="flex items-center space-x-2">
+                  <LineChart className={`h-4 w-4 ${useProfessionalMode ? 'text-accent-500' : 'text-neutral-400'}`} />
+                  <span className={`text-sm ${useProfessionalMode ? 'text-white font-medium' : 'text-neutral-400'}`}>Professional Interface</span>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
