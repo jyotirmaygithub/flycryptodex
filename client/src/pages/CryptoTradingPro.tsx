@@ -722,11 +722,11 @@ export default function CryptoTradingPro() {
               
               {/* Right sidebar - spans 4 columns on large screens */}
               <div className="col-span-12 lg:col-span-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                  <div className="sm:col-span-1 lg:col-span-1">
-                    <CryptoOrderForm pair={currentPair} />
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <AdvancedOrderForm pair={currentPair} />
                   </div>
-                  <div className="sm:col-span-1 lg:col-span-1 h-[280px]">
+                  <div className="h-[280px]">
                     <OrderBook pair={currentPair} />
                   </div>
                 </div>
@@ -735,7 +735,7 @@ export default function CryptoTradingPro() {
             
             {/* Bottom row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <MarketInfo pair={currentPair} />
+              <AiStrategyPanel pair={currentPair.name} currentPrice={currentPair.price} />
               <FundingInfo pair={currentPair} />
               <RecentTrades />
             </div>
