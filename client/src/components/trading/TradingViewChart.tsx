@@ -52,27 +52,53 @@ const CandleBarShape = (props: CandleBarShapeProps) => {
   if (!datum || typeof datum.close === 'undefined' || typeof datum.open === 'undefined') {
     return (
       <rect
-        x={0}
-        y={0}
-        width={0}
-        height={0}
-        fill="transparent"
+        x={x}
+        y={y}
+        width={2}
+        height={2}
+        fill="#666"
       />
     );
   }
   
+  // Determine if candle is up or down
   const isUp = datum.close >= datum.open;
   const color = isUp ? '#26a69a' : '#ef5350';
+
+  // Calculate dimensions for the candle body
+  const adjustedWidth = Math.max(width || 0, 3); // Min width of 3px for visibility
+  const adjustedHeight = Math.max(height || 0, 2); // Min height of 2px for visibility
+  
+  // Calculate position for the candle wick
+  const wickX = x; // Center of the candle
+  const wickTop = y - adjustedHeight / 2 - (datum.high - datum.bodyEnd); // Top of wick
+  const wickBottom = y + adjustedHeight / 2 + (datum.bodyStart - datum.low); // Bottom of wick
+  const wickHeight = wickBottom - wickTop;
   
   return (
-    <rect
-      x={x - width / 2}
-      y={isUp ? y : y - height}
-      width={Math.max(width || 0, 1)} // Ensure width is never 0
-      height={Math.max(height || 0, 1)} // Ensure height is never 0
-      fill={color}
-      stroke={color}
-    />
+    <g>
+      {/* Candle body */}
+      <rect
+        x={x - adjustedWidth / 2}
+        y={y - adjustedHeight / 2}
+        width={adjustedWidth}
+        height={adjustedHeight}
+        fill={color}
+        stroke={color}
+      />
+      
+      {/* Candle wick - rendered as a thin line */}
+      {wickHeight > 0 && (
+        <line
+          x1={wickX}
+          y1={wickTop}
+          x2={wickX}
+          y2={wickBottom}
+          stroke={color}
+          strokeWidth={1}
+        />
+      )}
+    </g>
   );
 };
 
@@ -139,25 +165,53 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
             typeof candle.low === 'number' &&
             typeof candle.close === 'number'
           ))
-          .map(candle => ({
-            ...candle,
-            // Add properties for visualization
-            valueRange: candle.high - candle.low,
-            openCloseDiff: Math.abs(candle.open - candle.close),
-            isIncreasing: candle.close >= candle.open,
-            bodyStart: Math.min(candle.open, candle.close),
-            bodyEnd: Math.max(candle.open, candle.close),
-            wickHeight: candle.high - candle.low,
-            bodyHeight: Math.abs(candle.open - candle.close),
-            color: candle.close >= candle.open ? '#26a69a' : '#ef5350'
-          })) as ProcessedCandleData[];
+          .map(candle => {
+            // Calculate derived values with safety checks
+            const openCloseDiff = Math.max(0.0001, Math.abs(candle.open - candle.close));
+            
+            return {
+              ...candle,
+              // Add properties for visualization with fallbacks for calculations
+              valueRange: Math.max(0.001, candle.high - candle.low),
+              openCloseDiff: openCloseDiff,
+              isIncreasing: candle.close >= candle.open,
+              bodyStart: Math.min(candle.open, candle.close),
+              bodyEnd: Math.max(candle.open, candle.close),
+              wickHeight: Math.max(0.001, candle.high - candle.low),
+              bodyHeight: openCloseDiff,
+              color: candle.close >= candle.open ? '#26a69a' : '#ef5350'
+            };
+          }) as ProcessedCandleData[];
         
-        setChartData(processedData);
+        if (processedData.length > 0) {
+          setChartData(processedData);
+        } else {
+          console.warn("Filtered data is empty, using default data");
+          // Create a minimal default dataset
+          const defaultData = Array.from({ length: 5 }, (_, i) => ({
+            time: Date.now() - i * 3600000,
+            open: 1.0 + i * 0.01,
+            high: 1.05 + i * 0.01,
+            low: 0.95 + i * 0.01,
+            close: 1.02 + i * 0.01,
+            volume: 100,
+            valueRange: 0.1,
+            openCloseDiff: 0.02,
+            isIncreasing: true,
+            bodyStart: 1.0 + i * 0.01,
+            bodyEnd: 1.02 + i * 0.01,
+            wickHeight: 0.1,
+            bodyHeight: 0.02,
+            color: '#26a69a'
+          } as ProcessedCandleData));
+          setChartData(defaultData);
+        }
       } catch (error) {
         console.error("Error processing candle data:", error);
         setChartData([]);
       }
     } else {
+      console.warn("No valid candle data provided");
       setChartData([]);
     }
   }, [candleData]);
@@ -214,7 +268,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={chartData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#2B2B43" />
               <XAxis 
@@ -222,12 +276,19 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
                 tickFormatter={formatXAxis} 
                 minTickGap={50}
                 stroke="#666"
+                height={40}
+                tickSize={8}
+                padding={{ left: 20, right: 20 }}
               />
               <YAxis 
                 domain={['auto', 'auto']} 
                 tickCount={10} 
                 stroke="#666"
                 orientation="right"
+                width={60}
+                tickSize={8}
+                padding={{ top: 20, bottom: 20 }}
+                tickFormatter={(value) => value.toFixed(3)}
               />
               <Tooltip content={<CustomTooltip />} />
               
@@ -245,9 +306,11 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
                   />
                   <Bar
                     dataKey="openCloseDiff"
+                    barSize={8} 
                     shape={(props: any) => {
                       return <CandleBarShape {...props} />;
                     }}
+                    isAnimationActive={false}
                   />
                 </>
               )}
