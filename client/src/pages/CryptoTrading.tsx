@@ -12,6 +12,7 @@ import { TradingPair } from "@shared/schema";
 import { CandlestickData } from "@shared/schema";
 import { generateMockCandlestickData } from "@/lib/mockData";
 import SimpleChart from "@/components/trading/SimpleChart";
+import AiStrategyPanel from "@/components/trading/AiStrategyPanel";
 import {
   Home as HomeIcon,
   TrendingUp,
@@ -598,6 +599,7 @@ export default function CryptoTrading() {
                 
                 {/* Right column */}
                 <div className="md:col-span-4 space-y-4">
+                  <AiStrategyPanel pair={currentPair.name} currentPrice={currentPair.price} compact={true} />
                   <FundingInfo />
                   <LiquidationCalculator pair={currentPair} />
                 </div>
