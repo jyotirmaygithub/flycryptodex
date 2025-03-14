@@ -35,7 +35,7 @@ const cryptoPairs = [
 ];
 
 // Mock chart component
-function PlaceholderChart() {
+const PlaceholderChart = () => {
   return (
     <div className="w-full h-96 bg-primary-800 rounded-lg border border-primary-700 flex items-center justify-center mb-4">
       <TrendingUp className="w-16 h-16 text-accent-500 opacity-20" />
