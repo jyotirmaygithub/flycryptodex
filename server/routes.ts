@@ -123,6 +123,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Market data routes
+  app.get('/api/market', async (req, res) => {
+    try {
+      const allMarketData = await storage.getAllMarketData();
+      res.json(allMarketData);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch market data' });
+    }
+  });
+  
+  app.get('/api/market/:pair', async (req, res) => {
+    try {
+      const marketData = await storage.getMarketData(req.params.pair);
+      
+      if (!marketData) {
+        return res.status(404).json({ message: 'Market data not found for this pair' });
+      }
+      
+      res.json(marketData);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch market data' });
+    }
+  });
+
   // Forex news routes
   app.get('/api/news', async (req, res) => {
     try {
@@ -135,20 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Market data routes
-  app.get('/api/market/:pair', async (req, res) => {
-    try {
-      const marketData = await storage.getMarketData(req.params.pair);
-      
-      if (!marketData) {
-        return res.status(404).json({ message: 'Market data not found' });
-      }
-      
-      res.json(marketData);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to fetch market data' });
-    }
-  });
+
 
   // Order routes
   app.post('/api/orders', async (req, res) => {

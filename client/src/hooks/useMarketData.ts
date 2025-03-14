@@ -15,6 +15,14 @@ export function useMarketData(pair?: string) {
   // Fetch initial market data using REST API
   const { data: initialMarketData, error: fetchError, isLoading } = useQuery({
     queryKey: ['/api/market', pair],
+    queryFn: async () => {
+      if (!pair) return null;
+      const response = await fetch(`/api/market/${pair}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch market data');
+      }
+      return response.json();
+    },
     enabled: !!pair && !connected, // Only fetch if not connected via WebSocket
   });
 
