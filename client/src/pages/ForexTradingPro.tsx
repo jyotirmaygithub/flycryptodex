@@ -490,11 +490,37 @@ export default function ForexTradingPro() {
   const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
   const [timeFrame, setTimeFrame] = useState<string>('1h');
   
-  // Generate mock candle data
+  // Generate mock candle data with proper error handling
   useEffect(() => {
-    // Generate candle data when the pair or timeframe changes
-    const data = generateMockCandlestickData(timeFrame, 100);
-    setCandleData(data);
+    try {
+      // Generate candle data when the pair or timeframe changes
+      const data = generateMockCandlestickData(timeFrame, 100);
+      if (data && Array.isArray(data) && data.length > 0) {
+        setCandleData(data);
+      } else {
+        console.warn("Generated empty candle data, using fallback");
+        // Provide a fallback if the data is empty
+        setCandleData([{
+          time: Date.now(),
+          open: 1.0,
+          high: 1.1,
+          low: 0.9,
+          close: 1.0,
+          volume: 100
+        }]);
+      }
+    } catch (error) {
+      console.error("Error generating candlestick data:", error);
+      // Provide a fallback in case of error
+      setCandleData([{
+        time: Date.now(),
+        open: 1.0,
+        high: 1.1,
+        low: 0.9,
+        close: 1.0,
+        volume: 100
+      }]);
+    }
   }, [currentPair.id, timeFrame]);
   
   // Handle chart type and timeframe changes

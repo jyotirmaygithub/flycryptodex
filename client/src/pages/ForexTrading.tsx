@@ -366,6 +366,17 @@ export default function ForexTrading() {
   const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
   const [leverage, setLeverage] = useState<number>(10);
   const [currentPair, setCurrentPair] = useState<TradingPair>(forexPairs[0]);
+  const [timeFrame, setTimeFrame] = useState<string>('1h');
+  
+  // Memoize the candlestick data to prevent regeneration on every render
+  const candleData = useMemo(() => {
+    try {
+      return generateMockCandlestickData(timeFrame, 100);
+    } catch (error) {
+      console.error("Error generating chart data:", error);
+      return [];
+    }
+  }, [timeFrame, currentPair.name]);
   
   useEffect(() => {
     // Get blockchain selection from localStorage
@@ -505,7 +516,7 @@ export default function ForexTrading() {
           <div className="flex flex-1 overflow-auto p-4">
             {/* Chart Area */}
             <div className="flex-1 flex flex-col">
-              <TradingViewChart candleData={generateMockCandlestickData('1h', 100)} pair={currentPair.name} height={500} />
+              <TradingViewChart candleData={candleData} pair={currentPair.name} height={500} />
               
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
                 {/* Left column */}
