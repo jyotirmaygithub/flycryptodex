@@ -207,6 +207,16 @@ export default function CommodityTrading() {
         </div>
 
         <div className="flex items-center space-x-4">
+          <Button 
+            onClick={() => navigate(`/commodity-trading-pro/${encodeURIComponent(currentPair.name)}`)} 
+            variant="outline"
+            className="text-accent-500 border-accent-500"
+            size="sm"
+          >
+            <BarChart4 className="h-4 w-4 mr-2" />
+            Pro Mode
+          </Button>
+
           <ThemeToggle />
 
           <Button 
