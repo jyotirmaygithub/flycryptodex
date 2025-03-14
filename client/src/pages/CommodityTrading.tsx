@@ -10,7 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import AiStrategyBox from "@/components/trading/AiStrategyBox";
 import CommodityNewsBox from "@/components/trading/CommodityNewsBox";
-import { TradingPair } from "@shared/schema";
+import TradingViewChart from "@/components/trading/TradingViewChart";
+import { TradingPair, CandlestickData } from "@shared/schema";
+import { generateMockCandlestickData } from "@/lib/mockData";
 import {
   Home as HomeIcon,
   TrendingUp,
@@ -114,6 +116,9 @@ export default function CommodityTrading() {
   const [amount, setAmount] = useState<string>('');
   const [price, setPrice] = useState<string>('');
   const [showLiquidationPrice, setShowLiquidationPrice] = useState<boolean>(false);
+  const [candleData, setCandleData] = useState<CandlestickData[]>([]);
+  const [timeFrame, setTimeFrame] = useState<string>('1h');
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('line');
 
   useEffect(() => {
     // Get blockchain selection from localStorage
@@ -131,6 +136,24 @@ export default function CommodityTrading() {
       }
     }
   }, [pairParam, navigate]);
+  
+  // Generate candlestick data when pair or timeframe changes
+  useEffect(() => {
+    // Generate candlestick data with the current pair and timeframe
+    const newData = generateMockCandlestickData(timeFrame, 100);
+    
+    // Adjust the prices to be centered around the current pair's price
+    const scaleFactor = currentPair.price / newData[newData.length - 1].close;
+    const adjustedData = newData.map(candle => ({
+      ...candle,
+      open: candle.open * scaleFactor,
+      high: candle.high * scaleFactor,
+      low: candle.low * scaleFactor,
+      close: candle.close * scaleFactor
+    }));
+    
+    setCandleData(adjustedData);
+  }, [currentPair.price, timeFrame]);
 
   const handleLeverageChange = (newLeverage: number) => {
     if (newLeverage >= 1 && newLeverage <= 100) {
@@ -447,31 +470,49 @@ export default function CommodityTrading() {
               </CardContent>
             </Card>
 
-            {/* Price Chart Placeholder */}
-            <Card className="bg-primary-800 border-primary-700 col-span-1 lg:col-span-2">
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold">{currentPair.name} Price Chart</h2>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">1H</Button>
-                    <Button variant="outline" size="sm">4H</Button>
-                    <Button variant="outline" size="sm" className="bg-accent-500">1D</Button>
-                    <Button variant="outline" size="sm">1W</Button>
+            {/* Price Chart */}
+            <div className="col-span-2">
+              <Card className="bg-primary-800 border-primary-700 h-full">
+                <CardContent className="pt-4 px-4 pb-0">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">{currentPair.name} Price Chart</h2>
+                    <div className="flex space-x-1">
+                      <div className="flex border border-primary-700 rounded overflow-hidden mr-2">
+                        {['1m', '5m', '15m', '1h', '4h', '1d'].map(tf => (
+                          <button 
+                            key={tf}
+                            className={`px-2 py-1 text-xs ${timeFrame === tf ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
+                            onClick={() => setTimeFrame(tf)}
+                          >
+                            {tf.toUpperCase()}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex border border-primary-700 rounded overflow-hidden">
+                        {[
+                          { type: 'candlestick', label: 'Candle' },
+                          { type: 'line', label: 'Line' },
+                          { type: 'area', label: 'Area' }
+                        ].map(item => (
+                          <button 
+                            key={item.type}
+                            className={`px-2 py-1 text-xs ${chartType === item.type ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
+                            onClick={() => setChartType(item.type as any)}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                <div className="h-64 bg-primary-700 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <BarChart4 className="h-12 w-12 text-primary-500 mx-auto mb-4" />
-                    <p>Chart visualization will appear here</p>
-                    <p className="text-sm text-neutral-400">For advanced trading features, use the Pro version</p>
-                    <Button className="mt-4" variant="outline" onClick={() => navigate(`/commodity-trading-pro/${encodeURIComponent(currentPair.name)}`)}>
-                      Switch to Pro View
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <TradingViewChart 
+                    candleData={candleData} 
+                    pair={currentPair.name} 
+                    height={400} 
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Market Information */}
