@@ -7,71 +7,101 @@ import { CandlestickData, OrderBookEntry, OrderBook } from "@shared/schema";
  * @returns Array of candlestick data
  */
 export function generateMockCandlestickData(timeframe: string, count = 100): CandlestickData[] {
-  const now = Date.now();
-  const data: CandlestickData[] = [];
-  
-  // Calculate time interval based on timeframe
-  let interval: number;
-  switch (timeframe) {
-    case '1m':
-      interval = 60 * 1000; // 1 minute
-      break;
-    case '5m':
-      interval = 5 * 60 * 1000; // 5 minutes
-      break;
-    case '15m':
-      interval = 15 * 60 * 1000; // 15 minutes
-      break;
-    case '1h':
-      interval = 60 * 60 * 1000; // 1 hour
-      break;
-    case '4h':
-      interval = 4 * 60 * 60 * 1000; // 4 hours
-      break;
-    case '1d':
-      interval = 24 * 60 * 60 * 1000; // 1 day
-      break;
-    default:
-      interval = 60 * 60 * 1000; // 1 hour
+  try {
+    // Validate inputs
+    const validCount = Math.max(1, Math.min(count || 100, 1000)); // Ensure count is between 1 and 1000
+    const now = Date.now();
+    const data: CandlestickData[] = [];
+    
+    // Calculate time interval based on timeframe
+    let interval: number;
+    switch (timeframe) {
+      case '1m':
+        interval = 60 * 1000; // 1 minute
+        break;
+      case '5m':
+        interval = 5 * 60 * 1000; // 5 minutes
+        break;
+      case '15m':
+        interval = 15 * 60 * 1000; // 15 minutes
+        break;
+      case '1h':
+        interval = 60 * 60 * 1000; // 1 hour
+        break;
+      case '4h':
+        interval = 4 * 60 * 60 * 1000; // 4 hours
+        break;
+      case '1d':
+        interval = 24 * 60 * 60 * 1000; // 1 day
+        break;
+      default:
+        interval = 60 * 60 * 1000; // 1 hour as default
+    }
+    
+    // Base price and volatility
+    let basePrice = 1.0;
+    const volatility = 0.02; // 2% volatility
+    
+    for (let i = 0; i < validCount; i++) {
+      // Time for this candle (ensure it's a valid number)
+      const time = now - (validCount - i) * interval;
+      
+      // Random price movement (more realistic with Brownian motion)
+      const changePercent = (Math.random() - 0.5) * volatility;
+      const change = basePrice * changePercent;
+      
+      // Calculate candle values
+      let open = basePrice;
+      let close = basePrice + change;
+      
+      // Update base price for next candle
+      basePrice = close;
+      
+      // Random high and low with appropriate constraints
+      const high = Math.max(open, close) + Math.random() * Math.abs(change) * 0.5;
+      const low = Math.min(open, close) - Math.random() * Math.abs(change) * 0.5;
+      
+      // Random volume (higher for larger price movements)
+      const volume = 50 + Math.random() * 150 * (1 + Math.abs(changePercent) * 10);
+      
+      // Ensure all values are valid numbers
+      data.push({
+        time: Number.isFinite(time) ? time : now - i * interval,
+        open: Number.isFinite(open) ? open : 1.0,
+        high: Number.isFinite(high) ? high : 1.1,
+        low: Number.isFinite(low) ? low : 0.9,
+        close: Number.isFinite(close) ? close : 1.0,
+        volume: Number.isFinite(volume) ? volume : 100
+      });
+    }
+    
+    // Ensure we return at least one candle even if generation failed
+    if (data.length === 0) {
+      data.push({
+        time: now,
+        open: 1.0,
+        high: 1.1,
+        low: 0.9,
+        close: 1.0,
+        volume: 100
+      });
+    }
+    
+    return data;
+  } catch (error) {
+    console.error("Error generating mock candlestick data:", error);
+    // Return a minimal fallback dataset if anything goes wrong
+    return [
+      {
+        time: Date.now(),
+        open: 1.0,
+        high: 1.1,
+        low: 0.9,
+        close: 1.0,
+        volume: 100
+      }
+    ];
   }
-  
-  // Base price and volatility
-  let basePrice = 1.0;
-  const volatility = 0.02; // 2% volatility
-  
-  for (let i = 0; i < count; i++) {
-    // Time for this candle
-    const time = now - (count - i) * interval;
-    
-    // Random price movement (more realistic with Brownian motion)
-    const changePercent = (Math.random() - 0.5) * volatility;
-    const change = basePrice * changePercent;
-    
-    // Calculate candle values
-    let open = basePrice;
-    let close = basePrice + change;
-    
-    // Update base price for next candle
-    basePrice = close;
-    
-    // Random high and low with appropriate constraints
-    const high = Math.max(open, close) + Math.random() * Math.abs(change) * 0.5;
-    const low = Math.min(open, close) - Math.random() * Math.abs(change) * 0.5;
-    
-    // Random volume (higher for larger price movements)
-    const volume = 50 + Math.random() * 150 * (1 + Math.abs(changePercent) * 10);
-    
-    data.push({
-      time,
-      open,
-      high,
-      low,
-      close,
-      volume
-    });
-  }
-  
-  return data;
 }
 
 // Convert candlestick data to the format expected by lightweight-charts
