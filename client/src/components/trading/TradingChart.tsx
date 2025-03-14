@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { createChart } from 'lightweight-charts';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Settings, BarChart2, TrendingUp, Activity } from 'lucide-react';
@@ -28,45 +27,42 @@ export default function TradingChart({
   onChangeTimeFrame 
 }: TradingChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartInstanceRef = useRef<any>(null);
-  const [chartCreated, setChartCreated] = useState(false);
+  const [chartReady, setChartReady] = useState(false);
 
-  // Create chart on mount or when chart type changes
   useEffect(() => {
-    if (!chartContainerRef.current) return;
+    if (!chartContainerRef.current || isLoading || candlesticks.length === 0) return;
 
-    // Cleanup previous chart instance
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.remove();
-      chartInstanceRef.current = null;
-    }
+    // Clean up any previous chart instance
+    const container = chartContainerRef.current;
+    container.innerHTML = '';
 
-    // Create chart instance
-    const chart = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: 400,
-      layout: {
-        background: { color: 'rgba(45, 55, 72, 1)' },
-        textColor: 'rgba(255, 255, 255, 0.7)',
-      },
-      grid: {
-        vertLines: { color: 'rgba(74, 85, 104, 0.3)' },
-        horzLines: { color: 'rgba(74, 85, 104, 0.3)' },
-      },
-      timeScale: {
-        borderColor: 'rgba(74, 85, 104, 0.5)',
-        timeVisible: true,
-      },
-      rightPriceScale: {
-        borderColor: 'rgba(74, 85, 104, 0.5)',
-      },
-    });
-
-    let series;
-    
-    // Create appropriate series based on chart type
-    switch (chartType) {
-      case 'candlestick':
+    // Dynamically import the chart library to avoid TypeScript errors
+    import('lightweight-charts').then(({ createChart }) => {
+      // Create chart
+      const chart = createChart(container, {
+        width: container.clientWidth,
+        height: 400,
+        layout: {
+          background: { color: 'rgba(45, 55, 72, 1)' },
+          textColor: 'rgba(255, 255, 255, 0.7)',
+        },
+        grid: {
+          vertLines: { color: 'rgba(74, 85, 104, 0.3)' },
+          horzLines: { color: 'rgba(74, 85, 104, 0.3)' },
+        },
+        timeScale: {
+          borderColor: 'rgba(74, 85, 104, 0.5)',
+          timeVisible: true,
+        },
+        rightPriceScale: {
+          borderColor: 'rgba(74, 85, 104, 0.5)',
+        },
+      });
+      
+      // Create series based on chart type
+      let series;
+      
+      if (chartType === 'candlestick') {
         series = chart.addCandlestickSeries({
           upColor: 'rgba(72, 187, 120, 1)',
           downColor: 'rgba(245, 101, 101, 1)',
@@ -79,9 +75,7 @@ export default function TradingChart({
         if (candlesticks.length > 0) {
           series.setData(candlesticks);
         }
-        break;
-        
-      case 'line':
+      } else if (chartType === 'line') {
         series = chart.addLineSeries({
           color: 'rgba(66, 153, 225, 1)',
           lineWidth: 2,
@@ -95,9 +89,7 @@ export default function TradingChart({
             }))
           );
         }
-        break;
-        
-      case 'area':
+      } else {
         series = chart.addAreaSeries({
           topColor: 'rgba(66, 153, 225, 0.56)',
           bottomColor: 'rgba(66, 153, 225, 0.04)',
@@ -113,31 +105,33 @@ export default function TradingChart({
             }))
           );
         }
-        break;
-    }
-
-    // Fit chart content
-    chart.timeScale().fitContent();
-    
-    // Store chart instance
-    chartInstanceRef.current = chart;
-    setChartCreated(true);
-
-    // Handle window resize
-    const handleResize = () => {
-      if (chartContainerRef.current && chartInstanceRef.current) {
-        chartInstanceRef.current.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-        });
       }
-    };
 
-    window.addEventListener('resize', handleResize);
+      // Fit chart to content
+      chart.timeScale().fitContent();
+      
+      // Handle window resize
+      const handleResize = () => {
+        if (container) {
+          chart.applyOptions({
+            width: container.clientWidth,
+          });
+        }
+      };
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [chartType, candlesticks]);
+      window.addEventListener('resize', handleResize);
+      setChartReady(true);
+      
+      // Clean up on component unmount or when dependencies change
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        chart.remove();
+      };
+    }).catch(err => {
+      console.error('Failed to load chart library:', err);
+    });
+    
+  }, [candlesticks, chartType, isLoading]);
 
   // Render chart controls and chart
   return (
