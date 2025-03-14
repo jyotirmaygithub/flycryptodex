@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import AiStrategyBox from "@/components/trading/AiStrategyBox";
+import CommodityNewsBox from "@/components/trading/CommodityNewsBox";
 import { TradingPair } from "@shared/schema";
 import {
   Home as HomeIcon,
@@ -21,7 +24,9 @@ import {
   Percent,
   Gauge,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  BadgeDollarSign,
+  ShieldAlert
 } from "lucide-react";
 
 // Mock trading pairs for commodities
@@ -75,6 +80,26 @@ const commodityPairs = [
     change24h: 0.35,
     categoryId: 3,
     isActive: true
+  },
+  {
+    id: 6,
+    name: "WHEAT/USD",
+    baseAsset: "WHEAT",
+    quoteAsset: "USD",
+    price: 612.75,
+    change24h: 0.85,
+    categoryId: 3,
+    isActive: true
+  },
+  {
+    id: 7,
+    name: "CORN/USD",
+    baseAsset: "CORN",
+    quoteAsset: "USD",
+    price: 432.50,
+    change24h: -0.65,
+    categoryId: 3,
+    isActive: true
   }
 ];
 
@@ -88,6 +113,7 @@ export default function CommodityTrading() {
   const [orderSide, setOrderSide] = useState<string>('buy');
   const [amount, setAmount] = useState<string>('');
   const [price, setPrice] = useState<string>('');
+  const [showLiquidationPrice, setShowLiquidationPrice] = useState<boolean>(false);
 
   useEffect(() => {
     // Get blockchain selection from localStorage
@@ -120,12 +146,32 @@ export default function CommodityTrading() {
       side: orderSide,
       amount: parseFloat(amount),
       price: orderType === 'market' ? currentPair.price : parseFloat(price),
-      leverage: leverage
+      leverage: leverage,
+      marginMode: marginMode
     });
 
     // Reset form
     setAmount('');
     setPrice('');
+  };
+  
+  // Calculate liquidation price (simplified formula)
+  const calculateLiquidationPrice = (): string => {
+    if (!amount || isNaN(parseFloat(amount))) return "N/A";
+    
+    const entryPrice = orderType === 'market' ? currentPair.price : (parseFloat(price) || currentPair.price);
+    const positionSize = parseFloat(amount) * entryPrice;
+    const margin = positionSize / leverage;
+    const maintenanceMargin = margin * 0.5; // 50% of initial margin as example
+    
+    let liquidationPrice;
+    if (orderSide === 'buy') {
+      liquidationPrice = entryPrice * (1 - (margin - maintenanceMargin) / positionSize);
+    } else {
+      liquidationPrice = entryPrice * (1 + (margin - maintenanceMargin) / positionSize);
+    }
+    
+    return liquidationPrice.toFixed(2);
   };
 
   return (
