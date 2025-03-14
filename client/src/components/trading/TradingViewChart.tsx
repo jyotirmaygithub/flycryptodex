@@ -1,187 +1,242 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  ResponsiveContainer, 
-  ComposedChart, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  Legend, 
-  Line, 
-  Bar,
-  Area,
-  CartesianGrid,
-  ReferenceLine
-} from 'recharts';
-import { CandlestickData } from '@shared/schema';
+import { createChart, IChartApi, ISeriesApi } from 'lightweight-charts';
+
+interface CandlestickData {
+  time: string | number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
 
 interface TradingViewChartProps {
-  candleData: CandlestickData[];
-  pair?: string;
+  data: CandlestickData[];
+  pair: string;
   height?: number;
   width?: string;
 }
 
-// Format timestamp to readable time
-const formatXAxis = (timestamp: number) => {
-  if (!timestamp) return '';
-  return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
-
-// Custom tooltip component
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    return (
-      <div className="bg-primary-800 border border-primary-700 p-2 rounded shadow-lg text-xs">
-        <p className="text-neutral-400">Time: {new Date(data.time).toLocaleString()}</p>
-        <p className="text-white">Open: ${data.open.toFixed(2)}</p>
-        <p className="text-white">High: ${data.high.toFixed(2)}</p>
-        <p className="text-white">Low: ${data.low.toFixed(2)}</p>
-        <p className={data.close >= data.open ? "text-green-500" : "text-red-500"}>
-          Close: ${data.close.toFixed(2)}
-        </p>
-        <p className="text-neutral-400">Volume: {data.volume.toFixed(2)}</p>
-      </div>
-    );
-  }
-  return null;
-};
-
 const TradingViewChart: React.FC<TradingViewChartProps> = ({ 
-  candleData = [], 
+  data = [], 
   pair = 'BTC/USD',
-  height = 500
+  height = 500,
+  width = '100%'
 }) => {
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
-  const [timeFrame, setTimeFrame] = useState<string>('1h');
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chart, setChart] = useState<IChartApi | null>(null);
+  const [series, setSeries] = useState<ISeriesApi<"Candlestick"> | null>(null);
 
   useEffect(() => {
-    if (candleData.length > 0) {
-      setChartData(candleData.map(candle => ({
-        ...candle,
-        // Add a value to represent the candlestick
-        valueRange: candle.high - candle.low,
-        openCloseDiff: Math.abs(candle.open - candle.close),
-        isIncreasing: candle.close >= candle.open,
-      })));
-    }
-  }, [candleData]);
+    if (chartContainerRef.current && !chart) {
+      try {
+        const newChart = createChart(chartContainerRef.current, {
+          width: chartContainerRef.current.clientWidth,
+          height: height,
+          layout: {
+            background: { type: 'solid', color: '#1A1A1A' },
+            textColor: '#DDD',
+          },
+          grid: {
+            vertLines: { color: '#2B2B43' },
+            horzLines: { color: '#2B2B43' },
+          },
+          crosshair: {
+            mode: 0,
+          },
+          timeScale: {
+            timeVisible: true,
+            secondsVisible: false,
+          },
+        });
 
-  // Chart specific settings
-  const getColor = (isIncreasing: boolean) => isIncreasing ? '#26a69a' : '#ef5350';
+        const newSeries = newChart.addCandlestickSeries({
+          upColor: '#26a69a',
+          downColor: '#ef5350',
+          borderVisible: false,
+          wickUpColor: '#26a69a',
+          wickDownColor: '#ef5350',
+        });
+
+        setChart(newChart);
+        setSeries(newSeries);
+
+        // Handle window resize
+        const handleResize = () => {
+          if (chartContainerRef.current && newChart) {
+            newChart.applyOptions({ 
+              width: chartContainerRef.current.clientWidth 
+            });
+          }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          if (newChart) {
+            newChart.remove();
+          }
+        };
+      } catch (error) {
+        console.error("Error initializing chart:", error);
+      }
+    }
+  }, []);
+
+  // Update chart data when data changes
+  useEffect(() => {
+    if (series && data && data.length > 0) {
+      try {
+        series.setData(data);
+      } catch (error) {
+        console.error("Error updating chart data:", error);
+      }
+    }
+  }, [series, data]);
 
   return (
     <Card className="h-full">
       <CardContent className="p-0">
-        <div className="chart-header p-3 border-b border-primary-700 flex items-center justify-between">
+        <div className="chart-header p-3 border-b border-primary-700">
           <h3 className="text-lg font-medium">{pair}</h3>
-          
-          <div className="flex space-x-2">
-            <div className="flex border border-primary-700 rounded overflow-hidden">
-              {['1m', '5m', '15m', '1h', '4h', '1d'].map(tf => (
-                <button 
-                  key={tf}
-                  className={`px-2 py-1 text-xs ${timeFrame === tf ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
-                  onClick={() => setTimeFrame(tf)}
-                >
-                  {tf}
-                </button>
-              ))}
-            </div>
-            
-            <div className="flex border border-primary-700 rounded overflow-hidden">
-              {[
-                { type: 'candlestick', label: 'Candle' },
-                { type: 'line', label: 'Line' },
-                { type: 'area', label: 'Area' }
-              ].map(item => (
-                <button 
-                  key={item.type}
-                  className={`px-2 py-1 text-xs ${chartType === item.type ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
-                  onClick={() => setChartType(item.type as any)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
-        
-        <div className="p-4 bg-primary-800" style={{ height: `${height}px` }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={chartData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#2B2B43" />
-              <XAxis 
-                dataKey="time" 
-                tickFormatter={formatXAxis} 
-                minTickGap={50}
-                stroke="#666"
-              />
-              <YAxis 
-                domain={['auto', 'auto']} 
-                tickCount={10} 
-                stroke="#666"
-                orientation="right"
-              />
-              <Tooltip content={<CustomTooltip />} />
-              
-              {chartType === 'line' && (
-                <Line
-                  type="monotone"
-                  dataKey="close"
-                  stroke="#8884d8"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              )}
-              
-              {chartType === 'area' && (
-                <Area
-                  type="monotone"
-                  dataKey="close"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                  fillOpacity={0.2}
-                />
-              )}
-              
-              {chartType === 'candlestick' && (
-                <>
-                  {/* Wicks */}
-                  {chartData.map((entry, index) => (
-                    <ReferenceLine
-                      key={`wick-${index}`}
-                      x={index}
-                      segment={[
-                        { x: index, y: entry.low },
-                        { x: index, y: entry.high }
-                      ]}
-                      stroke={getColor(entry.isIncreasing)}
-                      strokeWidth={1}
-                      ifOverflow="extendDomain"
-                    />
-                  ))}
-                  
-                  {/* Candle bodies */}
-                  <Bar
-                    dataKey="openCloseDiff"
-                    barSize={8}
-                    fill={(entry) => getColor(entry.isIncreasing)}
-                    stroke={(entry) => getColor(entry.isIncreasing)}
-                    minPointSize={5}
-                  />
-                </>
-              )}
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+        <div
+          ref={chartContainerRef}
+          style={{ width, height: `${height}px` }}
+        />
       </CardContent>
     </Card>
+  );
+};
+
+export default TradingViewChart;
+import React, { useEffect, useRef } from 'react';
+import { createChart, ColorType, IChartApi, ISeriesApi } from 'lightweight-charts';
+import { CandlestickData } from '@shared/schema';
+
+interface TradingViewChartProps {
+  candlesticks: CandlestickData[];
+  height?: number;
+  width?: string;
+}
+
+const TradingViewChart: React.FC<TradingViewChartProps> = ({ 
+  candlesticks, 
+  height = 400, 
+  width = '100%' 
+}) => {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+
+  useEffect(() => {
+    if (chartContainerRef.current && !chartRef.current) {
+      try {
+        // Initialize chart
+        const chart = createChart(chartContainerRef.current, {
+          layout: {
+            background: { type: ColorType.Solid, color: 'transparent' },
+            textColor: '#d1d5db',
+          },
+          width: chartContainerRef.current.clientWidth,
+          height: height,
+          grid: {
+            vertLines: {
+              color: 'rgba(42, 46, 57, 0.6)',
+            },
+            horzLines: {
+              color: 'rgba(42, 46, 57, 0.6)',
+            },
+          },
+          timeScale: {
+            timeVisible: true,
+            secondsVisible: false,
+          },
+        });
+
+        // Create the candlestick series
+        const candlestickSeries = chart.addCandlestickSeries({
+          upColor: '#22c55e',
+          downColor: '#ef4444',
+          borderVisible: false,
+          wickUpColor: '#22c55e',
+          wickDownColor: '#ef4444',
+        });
+
+        // Store references
+        chartRef.current = chart;
+        seriesRef.current = candlestickSeries;
+
+        // Format the candlestick data to match the expected format
+        const formattedData = candlesticks.map(candle => ({
+          time: candle.time / 1000, // Convert milliseconds to seconds for the chart
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close,
+        }));
+
+        // Set the data
+        candlestickSeries.setData(formattedData);
+
+        // Fit content if there's data
+        if (formattedData.length > 0) {
+          chart.timeScale().fitContent();
+        }
+
+        // Handle resizing
+        const handleResize = () => {
+          if (chartContainerRef.current && chartRef.current) {
+            chartRef.current.applyOptions({ 
+              width: chartContainerRef.current.clientWidth 
+            });
+          }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          chart.remove();
+          chartRef.current = null;
+          seriesRef.current = null;
+        };
+      } catch (error) {
+        console.error("Error initializing chart:", error);
+      }
+    }
+  }, [height]);
+
+  // Update data when candlesticks change
+  useEffect(() => {
+    if (seriesRef.current && candlesticks.length > 0) {
+      try {
+        const formattedData = candlesticks.map(candle => ({
+          time: candle.time / 1000, // Convert milliseconds to seconds for the chart
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close,
+        }));
+
+        seriesRef.current.setData(formattedData);
+        
+        if (chartRef.current) {
+          chartRef.current.timeScale().fitContent();
+        }
+      } catch (error) {
+        console.error("Error updating chart data:", error);
+      }
+    }
+  }, [candlesticks]);
+
+  return (
+    <div 
+      ref={chartContainerRef} 
+      style={{ width, height: `${height}px` }}
+      className="relative overflow-hidden"
+    />
   );
 };
 
