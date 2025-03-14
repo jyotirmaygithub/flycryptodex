@@ -624,7 +624,7 @@ export default function CommodityTradingPro() {
             <div className="grid grid-cols-12 gap-4">
               {/* Chart area - spans 9 columns on large screens */}
               <div className="col-span-12 lg:col-span-9">
-                <TradingViewChart candleData={candleData} height={500} />
+                <TradingViewChart candleData={candleData} pair={currentPair.name} height={500} />
                 
                 <div className="mt-4">
                   <OpenPositions />
