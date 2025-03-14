@@ -11,6 +11,7 @@ import {
   Area,
   CartesianGrid,
   ReferenceLine,
+  ReferenceArea,
   Legend
 } from 'recharts';
 import { CandlestickData } from '@shared/schema';
@@ -113,7 +114,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
         
         <div className="p-4 bg-primary-900" style={{ height: `${height}px` }}>
           <ResponsiveContainer width="100%" height="100%">
-            {chartType === 'candlestick' ? (
+            {(
               <ComposedChart
                 data={chartData}
                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
@@ -133,64 +134,39 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
                 />
                 <Tooltip content={<CustomTooltip />} />
                 
-                {/* High-Low lines (wicks) */}
-                {chartData.map((entry, index) => (
-                  <ReferenceLine
-                    key={`wick-${index}`}
-                    segment={[
-                      { x: entry.time, y: entry.low },
-                      { x: entry.time, y: entry.high }
-                    ]}
-                    stroke={entry.color}
-                    strokeWidth={1}
-                    isFront={true}
-                  />
-                ))}
-                
-                {/* Candle bodies */}
-                <Bar
-                  dataKey="openCloseDiff"
-                  barSize={8}
-                  shape={(props: any) => {
-                    const { x, y, width, height, datum } = props;
-                    const fill = datum.isIncreasing ? '#26a69a' : '#ef5350';
-                    const yStart = datum.isIncreasing ? 
-                      y + height - (height * (datum.close - datum.open) / (datum.high - datum.low)) : 
-                      y + (height * (datum.open - datum.low) / (datum.high - datum.low));
-                    const barHeight = Math.max(1, height * Math.abs(datum.close - datum.open) / (datum.high - datum.low));
-                    
-                    return (
-                      <rect
-                        x={x - width / 2}
-                        y={datum.isIncreasing ? yStart : y}
-                        width={width}
-                        height={barHeight}
-                        fill={fill}
-                        stroke={fill}
-                      />
-                    );
-                  }}
-                />
-              </ComposedChart>
-            ) : (
-              <ComposedChart
-                data={chartData}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#2B2B43" />
-                <XAxis 
-                  dataKey="time" 
-                  tickFormatter={formatXAxis} 
-                  minTickGap={50}
-                  stroke="#666"
-                />
-                <YAxis 
-                  domain={['auto', 'auto']} 
-                  tickCount={10} 
-                  stroke="#666"
-                  orientation="right"
-                />
-                <Tooltip content={<CustomTooltip />} />
+                {chartType === 'candlestick' && (
+                  <>
+                    <Line
+                      dataKey="high"
+                      stroke="transparent"
+                      dot={false}
+                    />
+                    <Line
+                      dataKey="low"
+                      stroke="transparent"
+                      dot={false}
+                    />
+                    <Bar
+                      dataKey="openCloseDiff"
+                      shape={(props: any) => {
+                        const { x, y, width, height, datum } = props;
+                        const isUp = datum.close >= datum.open;
+                        const color = isUp ? '#26a69a' : '#ef5350';
+                        
+                        return (
+                          <rect
+                            x={x - width / 2}
+                            y={isUp ? y : y - height}
+                            width={width}
+                            height={height}
+                            fill={color}
+                            stroke={color}
+                          />
+                        );
+                      }}
+                    />
+                  </>
+                )}
                 
                 {chartType === 'line' && (
                   <Line
