@@ -16,7 +16,7 @@ interface TradingChartProps {
   chartType: 'candlestick' | 'line' | 'area';
   timeFrame: string;
   onChangeChartType: (type: 'candlestick' | 'line' | 'area') => void;
-  onChangeTimeFrame: (timeFrame: any) => void;
+  onChangeTimeFrame: (timeFrame: string) => void;
 }
 
 export default function TradingChart({ 
