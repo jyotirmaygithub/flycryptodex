@@ -9,6 +9,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
 import { TradingPair, CandlestickData } from "@shared/schema";
 import TradingViewChart from "@/components/trading/TradingViewChart";
+import AdvancedOrderForm from "@/components/trading/AdvancedOrderForm";
+import AiStrategyPanel from "@/components/trading/AiStrategyPanel";
 import { generateMockCandlestickData, generateMockOrderBook } from "@/lib/mockData";
 import {
   Home as HomeIcon,
