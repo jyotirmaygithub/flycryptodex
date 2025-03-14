@@ -9,6 +9,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { TradingPair } from "@shared/schema";
+import TradingChart from "@/components/trading/TradingChart";
+import { useMarketData } from "@/hooks/useMarketData";
 import {
   Home as HomeIcon,
   TrendingUp,
@@ -21,7 +23,11 @@ import {
   ChevronDown,
   ChevronUp,
   AlertCircle,
-  Info
+  Info,
+  BarChart2,
+  Search,
+  Star,
+  RefreshCw
 } from "lucide-react";
 
 // Mock trading pairs for crypto
@@ -34,11 +40,34 @@ const cryptoPairs = [
   { id: 6, name: 'ADA/USD', baseAsset: 'ADA', quoteAsset: 'USD', price: 0.4821, change24h: 0.94, categoryId: 2, isActive: true },
 ];
 
-// Mock chart component
-function PlaceholderChart() {
+function MarketOverview() {
   return (
-    <div className="w-full h-96 bg-primary-800 rounded-lg border border-primary-700 flex items-center justify-center mb-4">
-      <TrendingUp className="w-16 h-16 text-accent-500 opacity-20" />
+    <div className="bg-primary-800 p-4 rounded-lg border border-primary-700">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold">Market Overview</h3>
+        <Button variant="ghost" size="sm" className="text-accent-400 hover:text-accent-300">
+          <RefreshCw className="h-4 w-4 mr-1" />
+          Refresh
+        </Button>
+      </div>
+      <div className="space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-neutral-400">BTC Dominance:</span>
+          <span>51.3%</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-neutral-400">24h Volume:</span>
+          <span>$89.7B</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-neutral-400">Market Cap:</span>
+          <span>$2.37T</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-neutral-400">BTC Fear & Greed:</span>
+          <span className="text-green-500">72 (Greed)</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -46,22 +75,62 @@ function PlaceholderChart() {
 function FundingInfo() {
   return (
     <div className="bg-primary-800 p-4 rounded-lg border border-primary-700">
-      <h3 className="font-medium mb-3">Funding Rate Info</h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold">Funding Info</h3>
+        <div className="flex items-center text-xs bg-primary-700 rounded-full px-2 py-1">
+          <Clock className="h-3 w-3 mr-1" />
+          <span>Next: 03:12:45</span>
+        </div>
+      </div>
       <div className="space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-neutral-400">Current Rate:</span>
           <span className="text-green-500">+0.0103%</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Next Funding:</span>
-          <span>03:12:45</span>
+          <span className="text-neutral-400">Predicted Rate:</span>
+          <span className="text-green-500">+0.0089%</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">Funding Interval:</span>
+          <span className="text-neutral-400">Interval:</span>
           <span>8 hours</span>
         </div>
         <div className="mt-3 text-xs text-neutral-400">
-          <p>Funding rates are payments between long and short positions. When the rate is positive, longs pay shorts.</p>
+          <p>Funding rates are payments between long and short positions based on market conditions.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PositionSummary({ pair }: { pair: TradingPair }) {
+  return (
+    <div className="bg-primary-800 p-4 rounded-lg border border-primary-700">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold">Position Summary</h3>
+        <Button variant="outline" size="sm" className="h-7 text-xs">
+          View History
+        </Button>
+      </div>
+      <div className="p-4 text-center bg-primary-700 rounded-lg mb-3">
+        <p className="text-neutral-400 text-sm mb-1">No active positions</p>
+        <p className="text-xs">Start trading to see your positions here</p>
+      </div>
+      <div>
+        <h4 className="text-sm font-medium mb-2">Account Summary</h4>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-neutral-400">Available Balance:</span>
+            <span>$10,000.00</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-neutral-400">Used Margin:</span>
+            <span>$0.00</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-neutral-400">Margin Ratio:</span>
+            <span>0.00%</span>
+          </div>
         </div>
       </div>
     </div>
@@ -91,10 +160,17 @@ function LiquidationCalculator({ pair }: { pair: TradingPair }) {
 
   return (
     <div className="bg-primary-800 p-4 rounded-lg border border-primary-700">
-      <h3 className="font-medium mb-3">Liquidation Calculator</h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold">Risk Calculator</h3>
+        <div className="text-xs bg-blue-900/60 text-blue-300 px-2 py-1 rounded">
+          <AlertCircle className="h-3 w-3 inline mr-1" />
+          <span>Educational Tool</span>
+        </div>
+      </div>
+      
       <div className="space-y-4">
         <div>
-          <Label htmlFor="position-size">Position Size (BTC)</Label>
+          <Label htmlFor="position-size">Position Size ({pair.baseAsset})</Label>
           <Input 
             id="position-size" 
             type="number" 
@@ -117,6 +193,13 @@ function LiquidationCalculator({ pair }: { pair: TradingPair }) {
             value={[leverage]}
             onValueChange={(value) => setLeverage(value[0])}
           />
+          <div className="flex justify-between text-xs mt-1 text-neutral-400">
+            <span>1x</span>
+            <span>25x</span>
+            <span>50x</span>
+            <span>75x</span>
+            <span>100x</span>
+          </div>
         </div>
         
         <div className="grid grid-cols-2 gap-4 mb-2">
@@ -154,9 +237,15 @@ function LiquidationCalculator({ pair }: { pair: TradingPair }) {
             <span className="text-neutral-400">Position Value:</span>
             <span>${(positionSize * entryPrice).toLocaleString()}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between mb-2">
             <span className="text-neutral-400">Required Margin:</span>
             <span>${((positionSize * entryPrice) / leverage).toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-neutral-400">Potential PnL at ±5%:</span>
+            <span className={side === 'long' ? 'text-green-500' : 'text-red-500'}>
+              {side === 'long' ? '+' : '-'}${(positionSize * entryPrice * 0.05 * leverage).toLocaleString()}
+            </span>
           </div>
         </div>
       </div>
@@ -189,14 +278,15 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
 
   return (
     <div className="bg-primary-800 rounded-lg border border-primary-700 p-4">
-      <h3 className="font-semibold mb-4">Place Order</h3>
+      <h3 className="font-semibold mb-4">Spot Order</h3>
       
       <div className="mb-4">
         <Tabs defaultValue="Market" onValueChange={setOrderType}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="Market">Market</TabsTrigger>
             <TabsTrigger value="Limit">Limit</TabsTrigger>
             <TabsTrigger value="Stop">Stop</TabsTrigger>
+            <TabsTrigger value="OCO">OCO</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -206,13 +296,13 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
           className={`py-4 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
           onClick={() => setOrderSide('buy')}
         >
-          Buy / Long
+          Buy {pair.baseAsset}
         </Button>
         <Button 
           className={`py-4 ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
           onClick={() => setOrderSide('sell')}
         >
-          Sell / Short
+          Sell {pair.baseAsset}
         </Button>
       </div>
       
@@ -242,12 +332,25 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
         
         {orderType !== 'Market' && (
           <div>
-            <Label htmlFor="price">Price</Label>
+            <Label htmlFor="price">Price ({pair.quoteAsset})</Label>
             <Input 
               id="price" 
               className="bg-primary-700 border-primary-600"
               value={price} 
               onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
+              type="number"
+              step={0.01}
+            />
+          </div>
+        )}
+        
+        {orderType === 'Stop' && (
+          <div>
+            <Label htmlFor="stop-price">Stop Price ({pair.quoteAsset})</Label>
+            <Input 
+              id="stop-price" 
+              className="bg-primary-700 border-primary-600"
+              defaultValue={orderSide === 'buy' ? (pair.price * 1.05).toFixed(2) : (pair.price * 0.95).toFixed(2)}
               type="number"
               step={0.01}
             />
@@ -279,10 +382,10 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
       
       <div className="pt-2 border-t border-primary-700">
         <Button 
-          className={`w-full py-6 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+          className={`w-full py-5 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
           onClick={handlePlaceOrder}
         >
-          {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.baseAsset}
+          {orderSide === 'buy' ? 'Buy' : 'Sell'} {pair.baseAsset}
         </Button>
       </div>
     </div>
@@ -292,7 +395,7 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
 function OrderBook({ pair }: { pair: TradingPair }) {
   // Mock order book data
   const maxSize = 5;
-  const asks = Array(8).fill(0).map((_, i) => ({
+  const asks = Array(10).fill(0).map((_, i) => ({
     price: pair.price + (pair.price * 0.0005 * (i + 1)),
     size: Math.random() * maxSize,
     total: 0
@@ -301,7 +404,7 @@ function OrderBook({ pair }: { pair: TradingPair }) {
     total: arr.slice(0, i + 1).reduce((sum, item) => sum + item.size, 0)
   }));
   
-  const bids = Array(8).fill(0).map((_, i) => ({
+  const bids = Array(10).fill(0).map((_, i) => ({
     price: pair.price - (pair.price * 0.0005 * (i + 1)),
     size: Math.random() * maxSize,
     total: 0
@@ -320,8 +423,9 @@ function OrderBook({ pair }: { pair: TradingPair }) {
     <div className="bg-primary-800 rounded-lg border border-primary-700 p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">Order Book</h3>
-        <div className="text-sm">
-          Spread: <span className="text-accent-500 font-medium">${(asks[0].price - bids[0].price).toFixed(2)} ({((asks[0].price - bids[0].price) / pair.price * 100).toFixed(3)}%)</span>
+        <div className="flex items-center space-x-2">
+          <span className="text-xs text-neutral-400">Spread:</span>
+          <span className="text-xs text-accent-500 font-medium">${(asks[0].price - bids[0].price).toFixed(2)} ({((asks[0].price - bids[0].price) / pair.price * 100).toFixed(3)}%)</span>
         </div>
       </div>
       
@@ -332,15 +436,15 @@ function OrderBook({ pair }: { pair: TradingPair }) {
         <div></div> {/* For depth visualization */}
       </div>
       
-      <div className="space-y-1 max-h-[160px] overflow-y-auto mb-2">
+      <div className="space-y-1 max-h-[180px] overflow-y-auto mb-2">
         {asks.map((ask, index) => (
-          <div key={`ask-${index}`} className="grid grid-cols-4 text-sm items-center">
+          <div key={`ask-${index}`} className="grid grid-cols-4 text-xs items-center">
             <div className="text-red-500">${ask.price.toFixed(2)}</div>
             <div className="text-right">{ask.size.toFixed(3)}</div>
             <div className="text-right">{ask.total.toFixed(3)}</div>
             <div className="h-full pl-2">
               <div 
-                className="h-3 bg-red-600/30" 
+                className="h-[3px] bg-red-600/30" 
                 style={{ width: `${(ask.total / maxTotal) * 100}%` }}
               ></div>
             </div>
@@ -348,21 +452,21 @@ function OrderBook({ pair }: { pair: TradingPair }) {
         ))}
       </div>
       
-      <div className="py-2 text-center font-bold text-lg">
+      <div className="py-2 text-center font-bold text-lg border-y border-primary-700 my-2">
         <span className={pair.change24h >= 0 ? 'text-green-500' : 'text-red-500'}>
           ${pair.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
       </div>
       
-      <div className="space-y-1 max-h-[160px] overflow-y-auto">
+      <div className="space-y-1 max-h-[180px] overflow-y-auto">
         {bids.map((bid, index) => (
-          <div key={`bid-${index}`} className="grid grid-cols-4 text-sm items-center">
+          <div key={`bid-${index}`} className="grid grid-cols-4 text-xs items-center">
             <div className="text-green-500">${bid.price.toFixed(2)}</div>
             <div className="text-right">{bid.size.toFixed(3)}</div>
             <div className="text-right">{bid.total.toFixed(3)}</div>
             <div className="h-full pl-2">
               <div 
-                className="h-3 bg-green-600/30" 
+                className="h-[3px] bg-green-600/30" 
                 style={{ width: `${(bid.total / maxTotal) * 100}%` }}
               ></div>
             </div>
@@ -374,43 +478,143 @@ function OrderBook({ pair }: { pair: TradingPair }) {
 }
 
 function MarketInfo({ pair }: { pair: TradingPair }) {
+  const [selectedTab, setSelectedTab] = useState<string>("overview");
+  
   return (
     <div className="bg-primary-800 rounded-lg border border-primary-700 p-4">
-      <h3 className="font-semibold mb-4">Market Information</h3>
-      
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">24h Change</div>
-          <div className={pair.change24h >= 0 ? 'text-green-500' : 'text-red-500'}>
-            {pair.change24h >= 0 ? '+' : ''}{pair.change24h}%
+      <Tabs defaultValue="overview" onValueChange={setSelectedTab}>
+        <TabsList className="w-full mb-3">
+          <TabsTrigger value="overview">Market</TabsTrigger>
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="trades">Trades</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-4 mt-0">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-lg font-bold">${pair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+              <span className={`px-2 py-1 rounded text-xs ${pair.change24h >= 0 ? 'bg-green-900/40 text-green-500' : 'bg-red-900/40 text-red-500'}`}>
+                {pair.change24h >= 0 ? '+' : ''}{pair.change24h}%
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-neutral-400">24h High</div>
+              <div>${(pair.price * 1.02).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-neutral-400">24h Low</div>
+              <div>${(pair.price * 0.98).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-neutral-400">24h Volume</div>
+              <div>$38.2M</div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-neutral-400">24h Volume ({pair.baseAsset})</div>
+              <div>{(38200000 / pair.price).toFixed(2)}</div>
+            </div>
           </div>
-        </div>
+          
+          <div className="pt-3 border-t border-primary-700">
+            <h4 className="text-sm font-medium mb-2">Market Indices</h4>
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="text-neutral-400">Open Interest</div>
+                <div>$14.6M</div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="text-neutral-400">Index Price</div>
+                <div>${(pair.price * 0.9995).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="text-neutral-400">Mark Price</div>
+                <div>${(pair.price * 1.0002).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="text-neutral-400">Funding Rate</div>
+                <div className="text-green-500">+0.0103%</div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
         
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">24h High</div>
-          <div>${(pair.price * 1.02).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
+        <TabsContent value="details" className="mt-0">
+          <div className="space-y-3">
+            <div className="text-xs">
+              <h4 className="font-medium mb-2">About {pair.baseAsset}</h4>
+              <p className="text-neutral-300 leading-relaxed">
+                {pair.baseAsset === 'BTC' ? 
+                  'Bitcoin is a decentralized digital currency created in 2009. It follows ideas set out in a whitepaper by the pseudonymous Satoshi Nakamoto.' :
+                  `${pair.baseAsset} is a digital asset operating on a blockchain network, used for various applications in the cryptocurrency ecosystem.`
+                }
+              </p>
+            </div>
+            
+            <div className="pt-3 border-t border-primary-700">
+              <h4 className="text-sm font-medium mb-2">Asset Information</h4>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-neutral-400">Market Cap</div>
+                  <div>{pair.baseAsset === 'BTC' ? '$1.18T' : pair.baseAsset === 'ETH' ? '$418B' : '$27.8B'}</div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-neutral-400">Circulating Supply</div>
+                  <div>{pair.baseAsset === 'BTC' ? '19.37M' : pair.baseAsset === 'ETH' ? '120.27M' : '553.3M'}</div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-neutral-400">Max Supply</div>
+                  <div>{pair.baseAsset === 'BTC' ? '21M' : 'Unlimited'}</div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="text-neutral-400">All-Time High</div>
+                  <div>${pair.baseAsset === 'BTC' ? '69,000' : pair.baseAsset === 'ETH' ? '4,878' : '324'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
         
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">24h Low</div>
-          <div>${(pair.price * 0.98).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">24h Volume</div>
-          <div>$38.2M</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">Open Interest</div>
-          <div>$14.6M</div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="text-neutral-400">Index Price</div>
-          <div>${(pair.price * 0.9995).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-        </div>
-      </div>
+        <TabsContent value="trades" className="mt-0">
+          <div className="max-h-[250px] overflow-y-auto">
+            <div className="grid grid-cols-4 text-xs text-neutral-400 mb-2">
+              <div>Price</div>
+              <div className="text-right">Size</div>
+              <div className="text-right">Value</div>
+              <div className="text-right">Time</div>
+            </div>
+            
+            {Array(12).fill(0).map((_, i) => {
+              const isBuy = Math.random() > 0.5;
+              const price = pair.price * (1 + (isBuy ? 1 : -1) * (Math.random() * 0.001));
+              const size = (Math.random() * 0.5).toFixed(4);
+              const value = (price * parseFloat(size)).toFixed(2);
+              const minutes = Math.floor(Math.random() * 10);
+              const seconds = Math.floor(Math.random() * 60);
+              
+              return (
+                <div key={i} className="grid grid-cols-4 text-xs py-1 border-b border-primary-700/50">
+                  <div className={isBuy ? 'text-green-500' : 'text-red-500'}>
+                    ${price.toFixed(2)}
+                  </div>
+                  <div className="text-right">{size}</div>
+                  <div className="text-right">${value}</div>
+                  <div className="text-right text-neutral-400">{minutes}m {seconds}s ago</div>
+                </div>
+              );
+            })}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -421,6 +625,18 @@ export default function CryptoTrading() {
   const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
   const [leverage, setLeverage] = useState<number>(10);
   const [currentPair, setCurrentPair] = useState<TradingPair>(cryptoPairs[0]);
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [favorites, setFavorites] = useState<number[]>([1, 2]); // BTC, ETH
+  
+  // Get market data with our hook
+  const { 
+    candlesticks, 
+    timeFrame, 
+    chartType, 
+    changeTimeFrame, 
+    changeChartType,
+    isLoading
+  } = useMarketData(currentPair?.name);
   
   useEffect(() => {
     // Get blockchain selection from localStorage
@@ -437,6 +653,21 @@ export default function CryptoTrading() {
       }
     }
   }, [pairParam, navigate]);
+  
+  const toggleFavorite = (pairId: number) => {
+    if (favorites.includes(pairId)) {
+      setFavorites(favorites.filter(id => id !== pairId));
+    } else {
+      setFavorites([...favorites, pairId]);
+    }
+  };
+  
+  const filteredPairs = searchInput 
+    ? cryptoPairs.filter(p => 
+        p.name.toLowerCase().includes(searchInput.toLowerCase()) || 
+        p.baseAsset.toLowerCase().includes(searchInput.toLowerCase())
+      )
+    : cryptoPairs;
 
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
@@ -463,58 +694,89 @@ export default function CryptoTrading() {
       
       <div className="flex-1 flex">
         {/* Sidebar */}
-        <div className="hidden md:block w-64 border-r border-primary-700 bg-primary-800 p-4">
-          <h2 className="font-semibold mb-3">Crypto Perpetuals</h2>
-          <div className="space-y-2">
-            {cryptoPairs.map(pair => (
-              <div key={pair.id} 
-                className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 cursor-pointer ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}
-                onClick={() => window.location.href = `/crypto-trading/${encodeURIComponent(pair.name)}`}
-              >
-                <span>{pair.name}</span>
-                <div className="text-right">
-                  <div className="font-mono">${pair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                  <div className={pair.change24h >= 0 ? 'text-green-500 text-xs' : 'text-red-500 text-xs'}>
-                    {pair.change24h >= 0 ? '+' : ''}{pair.change24h}%
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="hidden md:flex flex-col w-64 border-r border-primary-700 bg-primary-800">
+          <div className="p-4 border-b border-primary-700">
+            <h2 className="font-semibold mb-3">Crypto Market</h2>
+            <div className="relative mb-3">
+              <Input
+                placeholder="Search markets..."
+                className="pl-8 bg-primary-700 border-primary-600"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            </div>
+            
+            <div className="flex space-x-2">
+              <Button size="sm" variant="outline" className="text-xs flex-1">
+                All
+              </Button>
+              <Button size="sm" variant="outline" className="text-xs flex-1">
+                Favorites
+              </Button>
+              <Button size="sm" variant="outline" className="text-xs flex-1">
+                Trending
+              </Button>
+            </div>
           </div>
           
-          <div className="mt-6 p-4 bg-primary-700 rounded-lg">
-            <h3 className="font-semibold mb-2">Perpetual Features</h3>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Funding Rate: <span className="text-green-500 ml-1">+0.0103%</span>
-              </li>
-              <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Liquidation Protection
-              </li>
-              <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Up to 100x Leverage
-              </li>
-              <li className="flex items-center">
-                <Info className="h-4 w-4 text-blue-500 mr-2" />
-                Mark Price: <span className="ml-1">${currentPair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-              </li>
-            </ul>
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-3 border-b border-primary-700 bg-primary-700/50">
+              <div className="grid grid-cols-3 text-xs text-neutral-400">
+                <div>Market</div>
+                <div className="text-right">Price</div>
+                <div className="text-right">24h</div>
+              </div>
+            </div>
+            
+            <div className="space-y-1 p-1">
+              {filteredPairs.map(pair => (
+                <div 
+                  key={pair.id} 
+                  className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 cursor-pointer ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}
+                  onClick={() => navigate(`/crypto-trading/${encodeURIComponent(pair.name)}`)}
+                >
+                  <div className="flex items-center">
+                    <button
+                      className="mr-2 text-neutral-400 hover:text-yellow-500"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(pair.id);
+                      }}
+                    >
+                      <Star className="h-3 w-3" fill={favorites.includes(pair.id) ? "#EAB308" : "none"} />
+                    </button>
+                    <span className="text-sm">{pair.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono text-sm">${pair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                    <div className={pair.change24h >= 0 ? 'text-green-500 text-xs' : 'text-red-500 text-xs'}>
+                      {pair.change24h >= 0 ? '+' : ''}{pair.change24h}%
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="p-4 border-t border-primary-700">
+            <MarketOverview />
           </div>
         </div>
         
         {/* Main Trading Area */}
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Top Trading Bar */}
-          <div className="border-b border-primary-700 bg-primary-800 p-3 flex items-center justify-between">
+          <div className="border-b border-primary-700 bg-primary-800 p-3 flex flex-wrap items-center justify-between">
             <div className="flex items-center">
               <h1 className="text-lg font-semibold mr-3">{currentPair.name}</h1>
               <span className="font-mono">${currentPair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               <span className={`ml-2 text-xs ${currentPair.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {currentPair.change24h >= 0 ? '+' : ''}{currentPair.change24h}%
               </span>
+              <Button variant="ghost" size="sm" className="ml-2">
+                <Star className="h-4 w-4" fill={favorites.includes(currentPair.id) ? "#EAB308" : "none"} />
+              </Button>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -557,26 +819,32 @@ export default function CryptoTrading() {
             </div>
           </div>
           
-          <div className="flex flex-1 overflow-auto p-4">
+          <div className="flex-1 overflow-auto">
             {/* Chart Area */}
-            <div className="flex-1 flex flex-col">
-              <PlaceholderChart />
+            <TradingChart 
+              candlesticks={candlesticks}
+              isLoading={isLoading}
+              chartType={chartType}
+              timeFrame={timeFrame}
+              onChangeChartType={changeChartType}
+              onChangeTimeFrame={changeTimeFrame}
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4">
+              {/* Left column */}
+              <div className="md:col-span-8 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CryptoOrderForm pair={currentPair} />
+                  <OrderBook pair={currentPair} />
+                </div>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                {/* Left column */}
-                <div className="md:col-span-8 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CryptoOrderForm pair={currentPair} />
-                    <OrderBook pair={currentPair} />
-                  </div>
-                </div>
-                
-                {/* Right column */}
-                <div className="md:col-span-4 space-y-4">
-                  <FundingInfo />
-                  <LiquidationCalculator pair={currentPair} />
-                  <MarketInfo pair={currentPair} />
-                </div>
+              {/* Right column */}
+              <div className="md:col-span-4 space-y-4">
+                <PositionSummary pair={currentPair} />
+                <MarketInfo pair={currentPair} />
+                <FundingInfo />
+                <LiquidationCalculator pair={currentPair} />
               </div>
             </div>
           </div>
