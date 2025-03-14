@@ -505,21 +505,41 @@ export default function ForexTrading() {
           <div className="flex flex-1 overflow-auto p-4">
             {/* Chart Area */}
             <div className="flex-1 flex flex-col">
-              <PlaceholderChart />
+              <TradingViewChart candleData={generateMockCandlestickData('1h', 100)} pair={currentPair.name} height={500} />
               
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
                 {/* Left column */}
                 <div className="md:col-span-8 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <ForexOrderForm pair={currentPair} />
                     <OrderBook pair={currentPair} />
                   </div>
+                  
+                  {/* Pro Mode Button */}
+                  <div className="flex justify-end mt-4">
+                    <Button 
+                      onClick={() => navigate(`/forex-trading-pro/${encodeURIComponent(currentPair.name)}`)}
+                      className="bg-accent-500 hover:bg-accent-600"
+                    >
+                      <Sliders className="w-4 h-4 mr-2" />
+                      Switch to Professional Mode
+                    </Button>
+                  </div>
+                  
+                  {/* AI Strategy Box */}
+                  <AiStrategyBox pairName={currentPair.name} pairId={currentPair.id} />
                 </div>
                 
                 {/* Right column */}
                 <div className="md:col-span-4 space-y-4">
                   <PIPCalculator pair={currentPair} />
                   <MarketInfo pair={currentPair} />
+                  
+                  {/* Forex News */}
+                  <div className="bg-primary-800 rounded-lg border border-primary-700 overflow-hidden">
+                    <h3 className="font-semibold p-4 border-b border-primary-700">Recent Forex News</h3>
+                    <ForexNews />
+                  </div>
                 </div>
               </div>
             </div>

@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { TradingPair, CandlestickData } from "@shared/schema";
 import TradingViewChart from "@/components/trading/TradingViewChart";
 import { generateMockCandlestickData, generateMockOrderBook } from "@/lib/mockData";
+import AiStrategyBox from "@/components/trading/AiStrategyBox";
+import ForexNews from "@/components/trading/ForexNews";
 import {
   Home as HomeIcon,
   TrendingUp,
@@ -25,7 +27,9 @@ import {
   AlertCircle,
   BarChart,
   Wallet,
-  Users
+  Users,
+  MonitorSmartphone,
+  Brain
 } from "lucide-react";
 
 // Mock trading pairs for forex
@@ -482,15 +486,25 @@ export default function ForexTradingPro() {
   const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
   const [leverage, setLeverage] = useState<number>(10);
   const [currentPair, setCurrentPair] = useState<TradingPair>(forexPairs[0]);
-  const [candleData, setCandleData] = useState<CandlestickData[]>([]);
-  const [timeframe, setTimeframe] = useState<string>('1h');
+  const [candleData, setCandleData] = useState<CandlestickData[]>(generateMockCandlestickData('1h', 100));
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
+  const [timeFrame, setTimeFrame] = useState<string>('1h');
   
   // Generate mock candle data
   useEffect(() => {
     // Generate candle data when the pair or timeframe changes
-    const data = generateMockCandlestickData(timeframe, 100);
+    const data = generateMockCandlestickData(timeFrame, 100);
     setCandleData(data);
-  }, [currentPair.id, timeframe]);
+  }, [currentPair.id, timeFrame]);
+  
+  // Handle chart type and timeframe changes
+  const handleChartTypeChange = (type: 'candlestick' | 'line' | 'area') => {
+    setChartType(type);
+  };
+  
+  const handleTimeFrameChange = (tf: string) => {
+    setTimeFrame(tf);
+  };
   
   useEffect(() => {
     // Set the current pair based on URL param or default to first pair
@@ -636,7 +650,44 @@ export default function ForexTradingPro() {
             <div className="grid grid-cols-12 gap-4">
               {/* Chart area - spans 9 columns on large screens */}
               <div className="col-span-12 lg:col-span-9">
-                <TradingViewChart candleData={candleData} pair={currentPair.name} height={500} />
+                <div className="relative">
+                  {/* Chart controls */}
+                  <div className="absolute top-4 right-4 z-10 flex space-x-2">
+                    <div className="flex border border-primary-700 rounded overflow-hidden bg-primary-800/90">
+                      {['1m', '5m', '15m', '1h', '4h', '1d'].map(tf => (
+                        <button 
+                          key={tf}
+                          className={`px-2 py-1 text-xs ${timeFrame === tf ? 'bg-primary-700' : 'bg-transparent hover:bg-primary-700/50'}`}
+                          onClick={() => handleTimeFrameChange(tf)}
+                        >
+                          {tf}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="flex border border-primary-700 rounded overflow-hidden bg-primary-800/90">
+                      {[
+                        { type: 'candlestick', label: 'Candle', icon: BarChart },
+                        { type: 'line', label: 'Line', icon: LineChart },
+                        { type: 'area', label: 'Area', icon: TrendingUp }
+                      ].map(item => (
+                        <button 
+                          key={item.type}
+                          className={`px-2 py-1 text-xs flex items-center ${chartType === item.type ? 'bg-primary-700' : 'bg-transparent hover:bg-primary-700/50'}`}
+                          onClick={() => handleChartTypeChange(item.type as any)}
+                        >
+                          <item.icon className="h-3 w-3 mr-1" />
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <TradingViewChart 
+                    candleData={candleData} 
+                    pair={currentPair.name} 
+                    height={500} 
+                  />
+                </div>
                 
                 <div className="mt-4">
                   <OpenPositions />
@@ -652,10 +703,46 @@ export default function ForexTradingPro() {
               </div>
             </div>
             
+            {/* Basic Mode Button */}
+            <div className="flex justify-end mt-4 mb-2">
+              <Button 
+                onClick={() => navigate(`/forex-trading/${encodeURIComponent(currentPair.name)}`)}
+                variant="outline"
+                className="border-accent-500 text-accent-500 hover:bg-accent-500/10"
+              >
+                <MonitorSmartphone className="w-4 h-4 mr-2" />
+                Switch to Basic Mode
+              </Button>
+            </div>
+            
+            {/* AI Strategy */}
+            <div className="mt-4 mb-4">
+              <AiStrategyBox pairName={currentPair.name} pairId={currentPair.id} />
+            </div>
+            
             {/* Bottom row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <MarketInfo pair={currentPair} />
-              <PIPCalculator pair={currentPair} />
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
+              <div className="md:col-span-4">
+                <MarketInfo pair={currentPair} />
+              </div>
+              <div className="md:col-span-4">
+                <PIPCalculator pair={currentPair} />
+              </div>
+              <div className="md:col-span-4">
+                <div className="rounded-lg border border-primary-700 bg-primary-800 overflow-hidden">
+                  <div className="border-b border-primary-700 px-4 py-3">
+                    <h3 className="font-medium text-sm flex items-center">
+                      <AlertCircle className="w-4 h-4 mr-2 text-neutral-400" />
+                      Forex News
+                    </h3>
+                  </div>
+                  <ForexNews />
+                </div>
+              </div>
+            </div>
+            
+            {/* Recent Trades */}
+            <div className="mt-4">
               <RecentTrades />
             </div>
           </div>
