@@ -63,7 +63,7 @@ export default function TradingChart({
       let series;
       
       if (chartType === 'candlestick') {
-        series = chart.addCandlestickSeries({
+        series = chart.addSeries('candlestick', {
           upColor: 'rgba(72, 187, 120, 1)',
           downColor: 'rgba(245, 101, 101, 1)',
           borderUpColor: 'rgba(72, 187, 120, 1)',
@@ -76,7 +76,7 @@ export default function TradingChart({
           series.setData(candlesticks);
         }
       } else if (chartType === 'line') {
-        series = chart.addLineSeries({
+        series = chart.addSeries('line', {
           color: 'rgba(66, 153, 225, 1)',
           lineWidth: 2,
         });
@@ -90,7 +90,7 @@ export default function TradingChart({
           );
         }
       } else {
-        series = chart.addAreaSeries({
+        series = chart.addSeries('area', {
           topColor: 'rgba(66, 153, 225, 0.56)',
           bottomColor: 'rgba(66, 153, 225, 0.04)',
           lineColor: 'rgba(66, 153, 225, 1)',

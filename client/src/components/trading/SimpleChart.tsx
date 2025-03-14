@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, Activity, Clock } from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface SimpleChartProps {
   data: any[];
@@ -20,91 +21,56 @@ export default function SimpleChart({
   onChangeChartType, 
   onChangeTimeFrame 
 }: SimpleChartProps) {
-  const chartRef = useRef<HTMLDivElement>(null);
+  // Format data for recharts
+  const formattedData = data.map(candle => ({
+    time: new Date(candle.time * 1000).toLocaleTimeString(),
+    price: candle.close,
+    open: candle.open,
+    high: candle.high,
+    low: candle.low,
+  }));
 
-  useEffect(() => {
-    if (!chartRef.current || isLoading || !data.length) return;
+  // Render different chart types based on selection
+  const renderChart = () => {
+    if (isLoading) {
+      return <Skeleton className="h-full w-full" />;
+    }
 
-    const container = chartRef.current;
-    container.innerHTML = '';
-
-    // Load library dynamically to avoid TypeScript issues
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js';
-    script.async = true;
-    
-    script.onload = () => {
-      // @ts-ignore - we're using the global LightweightCharts object
-      const { createChart } = window.LightweightCharts;
-      
-      const chart = createChart(container, {
-        width: container.clientWidth,
-        height: 400,
-        layout: {
-          background: { color: 'rgba(45, 55, 72, 1)' },
-          textColor: 'rgba(255, 255, 255, 0.7)',
-        },
-        grid: {
-          vertLines: { color: 'rgba(74, 85, 104, 0.3)' },
-          horzLines: { color: 'rgba(74, 85, 104, 0.3)' },
-        },
-        timeScale: {
-          borderColor: 'rgba(74, 85, 104, 0.5)',
-          timeVisible: true,
-        },
-        rightPriceScale: {
-          borderColor: 'rgba(74, 85, 104, 0.5)',
-        },
-      });
-      
-      let series;
-      
-      // Create series based on chart type
-      if (chartType === 'line') {
-        series = chart.addLineSeries({
-          color: 'rgba(66, 153, 225, 1)',
-          lineWidth: 2,
-        });
-      } else {
-        series = chart.addAreaSeries({
-          topColor: 'rgba(66, 153, 225, 0.56)',
-          bottomColor: 'rgba(66, 153, 225, 0.04)',
-          lineColor: 'rgba(66, 153, 225, 1)',
-          lineWidth: 2,
-        });
-      }
-      
-      const lineData = data.map(candle => ({
-        time: candle.time,
-        value: candle.close,
-      }));
-      
-      series.setData(lineData);
-      chart.timeScale().fitContent();
-      
-      // Handle window resize
-      const handleResize = () => {
-        chart.applyOptions({
-          width: container.clientWidth,
-        });
-      };
-      
-      window.addEventListener('resize', handleResize);
-      
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        chart.remove();
-      };
-    };
-    
-    document.head.appendChild(script);
-    
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, [data, chartType, isLoading]);
+    if (chartType === 'line') {
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={formattedData}>
+            <XAxis dataKey="time" />
+            <YAxis domain={['auto', 'auto']} />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="price"
+              stroke="rgba(66, 153, 225, 1)"
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      );
+    } else {
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={formattedData}>
+            <XAxis dataKey="time" />
+            <YAxis domain={['auto', 'auto']} />
+            <Tooltip />
+            <Area
+              type="monotone"
+              dataKey="price"
+              stroke="rgba(66, 153, 225, 1)"
+              fill="rgba(66, 153, 225, 0.5)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      );
+    }
+  };
   
   return (
     <div className="flex-1 p-4 min-h-[400px] relative">
@@ -151,16 +117,7 @@ export default function SimpleChart({
           
           {/* Chart Content */}
           <div className="flex-1 relative">
-            {isLoading ? (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Skeleton className="h-full w-full" />
-              </div>
-            ) : (
-              <div 
-                ref={chartRef} 
-                className="h-full w-full"
-              />
-            )}
+            {renderChart()}
           </div>
         </div>
       </div>
