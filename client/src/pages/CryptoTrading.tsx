@@ -9,6 +9,9 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { TradingPair } from "@shared/schema";
+import { CandlestickData } from "@shared/schema";
+import { generateMockCandlestickData } from "@/lib/mockData";
+import TradingChart from "@/components/trading/TradingChart";
 import {
   Home as HomeIcon,
   TrendingUp,
@@ -421,6 +424,10 @@ export default function CryptoTrading() {
   const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
   const [leverage, setLeverage] = useState<number>(10);
   const [currentPair, setCurrentPair] = useState<TradingPair>(cryptoPairs[0]);
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
+  const [timeFrame, setTimeFrame] = useState<string>('1h');
+  const [candleData, setCandleData] = useState<CandlestickData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   
   useEffect(() => {
     // Get blockchain selection from localStorage
@@ -437,6 +444,17 @@ export default function CryptoTrading() {
       }
     }
   }, [pairParam, navigate]);
+  
+  // Generate mock candlestick data for the selected pair
+  useEffect(() => {
+    setIsLoading(true);
+    try {
+      const data = generateMockCandlestickData(timeFrame, 100);
+      setCandleData(data);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPair, timeFrame]);
 
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
