@@ -409,10 +409,35 @@ export default function CommodityTrading() {
                       <span className="text-neutral-400">Fees</span>
                       <span className="font-mono text-green-500">$0.00</span>
                     </div>
+                    
+                    {/* Liquidation Price */}
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="p-0 h-auto text-accent-400 text-xs flex items-center"
+                      onClick={() => setShowLiquidationPrice(!showLiquidationPrice)}
+                    >
+                      <ShieldAlert className="h-3 w-3 mr-1" />
+                      {showLiquidationPrice ? "Hide" : "Show"} Liquidation Price
+                    </Button>
+                    
+                    {showLiquidationPrice && (
+                      <div className="mt-2 p-2 bg-primary-700/60 rounded-md border border-primary-600 text-xs">
+                        <div className="flex justify-between items-center">
+                          <span className="text-neutral-400">Estimated Liquidation Price:</span>
+                          <span className={`font-mono ${orderSide === 'buy' ? 'text-red-500' : 'text-green-500'}`}>
+                            ${calculateLiquidationPrice()}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-neutral-500 text-xs">
+                          This price is estimated and may vary based on market volatility and margin requirements.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <Button 
-                    className={`w-full ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                    className={`w-full mt-4 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
                     disabled={!amount || parseFloat(amount) <= 0}
                     onClick={handlePlaceOrder}
                   >
@@ -516,7 +541,13 @@ export default function CommodityTrading() {
             </Card>
           </div>
 
-          {/* Open Positions and Market News */}
+          {/* AI Strategy and News Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <AiStrategyBox pairName={currentPair.name} pairId={currentPair.id} />
+            <CommodityNewsBox commodityType={currentPair.name} />
+          </div>
+
+          {/* Open Positions */}
           <div className="grid grid-cols-1 gap-4 mt-4">
             <Card className="bg-primary-800 border-primary-700">
               <CardContent className="pt-6">
