@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { createChart, IChartApi, SeriesType, CandlestickData as LightweightCandlestickData, LineData } from 'lightweight-charts';
+import { 
+  createChart, 
+  IChartApi, 
+  CandlestickData as LightweightCandlestickData, 
+  LineData
+} from 'lightweight-charts';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Settings, ChevronDown, BarChart2, TrendingUp, Activity } from 'lucide-react';
@@ -83,6 +88,10 @@ export default function TradingChart({
     if (chartType === 'candlestick') {
       series = chart.addSeries({
         type: 'Candlestick',
+      });
+      
+      // Apply custom styling
+      series.applyOptions({
         upColor: 'rgba(72, 187, 120, 1)',
         downColor: 'rgba(245, 101, 101, 1)',
         borderUpColor: 'rgba(72, 187, 120, 1)',
@@ -93,12 +102,20 @@ export default function TradingChart({
     } else if (chartType === 'line') {
       series = chart.addSeries({
         type: 'Line',
+      });
+      
+      // Apply custom styling
+      series.applyOptions({
         color: 'rgba(66, 153, 225, 1)',
         lineWidth: 2,
       });
     } else {
       series = chart.addSeries({
         type: 'Area',
+      });
+      
+      // Apply custom styling
+      series.applyOptions({
         topColor: 'rgba(66, 153, 225, 0.56)',
         bottomColor: 'rgba(66, 153, 225, 0.04)',
         lineColor: 'rgba(66, 153, 225, 1)',

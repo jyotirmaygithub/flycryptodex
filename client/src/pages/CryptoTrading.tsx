@@ -578,7 +578,14 @@ export default function CryptoTrading() {
           <div className="flex flex-1 overflow-auto p-4">
             {/* Chart Area */}
             <div className="flex-1 flex flex-col">
-              <PlaceholderChart />
+              <TradingChart 
+                candlesticks={candleData}
+                isLoading={isLoading}
+                chartType={chartType}
+                timeFrame={timeFrame}
+                onChangeChartType={setChartType}
+                onChangeTimeFrame={setTimeFrame}
+              />
               
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 {/* Left column */}
