@@ -81,6 +81,13 @@ export default function Header({ toggleSidebar }: HeaderProps) {
             {isConnecting ? "Connecting..." : "Connect Wallet"}
           </Button>
         )}
+        {isConnected && (
+          <Button variant="outline" asChild>
+            <Link href="/dashboard">
+              {isConnecting ? "Connecting..." : "Connect Wallet"}
+            </Link>
+          </Button>
+        )}
       </div>
     </header>
   );
