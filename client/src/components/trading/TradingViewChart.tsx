@@ -10,7 +10,8 @@ import {
   Bar,
   Area,
   CartesianGrid,
-  ReferenceLine
+  ReferenceLine,
+  Legend
 } from 'recharts';
 import { CandlestickData } from '@shared/schema';
 
@@ -31,15 +32,15 @@ const CustomTooltip: React.FC<any> = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-primary-800 border border-primary-700 p-2 rounded shadow-lg text-xs">
-        <p className="text-neutral-400">Time: {new Date(data.time).toLocaleString()}</p>
-        <p className="text-white">Open: ${data.open.toFixed(2)}</p>
-        <p className="text-white">High: ${data.high.toFixed(2)}</p>
-        <p className="text-white">Low: ${data.low.toFixed(2)}</p>
-        <p className={data.close >= data.open ? "text-green-500" : "text-red-500"}>
-          Close: ${data.close.toFixed(2)}
+      <div className="bg-primary-800 border border-primary-700 p-3 rounded shadow-lg text-xs">
+        <p className="text-neutral-400 mb-1">Time: {new Date(data.time).toLocaleString()}</p>
+        <p className="text-white">Open: {data.open.toFixed(5)}</p>
+        <p className="text-white">High: {data.high.toFixed(5)}</p>
+        <p className="text-white">Low: {data.low.toFixed(5)}</p>
+        <p className={data.close >= data.open ? "text-green-500 font-bold" : "text-red-500 font-bold"}>
+          Close: {data.close.toFixed(5)}
         </p>
-        <p className="text-neutral-400">Volume: {data.volume.toFixed(2)}</p>
+        <p className="text-neutral-400 mt-1">Volume: {data.volume.toFixed(2)}</p>
       </div>
     );
   }
@@ -52,7 +53,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   height = 500
 }) => {
   const [chartData, setChartData] = useState<any[]>([]);
-  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('line');
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
   const [timeFrame, setTimeFrame] = useState<string>('1h');
 
   useEffect(() => {
@@ -64,14 +65,17 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
         openCloseDiff: Math.abs(candle.open - candle.close),
         isIncreasing: candle.close >= candle.open,
         bodyStart: Math.min(candle.open, candle.close),
-        bodyEnd: Math.max(candle.open, candle.close)
+        bodyEnd: Math.max(candle.open, candle.close),
+        wickHeight: candle.high - candle.low,
+        bodyHeight: Math.abs(candle.open - candle.close),
+        color: candle.close >= candle.open ? '#26a69a' : '#ef5350'
       }));
       setChartData(processedData);
     }
   }, [candleData]);
 
   return (
-    <Card className="h-full">
+    <Card className="h-full border-primary-700 bg-primary-800">
       <CardContent className="p-0">
         <div className="chart-header p-3 border-b border-primary-700 flex items-center justify-between">
           <h3 className="text-lg font-medium">{pair}</h3>
@@ -107,60 +111,108 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
           </div>
         </div>
         
-        <div className="p-4 bg-primary-800" style={{ height: `${height}px` }}>
+        <div className="p-4 bg-primary-900" style={{ height: `${height}px` }}>
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={chartData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#2B2B43" />
-              <XAxis 
-                dataKey="time" 
-                tickFormatter={formatXAxis} 
-                minTickGap={50}
-                stroke="#666"
-              />
-              <YAxis 
-                domain={['auto', 'auto']} 
-                tickCount={10} 
-                stroke="#666"
-                orientation="right"
-              />
-              <Tooltip content={<CustomTooltip />} />
-              
-              {chartType === 'line' && (
-                <Line
-                  type="monotone"
-                  dataKey="close"
-                  stroke="#8884d8"
-                  strokeWidth={2}
-                  dot={false}
+            {chartType === 'candlestick' ? (
+              <ComposedChart
+                data={chartData}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#2B2B43" />
+                <XAxis 
+                  dataKey="time" 
+                  tickFormatter={formatXAxis} 
+                  minTickGap={50}
+                  stroke="#666"
                 />
-              )}
-              
-              {chartType === 'area' && (
-                <Area
-                  type="monotone"
-                  dataKey="close"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                  fillOpacity={0.2}
+                <YAxis 
+                  domain={['auto', 'auto']} 
+                  tickCount={10} 
+                  stroke="#666"
+                  orientation="right"
                 />
-              )}
-              
-              {chartType === 'candlestick' && (
-                <>
-                  {/* Body */}
-                  <Bar
-                    dataKey="openCloseDiff"
-                    barSize={8}
-                    fill="#26a69a"
-                    stroke="#26a69a"
-                    minPointSize={5}
+                <Tooltip content={<CustomTooltip />} />
+                
+                {/* High-Low lines (wicks) */}
+                {chartData.map((entry, index) => (
+                  <ReferenceLine
+                    key={`wick-${index}`}
+                    segment={[
+                      { x: entry.time, y: entry.low },
+                      { x: entry.time, y: entry.high }
+                    ]}
+                    stroke={entry.color}
+                    strokeWidth={1}
+                    isFront={true}
                   />
-                </>
-              )}
-            </ComposedChart>
+                ))}
+                
+                {/* Candle bodies */}
+                <Bar
+                  dataKey="openCloseDiff"
+                  barSize={8}
+                  shape={(props: any) => {
+                    const { x, y, width, height, datum } = props;
+                    const fill = datum.isIncreasing ? '#26a69a' : '#ef5350';
+                    const yStart = datum.isIncreasing ? 
+                      y + height - (height * (datum.close - datum.open) / (datum.high - datum.low)) : 
+                      y + (height * (datum.open - datum.low) / (datum.high - datum.low));
+                    const barHeight = Math.max(1, height * Math.abs(datum.close - datum.open) / (datum.high - datum.low));
+                    
+                    return (
+                      <rect
+                        x={x - width / 2}
+                        y={datum.isIncreasing ? yStart : y}
+                        width={width}
+                        height={barHeight}
+                        fill={fill}
+                        stroke={fill}
+                      />
+                    );
+                  }}
+                />
+              </ComposedChart>
+            ) : (
+              <ComposedChart
+                data={chartData}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#2B2B43" />
+                <XAxis 
+                  dataKey="time" 
+                  tickFormatter={formatXAxis} 
+                  minTickGap={50}
+                  stroke="#666"
+                />
+                <YAxis 
+                  domain={['auto', 'auto']} 
+                  tickCount={10} 
+                  stroke="#666"
+                  orientation="right"
+                />
+                <Tooltip content={<CustomTooltip />} />
+                
+                {chartType === 'line' && (
+                  <Line
+                    type="monotone"
+                    dataKey="close"
+                    stroke="#8884d8"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                )}
+                
+                {chartType === 'area' && (
+                  <Area
+                    type="monotone"
+                    dataKey="close"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                    fillOpacity={0.2}
+                  />
+                )}
+              </ComposedChart>
+            )}
           </ResponsiveContainer>
         </div>
       </CardContent>

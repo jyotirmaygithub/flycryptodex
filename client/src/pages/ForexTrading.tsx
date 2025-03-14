@@ -33,17 +33,10 @@ const forexPairs = [
   { id: 6, name: 'EUR/GBP', baseAsset: 'EUR', quoteAsset: 'GBP', price: 0.8642, change24h: 0.09, categoryId: 1, isActive: true },
 ];
 
-// Mock chart component
-function PlaceholderChart() {
-  return (
-    <div className="w-full h-[500px] bg-primary-800 rounded-lg border border-primary-700 flex items-center justify-center mb-4 p-4">
-      <div className="w-full h-full flex flex-col items-center justify-center">
-        <TrendingUp className="w-16 h-16 text-accent-500 opacity-20 mb-4" />
-        <div className="text-sm text-muted-foreground">Interactive chart loading...</div>
-      </div>
-    </div>
-  );
-}
+import TradingViewChart from "@/components/trading/TradingViewChart";
+import { generateMockCandlestickData } from "@/lib/mockData";
+import ForexNews from "@/components/trading/ForexNews";
+import AiStrategyBox from "@/components/trading/AiStrategyBox";
 
 function PIPCalculator({ pair }: { pair: TradingPair }) {
   const [amount, setAmount] = useState<number>(1);
