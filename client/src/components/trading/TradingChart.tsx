@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { 
-  createChart, 
-  IChartApi, 
-  CandlestickData as LightweightCandlestickData, 
-  LineData
-} from 'lightweight-charts';
+import { createChart } from 'lightweight-charts';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Settings, ChevronDown, BarChart2, TrendingUp, Activity } from 'lucide-react';
+import { Settings, BarChart2, TrendingUp, Activity } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,22 +28,20 @@ export default function TradingChart({
   onChangeTimeFrame 
 }: TradingChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartInstanceRef = useRef<any>(null);
   const [chartCreated, setChartCreated] = useState(false);
-  const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<any>(null);
 
-  // Create chart on mount
+  // Create chart on mount or when chart type changes
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    // If chart already exists, clean it up
-    if (chartRef.current) {
-      chartRef.current.remove();
-      chartRef.current = null;
-      seriesRef.current = null;
+    // Cleanup previous chart instance
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.remove();
+      chartInstanceRef.current = null;
     }
 
-    // Create the chart
+    // Create chart instance
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: 400,
@@ -63,75 +56,77 @@ export default function TradingChart({
       timeScale: {
         borderColor: 'rgba(74, 85, 104, 0.5)',
         timeVisible: true,
-        secondsVisible: false,
-      },
-      crosshair: {
-        vertLine: {
-          color: 'rgba(66, 153, 225, 0.5)',
-          width: 1,
-          style: 3,
-        },
-        horzLine: {
-          color: 'rgba(66, 153, 225, 0.5)',
-          width: 1,
-          style: 3,
-        },
-        mode: 1,
       },
       rightPriceScale: {
         borderColor: 'rgba(74, 85, 104, 0.5)',
       },
     });
 
-    // Create series based on chart type
     let series;
-    if (chartType === 'candlestick') {
-      series = chart.addSeries({
-        type: 'Candlestick',
-      });
-      
-      // Apply custom styling
-      series.applyOptions({
-        upColor: 'rgba(72, 187, 120, 1)',
-        downColor: 'rgba(245, 101, 101, 1)',
-        borderUpColor: 'rgba(72, 187, 120, 1)',
-        borderDownColor: 'rgba(245, 101, 101, 1)',
-        wickUpColor: 'rgba(72, 187, 120, 1)',
-        wickDownColor: 'rgba(245, 101, 101, 1)',
-      });
-    } else if (chartType === 'line') {
-      series = chart.addSeries({
-        type: 'Line',
-      });
-      
-      // Apply custom styling
-      series.applyOptions({
-        color: 'rgba(66, 153, 225, 1)',
-        lineWidth: 2,
-      });
-    } else {
-      series = chart.addSeries({
-        type: 'Area',
-      });
-      
-      // Apply custom styling
-      series.applyOptions({
-        topColor: 'rgba(66, 153, 225, 0.56)',
-        bottomColor: 'rgba(66, 153, 225, 0.04)',
-        lineColor: 'rgba(66, 153, 225, 1)',
-        lineWidth: 2,
-      });
+    
+    // Create appropriate series based on chart type
+    switch (chartType) {
+      case 'candlestick':
+        series = chart.addCandlestickSeries({
+          upColor: 'rgba(72, 187, 120, 1)',
+          downColor: 'rgba(245, 101, 101, 1)',
+          borderUpColor: 'rgba(72, 187, 120, 1)',
+          borderDownColor: 'rgba(245, 101, 101, 1)',
+          wickUpColor: 'rgba(72, 187, 120, 1)',
+          wickDownColor: 'rgba(245, 101, 101, 1)',
+        });
+        
+        if (candlesticks.length > 0) {
+          series.setData(candlesticks);
+        }
+        break;
+        
+      case 'line':
+        series = chart.addLineSeries({
+          color: 'rgba(66, 153, 225, 1)',
+          lineWidth: 2,
+        });
+        
+        if (candlesticks.length > 0) {
+          series.setData(
+            candlesticks.map(candle => ({
+              time: candle.time,
+              value: candle.close,
+            }))
+          );
+        }
+        break;
+        
+      case 'area':
+        series = chart.addAreaSeries({
+          topColor: 'rgba(66, 153, 225, 0.56)',
+          bottomColor: 'rgba(66, 153, 225, 0.04)',
+          lineColor: 'rgba(66, 153, 225, 1)',
+          lineWidth: 2,
+        });
+        
+        if (candlesticks.length > 0) {
+          series.setData(
+            candlesticks.map(candle => ({
+              time: candle.time,
+              value: candle.close,
+            }))
+          );
+        }
+        break;
     }
 
-    // Store references
-    chartRef.current = chart;
-    seriesRef.current = series;
+    // Fit chart content
+    chart.timeScale().fitContent();
+    
+    // Store chart instance
+    chartInstanceRef.current = chart;
     setChartCreated(true);
 
-    // Handle resize
+    // Handle window resize
     const handleResize = () => {
-      if (chartContainerRef.current && chartRef.current) {
-        chartRef.current.applyOptions({
+      if (chartContainerRef.current && chartInstanceRef.current) {
+        chartInstanceRef.current.applyOptions({
           width: chartContainerRef.current.clientWidth,
         });
       }
@@ -141,34 +136,8 @@ export default function TradingChart({
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      if (chartRef.current) {
-        chartRef.current.remove();
-        chartRef.current = null;
-        seriesRef.current = null;
-      }
     };
-  }, [chartType]);
-
-  // Update chart data when candlesticks change
-  useEffect(() => {
-    if (!seriesRef.current || !chartRef.current || candlesticks.length === 0) return;
-
-    // Format data for lightweight-charts based on chart type
-    if (chartType === 'candlestick') {
-      seriesRef.current.setData(candlesticks as LightweightCandlestickData[]);
-    } else {
-      // For line and area charts, we need to transform candlestick data to line data
-      const lineData = candlesticks.map(candle => ({
-        time: candle.time,
-        value: candle.close,
-      })) as LineData[];
-      
-      seriesRef.current.setData(lineData);
-    }
-
-    // Fit the chart to the data
-    chartRef.current.timeScale().fitContent();
-  }, [candlesticks, chartType, chartCreated]);
+  }, [chartType, candlesticks]);
 
   // Render chart controls and chart
   return (
