@@ -151,7 +151,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   height = 500
 }) => {
   const [chartData, setChartData] = useState<ProcessedCandleData[]>([]);
-  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('line');
   const [timeFrame, setTimeFrame] = useState<string>('1h');
 
   useEffect(() => {
