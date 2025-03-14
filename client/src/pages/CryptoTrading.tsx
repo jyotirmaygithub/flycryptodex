@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { TradingPair } from "@shared/schema";
 import { CandlestickData } from "@shared/schema";
 import { generateMockCandlestickData } from "@/lib/mockData";
-import TradingChart from "@/components/trading/TradingChart";
+import SimpleChart from "@/components/trading/SimpleChart";
 import {
   Home as HomeIcon,
   TrendingUp,
@@ -424,7 +424,7 @@ export default function CryptoTrading() {
   const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
   const [leverage, setLeverage] = useState<number>(10);
   const [currentPair, setCurrentPair] = useState<TradingPair>(cryptoPairs[0]);
-  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('line');
   const [timeFrame, setTimeFrame] = useState<string>('1h');
   const [candleData, setCandleData] = useState<CandlestickData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -578,12 +578,12 @@ export default function CryptoTrading() {
           <div className="flex flex-1 overflow-auto p-4">
             {/* Chart Area */}
             <div className="flex-1 flex flex-col">
-              <TradingChart 
-                candlesticks={candleData}
+              <SimpleChart 
+                data={candleData}
                 isLoading={isLoading}
-                chartType={chartType}
+                chartType={chartType === 'candlestick' ? 'line' : chartType}
                 timeFrame={timeFrame}
-                onChangeChartType={setChartType}
+                onChangeChartType={(type) => setChartType(type)}
                 onChangeTimeFrame={setTimeFrame}
               />
               
