@@ -480,12 +480,13 @@ export default function CommodityTradingPro() {
   const [, navigate] = useLocation();
   const [currentPair, setCurrentPair] = useState<TradingPair>(commodityPairs[0]);
   const [candleData, setCandleData] = useState<CandlestickData[]>([]);
-  const [timeframe, setTimeframe] = useState<string>('1h');
+  const [timeFrame, setTimeFrame] = useState<string>('1h');
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
   
   // Generate mock candle data
   useEffect(() => {
-    // Generate candle data when the pair or timeframe changes
-    const data = generateMockCandlestickData(timeframe, 100);
+    // Generate candle data when the pair or timeFrame changes
+    const data = generateMockCandlestickData(timeFrame, 100);
     // Adjust for commodity price range
     const adjustedData = data.map(candle => ({
       ...candle,
@@ -495,7 +496,7 @@ export default function CommodityTradingPro() {
       close: candle.close * currentPair.price
     }));
     setCandleData(adjustedData);
-  }, [currentPair.id, timeframe]);
+  }, [currentPair.id, timeFrame]);
   
   useEffect(() => {
     // Set the current pair based on URL param or default to first pair
@@ -552,6 +553,16 @@ export default function CommodityTradingPro() {
             </div>
           </div>
           
+          <Button 
+            onClick={() => navigate(`/commodity-trading/${encodeURIComponent(currentPair.name)}`)} 
+            variant="outline"
+            className="text-accent-500 border-accent-500"
+            size="sm"
+          >
+            <BarChart className="h-4 w-4 mr-2" />
+            Basic Mode
+          </Button>
+
           <ThemeToggle />
           
           <Button 
@@ -624,7 +635,40 @@ export default function CommodityTradingPro() {
             <div className="grid grid-cols-12 gap-4">
               {/* Chart area - spans 9 columns on large screens */}
               <div className="col-span-12 lg:col-span-9">
-                <TradingViewChart candleData={candleData} pair={currentPair.name} height={500} />
+                <div className="border border-primary-700 bg-primary-800 rounded-lg mb-4">
+                  <div className="p-4 border-b border-primary-700 flex justify-between items-center">
+                    <h3 className="font-medium text-sm">Price Chart</h3>
+                    <div className="flex space-x-2">
+                      <div className="flex border border-primary-700 rounded overflow-hidden">
+                        {['1m', '5m', '15m', '1h', '4h', '1d'].map(tf => (
+                          <button 
+                            key={tf}
+                            className={`px-2 py-1 text-xs ${timeFrame === tf ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
+                            onClick={() => setTimeFrame(tf)}
+                          >
+                            {tf.toUpperCase()}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex border border-primary-700 rounded overflow-hidden">
+                        {[
+                          { type: 'candlestick', label: 'Candle' },
+                          { type: 'line', label: 'Line' },
+                          { type: 'area', label: 'Area' }
+                        ].map(item => (
+                          <button 
+                            key={item.type}
+                            className={`px-2 py-1 text-xs ${chartType === item.type ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
+                            onClick={() => setChartType(item.type as any)}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <TradingViewChart candleData={candleData} pair={currentPair.name} height={500} />
+                </div>
                 
                 <div className="mt-4">
                   <OpenPositions />
