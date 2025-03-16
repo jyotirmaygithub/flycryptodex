@@ -261,19 +261,33 @@ export default function CommodityTrading() {
   return (
     <div className="min-h-screen flex flex-col bg-[#0b0e11] text-white">
       {/* Header - Bybit style */}
-      <header className="bybit-nav py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-50 backdrop-blur-sm bg-opacity-90">
+      <header className="bybit-nav py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-50 backdrop-blur-sm bg-opacity-90 border-b border-[var(--border-color)]">
         <div className="flex items-center">
           <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
-          <span className="ml-4 py-1 px-3 bg-[#f7a600]/10 text-[#f7a600] rounded-full text-xs font-semibold">CFD Trading</span>
+          <div className="ml-6 flex items-center space-x-1">
+            <span className="py-1 px-3 bg-[#f7a600]/10 text-[#f7a600] rounded-full text-xs font-semibold">CFD</span>
+            <span className="py-1 px-3 bg-[#22262f] text-neutral-300 rounded-full text-xs font-medium">Commodities</span>
+          </div>
+          <div className="ml-6 hidden md:flex items-center space-x-4">
+            <span className="text-neutral-400 text-sm">BTC: <span className="text-[#00c076]">$61,245.30</span></span>
+            <span className="text-neutral-400 text-sm">ETH: <span className="text-[#00c076]">$3,145.55</span></span>
+            <span className="text-neutral-400 text-sm">Market Cap: <span className="text-white">$2.26T</span></span>
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">
+          <div className="bg-[#22262f] rounded-md p-1 hidden sm:flex items-center">
+            <div className="text-xs text-[#f7a600] bg-[#181c25] px-3 py-1 rounded-sm">USD</div>
+            <div className="text-xs text-neutral-400 px-3 py-1 rounded-sm">EUR</div>
+            <div className="text-xs text-neutral-400 px-3 py-1 rounded-sm">BTC</div>
+          </div>
+          
           <ThemeToggle />
 
           <Button 
             onClick={() => navigate("/")} 
-            variant="ghost"
-            className="text-white hover:bg-[#22262f] transition-colors"
+            variant="outline"
+            className="text-white hover:bg-[#22262f] transition-colors border-[var(--border-color)] text-sm"
             size="sm"
           >
             <HomeIcon className="h-4 w-4 mr-2" />
@@ -604,64 +618,73 @@ export default function CommodityTrading() {
           {/* Market Information - Bybit style */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div className="bybit-card">
-              <div className="p-4">
-                <h2 className="text-lg font-bold mb-4 text-neutral-200">CFD Contract Specifications</h2>
-                <div className="space-y-2">
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">Contract Type</span>
-                    <span className="text-neutral-200">Contracts for Difference (CFD)</span>
+              <div className="bybit-card-header">
+                <h2 className="bybit-card-title">CFD Contract Specifications</h2>
+                <span className="bybit-badge bybit-badge-yellow">Perpetual</span>
+              </div>
+              <div className="bybit-card-content">
+                <div className="space-y-0">
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Contract Type</span>
+                    <span className="bybit-market-data-value">Contracts for Difference (CFD)</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">Trading Hours</span>
-                    <span className="text-neutral-200">24/7</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Trading Hours</span>
+                    <span className="bybit-market-data-value">24/7</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">Min Contract Size</span>
-                    <span className="text-neutral-200">0.01 Units</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Min Contract Size</span>
+                    <span className="bybit-market-data-value">0.01 Units</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">Max Leverage</span>
-                    <span className="text-neutral-200">Up to 100x</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Max Leverage</span>
+                    <span className="bybit-market-data-value">Up to 100x</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">Spread</span>
-                    <span className="text-neutral-200">Variable (Market Conditions)</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Spread</span>
+                    <span className="bybit-market-data-value">Variable (Market Conditions)</span>
                   </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-neutral-400">Settlement</span>
-                    <span className="text-neutral-200">Cash Settlement Only</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Settlement</span>
+                    <span className="bybit-market-data-value">Cash Settlement Only</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="bybit-card">
-              <div className="p-4">
-                <h2 className="text-lg font-bold mb-4 text-neutral-200">Market Information</h2>
-                <div className="space-y-2">
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">24h Volume</span>
-                    <span className="text-neutral-200 font-medium">$12.5M</span>
+              <div className="bybit-card-header">
+                <h2 className="bybit-card-title">Market Information</h2>
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 text-neutral-500 mr-1" /> 
+                  <span className="text-xs text-neutral-500">Last updated: {new Date().toLocaleTimeString()}</span>
+                </div>
+              </div>
+              <div className="bybit-card-content">
+                <div className="space-y-0">
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">24h Volume</span>
+                    <span className="bybit-market-data-value">$12.5M</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">24h High</span>
-                    <span className="text-neutral-200 font-medium">${(currentPair.price * 1.02).toFixed(2)}</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">24h High</span>
+                    <span className="bybit-market-data-value">${(currentPair.price * 1.02).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">24h Low</span>
-                    <span className="text-neutral-200 font-medium">${(currentPair.price * 0.98).toFixed(2)}</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">24h Low</span>
+                    <span className="bybit-market-data-value">${(currentPair.price * 0.98).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">Open Interest</span>
-                    <span className="text-neutral-200 font-medium">$8.3M</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Open Interest</span>
+                    <span className="bybit-market-data-value">$8.3M</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
-                    <span className="text-neutral-400">Funding Rate</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Funding Rate</span>
                     <span className="text-[#00c076] font-medium">+0.01%</span>
                   </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-neutral-400">Funding Interval</span>
-                    <span className="text-neutral-200 font-medium">8 Hours</span>
+                  <div className="bybit-market-data-row">
+                    <span className="bybit-market-data-label">Funding Interval</span>
+                    <span className="bybit-market-data-value">8 Hours</span>
                   </div>
                 </div>
               </div>

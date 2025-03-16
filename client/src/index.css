@@ -4,20 +4,49 @@
 
 /* Bybit-inspired custom components */
 @layer components {
+  /* Card components */
   .bybit-card {
     @apply bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md shadow-sm;
   }
   
-  .bybit-input {
-    @apply bg-[var(--input-bg)] border border-[var(--border-color)] rounded text-sm;
+  .bybit-card-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)];
   }
   
+  .bybit-card-title {
+    @apply text-base font-medium text-neutral-200;
+  }
+  
+  .bybit-card-content {
+    @apply p-4;
+  }
+  
+  /* Form elements */
+  .bybit-input {
+    @apply bg-[var(--input-bg)] border border-[var(--border-color)] rounded text-sm focus:border-[#f7a600] focus:ring-1 focus:ring-[#f7a600]/30;
+  }
+  
+  .bybit-select {
+    @apply bybit-input pr-8 appearance-none bg-no-repeat bg-right;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23848e9c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+  }
+  
+  .bybit-label {
+    @apply block text-sm font-medium text-neutral-400 mb-1;
+  }
+  
+  .bybit-helper-text {
+    @apply mt-1 text-xs text-neutral-500;
+  }
+  
+  /* Button components */
   .bybit-button {
     @apply rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1;
   }
   
   .bybit-button-primary {
-    @apply bybit-button bg-primary-500 hover:bg-primary-600 text-white;
+    @apply bybit-button bg-[#f7a600] hover:bg-[#f7a600]/90 text-white;
   }
   
   .bybit-button-secondary {
@@ -25,27 +54,160 @@
   }
   
   .bybit-button-success {
-    @apply bybit-button bg-success hover:bg-success/90 text-white;
+    @apply bybit-button bg-[#00c076] hover:bg-[#00c076]/90 text-white;
   }
   
   .bybit-button-error {
-    @apply bybit-button bg-error hover:bg-error/90 text-white;
+    @apply bybit-button bg-[#ff5353] hover:bg-[#ff5353]/90 text-white;
   }
   
+  .bybit-button-ghost {
+    @apply bybit-button bg-transparent hover:bg-[var(--card-hover)] text-neutral-400 hover:text-neutral-200;
+  }
+  
+  .bybit-button-outlined {
+    @apply bybit-button bg-transparent border border-[var(--border-color)] hover:border-[#f7a600] text-neutral-300 hover:text-[#f7a600];
+  }
+  
+  /* Badge/tag components */
+  .bybit-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .bybit-badge-yellow {
+    @apply bg-[#f7a600]/10 text-[#f7a600];
+  }
+  
+  .bybit-badge-green {
+    @apply bg-[#00c076]/10 text-[#00c076];
+  }
+  
+  .bybit-badge-red {
+    @apply bg-[#ff5353]/10 text-[#ff5353];
+  }
+  
+  .bybit-badge-blue {
+    @apply bg-[#1da2b4]/10 text-[#1da2b4];
+  }
+  
+  .bybit-badge-gray {
+    @apply bg-[var(--card-hover)] text-neutral-400;
+  }
+  
+  /* Table components */
   .bybit-table {
     @apply w-full border-collapse text-sm;
   }
   
   .bybit-table th {
-    @apply p-2 text-left font-medium text-neutral-400;
+    @apply p-2 text-left font-medium text-neutral-400 border-b border-[var(--border-color)];
   }
   
   .bybit-table td {
     @apply p-2 border-t border-[var(--border-color)];
   }
   
+  .bybit-table tr:hover {
+    @apply bg-[var(--card-hover)];
+  }
+  
+  /* Navigation components */
   .bybit-nav {
     @apply bg-[var(--nav-bg)] border-b border-[var(--border-color)];
+  }
+  
+  .bybit-nav-item {
+    @apply px-3 py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors;
+  }
+  
+  .bybit-nav-item-active {
+    @apply text-[#f7a600] border-b-2 border-[#f7a600];
+  }
+  
+  /* Tabs */
+  .bybit-tab {
+    @apply px-3 py-1.5 text-sm font-medium rounded-md transition-colors;
+  }
+  
+  .bybit-tab-active {
+    @apply bg-[var(--card-hover)] text-[#f7a600];
+  }
+  
+  .bybit-tab-inactive {
+    @apply text-neutral-400 hover:bg-[var(--card-hover)] hover:text-neutral-200;
+  }
+  
+  /* Dividers */
+  .bybit-divider {
+    @apply h-px w-full bg-[var(--border-color)] my-4;
+  }
+  
+  .bybit-divider-vertical {
+    @apply w-px h-full bg-[var(--border-color)] mx-4;
+  }
+  
+  /* Trading view chart components */
+  .bybit-chart-container {
+    @apply bg-[var(--card-bg)] rounded-md border border-[var(--border-color)];
+  }
+  
+  .bybit-chart-toolbar {
+    @apply flex items-center p-2 border-b border-[var(--border-color)];
+  }
+  
+  .bybit-chart-timeframe {
+    @apply inline-flex overflow-hidden rounded;
+  }
+  
+  .bybit-chart-timeframe-item {
+    @apply px-2 py-1 text-xs border-r last:border-r-0 border-[var(--border-color)] text-neutral-400;
+  }
+  
+  .bybit-chart-timeframe-active {
+    @apply bg-[var(--card-hover)] text-[#f7a600];
+  }
+  
+  /* Order book styling */
+  .bybit-orderbook-asks {
+    @apply text-right font-mono text-[#ff5353];
+  }
+  
+  .bybit-orderbook-bids {
+    @apply text-right font-mono text-[#00c076];
+  }
+  
+  .bybit-depth-bar-ask {
+    @apply absolute top-0 right-0 h-full bg-[#ff5353]/10 z-0;
+  }
+  
+  .bybit-depth-bar-bid {
+    @apply absolute top-0 right-0 h-full bg-[#00c076]/10 z-0;
+  }
+  
+  /* Trading form specific */
+  .bybit-trading-input-group {
+    @apply relative;
+  }
+  
+  .bybit-trading-input-suffix {
+    @apply absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-500;
+  }
+  
+  .bybit-trading-switch {
+    @apply relative inline-block h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none;
+  }
+  
+  /* Market data display */
+  .bybit-market-data-row {
+    @apply flex justify-between py-2 border-b border-[var(--border-color)] last:border-b-0;
+  }
+  
+  .bybit-market-data-label {
+    @apply text-neutral-400;
+  }
+  
+  .bybit-market-data-value {
+    @apply text-neutral-200 font-medium;
   }
 }
 
@@ -56,6 +218,32 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  /* Custom scrollbars - Bybit style */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+  
+  /* Force override for fonts to match Bybit */
+  body, input, button, select, textarea {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  
+  /* Focus states */
+  button:focus-visible, 
+  a:focus-visible {
+    @apply outline-none ring-2 ring-[#f7a600]/30;
   }
 }
 
@@ -95,7 +283,7 @@
 }
 
 .dark {
-  --background: var(--color-neutral-900);
+  --background: #0b0e11; /* Bybit darker background */
   --foreground: var(--color-neutral-100);
   
   /* Primary colors */
@@ -103,14 +291,22 @@
   --primary-600: var(--color-primary-600);
   --primary-700: var(--color-neutral-800);
   --primary-800: var(--color-neutral-900);
-  --primary-900: #0f131f;
+  --primary-900: #0a0c0f;
 
-  /* UI elements */
+  /* UI elements - Bybit exact colors */
   --card-bg: #181c25;
   --card-hover: #22262f;
   --border-color: #2b313a;
-  --input-bg: #1e222b;
-  --nav-bg: #0c1018;
+  --input-bg: #181c25;
+  --nav-bg: #0b0e11;
+  --tooltip-bg: #22262f;
+  --popup-bg: #0f1217;
+  
+  /* Additional UI elements */
+  --scrollbar-thumb: #2b313a;
+  --scrollbar-track: #181c25;
+  --dropdown-bg: #181c25;
+  --dropdown-hover: #22262f;
 
   /* Trading colors */
   --success: var(--color-success);
