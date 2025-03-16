@@ -129,9 +129,15 @@ function ForexOrderForm({ pair }: { pair: TradingPair }) {
   };
 
   return (
-    <div className="rounded-lg border border-primary-700 bg-primary-800">
-      <div className="border-b border-primary-700 px-4 py-3">
-        <h3 className="font-medium text-sm">Place Order</h3>
+    <div className="rounded-lg border border-primary-700 bg-primary-800 shadow-lg">
+      <div className="border-b border-primary-700 px-4 py-3 bg-primary-800/80 flex items-center justify-between">
+        <h3 className="font-medium text-sm flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-accent-500" />
+          Place Order
+        </h3>
+        <div className="text-xs bg-primary-700 px-2 py-1 rounded">
+          Balance: <span className="text-accent-500 font-medium">$10,000.00</span>
+        </div>
       </div>
       
       <div className="p-4">
@@ -148,15 +154,17 @@ function ForexOrderForm({ pair }: { pair: TradingPair }) {
         
         <div className="mb-4 grid grid-cols-2 gap-2">
           <Button 
-            className={`py-3 text-sm ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
+            className={`py-3 text-sm font-medium ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
             onClick={() => setOrderSide('buy')}
           >
+            <TrendingUp className="w-4 h-4 mr-2" />
             Buy / Long
           </Button>
           <Button 
-            className={`py-3 text-sm ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
+            className={`py-3 text-sm font-medium ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
             onClick={() => setOrderSide('sell')}
           >
+            <TrendingDown className="w-4 h-4 mr-2" />
             Sell / Short
           </Button>
         </div>
@@ -164,7 +172,7 @@ function ForexOrderForm({ pair }: { pair: TradingPair }) {
         <div className="space-y-3 mb-4">
           <div>
             <Label htmlFor="amount" className="text-xs text-neutral-400">Amount (Lots)</Label>
-            <div className="relative mt-1">
+            <div className="relative mt-1 flex gap-2">
               <Input 
                 id="amount" 
                 className="bg-primary-700 border-primary-600 h-8"
@@ -174,12 +182,28 @@ function ForexOrderForm({ pair }: { pair: TradingPair }) {
                 min={0.01}
                 step={0.01}
               />
+              <div className="grid grid-cols-4 gap-1">
+                {[0.01, 0.1, 0.5, 1].map(preset => (
+                  <Button 
+                    key={preset}
+                    size="sm" 
+                    variant="outline" 
+                    className="h-8 text-xs px-1"
+                    onClick={() => setAmount(preset)}
+                  >
+                    {preset}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <Label htmlFor="stopLoss" className="text-xs text-neutral-400">Stop Loss</Label>
+              <Label htmlFor="stopLoss" className="text-xs text-neutral-400 flex items-center">
+                <X className="w-4 h-4 mr-1 text-red-500" />
+                Stop Loss
+              </Label>
               <Switch 
                 id="useStopLoss" 
                 checked={useStopLoss} 
@@ -207,17 +231,20 @@ function ForexOrderForm({ pair }: { pair: TradingPair }) {
               </Button>
             </div>
             {useStopLoss && (
-              <div className="text-xs text-muted-foreground mt-1">
-                {orderSide === 'buy' 
-                  ? `Loss: $${((pair.price - stopLossPrice) * amount * 10000).toFixed(2)}` 
-                  : `Loss: $${((stopLossPrice - pair.price) * amount * 10000).toFixed(2)}`}
+              <div className="text-xs text-red-400 mt-1 flex items-center">
+                <span className="bg-red-400/10 px-1.5 py-0.5 rounded">
+                  Loss: $${((pair.price - stopLossPrice) * amount * 10000).toFixed(2)}
+                </span>
               </div>
             )}
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <Label htmlFor="takeProfit" className="text-xs text-neutral-400">Take Profit</Label>
+              <Label htmlFor="takeProfit" className="text-xs text-neutral-400 flex items-center">
+                <Check className="w-4 h-4 mr-1 text-green-500" />
+                Take Profit
+              </Label>
               <Switch 
                 id="useTakeProfit" 
                 checked={useTakeProfit} 
@@ -245,21 +272,31 @@ function ForexOrderForm({ pair }: { pair: TradingPair }) {
               </Button>
             </div>
             {useTakeProfit && (
-              <div className="text-xs text-muted-foreground mt-1">
-                {orderSide === 'buy' 
-                  ? `Profit: $${((takeProfitPrice - pair.price) * amount * 10000).toFixed(2)}` 
-                  : `Profit: $${((pair.price - takeProfitPrice) * amount * 10000).toFixed(2)}`}
+              <div className="text-xs text-green-400 mt-1 flex items-center">
+                <span className="bg-green-400/10 px-1.5 py-0.5 rounded">
+                  Profit: $${((takeProfitPrice - pair.price) * amount * 10000).toFixed(2)}
+                </span>
               </div>
             )}
           </div>
         </div>
         
-        <div className="pt-2 border-t border-primary-700">
+        <div className="pt-3 border-t border-primary-700">
           <Button 
-            className={`w-full py-4 text-sm ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+            className={`w-full py-4 text-sm font-medium flex items-center justify-center ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
             onClick={handlePlaceOrder}
           >
-            {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.name} @ {pair.price}
+            {orderSide === 'buy' ? (
+              <>
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Buy {amount} lot{amount !== 1 ? 's' : ''} of {pair.name} @ {pair.price}
+              </>
+            ) : (
+              <>
+                <TrendingDown className="w-4 h-4 mr-2" />
+                Sell {amount} lot{amount !== 1 ? 's' : ''} of {pair.name} @ {pair.price}
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -753,13 +790,7 @@ export default function ForexTradingPro() {
                 <PIPCalculator pair={currentPair} />
               </div>
               <div className="md:col-span-4">
-                <div className="rounded-lg border border-primary-700 bg-primary-800 overflow-hidden">
-                  <div className="border-b border-primary-700 px-4 py-3">
-                    <h3 className="font-medium text-sm flex items-center">
-                      <AlertCircle className="w-4 h-4 mr-2 text-neutral-400" />
-                      Forex News
-                    </h3>
-                  </div>
+                <div className="rounded-lg border border-primary-700 bg-primary-800 overflow-hidden shadow-lg">
                   <ForexNews />
                 </div>
               </div>
