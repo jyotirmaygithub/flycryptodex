@@ -204,23 +204,18 @@ export default function AlgorithmicTrading() {
   // Load trading strategies
   const { data: strategies, isLoading: isLoadingStrategies } = useQuery({
     queryKey: ['/api/strategies', userId],
-    queryFn: () => apiRequest<TradingStrategy[]>(`/api/strategies?userId=${userId}`),
     enabled: !!userId,
   });
   
   // Load trading pairs for selection
   const { data: tradingPairs, isLoading: isLoadingPairs } = useQuery({
     queryKey: ['/api/pairs'],
-    queryFn: () => apiRequest<TradingPair[]>('/api/pairs'),
   });
   
   // Create new strategy
   const createStrategyMutation = useMutation({
     mutationFn: (strategyData: CreateStrategyRequest) => 
-      apiRequest<TradingStrategy>('/api/strategies', {
-        method: 'POST',
-        body: JSON.stringify(strategyData),
-      }),
+      apiRequest('POST', '/api/strategies', strategyData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/strategies', userId] });
       resetForm();
@@ -243,15 +238,13 @@ export default function AlgorithmicTrading() {
   // Update strategy status
   const updateStrategyStatusMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: number, isActive: boolean }) => 
-      apiRequest<TradingStrategy>(`/api/strategies/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ isActive }),
-      }),
-    onSuccess: (data) => {
+      apiRequest('PATCH', `/api/strategies/${id}/status`, { isActive }),
+    onSuccess: async (data) => {
+      const jsonData = await data.json();
       queryClient.invalidateQueries({ queryKey: ['/api/strategies', userId] });
       toast({
-        title: `Strategy ${data.isActive ? 'Activated' : 'Paused'}`,
-        description: `The trading strategy has been ${data.isActive ? 'activated' : 'paused'} successfully.`,
+        title: `Strategy ${jsonData.isActive ? 'Activated' : 'Paused'}`,
+        description: `The trading strategy has been ${jsonData.isActive ? 'activated' : 'paused'} successfully.`,
       });
     },
     onError: (error) => {
@@ -266,9 +259,7 @@ export default function AlgorithmicTrading() {
   // Delete strategy
   const deleteStrategyMutation = useMutation({
     mutationFn: (id: number) => 
-      apiRequest<void>(`/api/strategies/${id}`, {
-        method: 'DELETE',
-      }),
+      apiRequest('DELETE', `/api/strategies/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/strategies', userId] });
       setStrategyToDelete(null);
