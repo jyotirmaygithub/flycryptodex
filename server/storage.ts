@@ -102,6 +102,8 @@ export class MemStorage implements IStorage {
     this.orders = new Map();
     this.aiRecommendations = new Map();
     this.forexNews = new Map();
+    this.apiKeys = new Map();
+    this.tradingStrategies = new Map();
     this.marketData = new Map();
     
     this.userId = 1;
@@ -111,6 +113,8 @@ export class MemStorage implements IStorage {
     this.orderId = 1;
     this.recommendationId = 1;
     this.newsId = 1;
+    this.apiKeyId = 1;
+    this.strategyId = 1;
     
     // Initialize with default data
     this.initializeDefaultData();
@@ -452,6 +456,97 @@ export class MemStorage implements IStorage {
     const updatedData = { ...currentData, ...data };
     this.marketData.set(pair, updatedData);
     return updatedData;
+  }
+
+  // API key methods
+  async getApiKeys(userId: number): Promise<ApiKey[]> {
+    return Array.from(this.apiKeys.values()).filter(
+      (key) => key.userId === userId
+    );
+  }
+
+  async getApiKey(id: number): Promise<ApiKey | undefined> {
+    return this.apiKeys.get(id);
+  }
+
+  async getApiKeyByKey(apiKey: string): Promise<ApiKey | undefined> {
+    return Array.from(this.apiKeys.values()).find(
+      (key) => key.apiKey === apiKey
+    );
+  }
+
+  async createApiKey(key: InsertApiKey): Promise<ApiKey> {
+    const id = this.apiKeyId++;
+    const createdAt = new Date();
+    const newApiKey: ApiKey = { ...key, id, createdAt, lastUsed: null };
+    this.apiKeys.set(id, newApiKey);
+    return newApiKey;
+  }
+
+  async updateApiKey(id: number, isActive: boolean): Promise<ApiKey | undefined> {
+    const apiKey = this.apiKeys.get(id);
+    if (!apiKey) return undefined;
+    
+    const updatedApiKey = { ...apiKey, isActive };
+    this.apiKeys.set(id, updatedApiKey);
+    return updatedApiKey;
+  }
+
+  async deleteApiKey(id: number): Promise<boolean> {
+    if (!this.apiKeys.has(id)) return false;
+    return this.apiKeys.delete(id);
+  }
+
+  // Trading strategy methods
+  async getTradingStrategies(userId: number): Promise<TradingStrategy[]> {
+    return Array.from(this.tradingStrategies.values()).filter(
+      (strategy) => strategy.userId === userId
+    );
+  }
+
+  async getTradingStrategy(id: number): Promise<TradingStrategy | undefined> {
+    return this.tradingStrategies.get(id);
+  }
+
+  async createTradingStrategy(strategy: InsertTradingStrategy): Promise<TradingStrategy> {
+    const id = this.strategyId++;
+    const createdAt = new Date();
+    const newStrategy: TradingStrategy = { 
+      ...strategy, 
+      id, 
+      createdAt, 
+      lastRun: null, 
+      performance: null 
+    };
+    this.tradingStrategies.set(id, newStrategy);
+    return newStrategy;
+  }
+
+  async updateTradingStrategy(id: number, isActive: boolean): Promise<TradingStrategy | undefined> {
+    const strategy = this.tradingStrategies.get(id);
+    if (!strategy) return undefined;
+    
+    const updatedStrategy = { ...strategy, isActive };
+    this.tradingStrategies.set(id, updatedStrategy);
+    return updatedStrategy;
+  }
+
+  async updateTradingStrategyPerformance(id: number, performance: number): Promise<TradingStrategy | undefined> {
+    const strategy = this.tradingStrategies.get(id);
+    if (!strategy) return undefined;
+    
+    const updatedStrategy = { 
+      ...strategy, 
+      performance,
+      lastRun: new Date()
+    };
+    this.tradingStrategies.set(id, updatedStrategy);
+    return updatedStrategy;
+  }
+
+  async deleteTradingStrategy(id: number): Promise<boolean> {
+    if (!this.tradingStrategies.has(id)) return false;
+    return this.tradingStrategies.delete(id);
   }
 }
 
