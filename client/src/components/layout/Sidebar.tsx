@@ -4,9 +4,33 @@ import { useTradingPairs } from "@/hooks/useTradingPairs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { CircleCheck, CircleDot, Search, X } from "lucide-react";
+import { 
+  ArrowRight, 
+  BarChart3, 
+  ChevronDown,
+  ChevronRight,
+  Code, 
+  CreditCard, 
+  Ellipsis, 
+  Home, 
+  Key, 
+  Layers, 
+  LineChart, 
+  PlayCircle, 
+  Search, 
+  Settings, 
+  Star, 
+  DollarSign, 
+  Wallet,
+  X 
+} from "lucide-react";
 import { useLocation } from "wouter";
 import { TradingPair } from "@shared/schema";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,14 +38,18 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const [, navigate] = useLocation();
-  const { setSelectedPair, tradingPairs } = useAppContext();
+  const [location, navigate] = useLocation();
+  const { setSelectedPair, tradingPairs, professionalMode, setProfessionalMode } = useAppContext();
   
   // Define missing properties with default values
   const [selectedBlockchain, setSelectedBlockchain] = useState<string>("Ethereum");
   const [selectedCategory, setSelectedCategory] = useState<string>("Forex");
   const [demoMode, setDemoMode] = useState<boolean>(true);
   const demoBalance = 10000;
+  
+  // Sidebar section states
+  const [marketsOpen, setMarketsOpen] = useState(true);
+  const [devToolsOpen, setDevToolsOpen] = useState(false);
   
   // Sample blockchains and categories for demo
   const blockchains = [
@@ -76,10 +104,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   
   const sidebarClasses = `
     transition-transform duration-300 ease-in-out transform
-    fixed inset-y-0 left-0 z-30 w-64 bg-primary-800 border-r border-primary-700
+    fixed inset-y-0 left-0 z-30 w-72 bg-primary-900 border-r border-primary-700/50
     md:relative md:translate-x-0 md:z-auto
     ${isOpen ? "translate-x-0" : "-translate-x-full"}
   `;
+
+  const isActive = (path: string) => {
+    return location.startsWith(path);
+  };
   
   return (
     <>
@@ -99,152 +131,228 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <X size={24} />
             </button>
           </div>
-          
-          {/* Blockchain Selection */}
-          <div className="p-4 border-b border-primary-700">
-            <h2 className="text-sm uppercase tracking-wider text-neutral-400 mb-3">Blockchain</h2>
-            <div className="flex flex-col space-y-2">
-              {blockchains.map((blockchain) => (
-                <button
-                  key={blockchain.id}
-                  className={`flex items-center p-2 rounded-md ${
-                    selectedBlockchain === blockchain.name 
-                      ? "bg-accent-500 text-white" 
-                      : "hover:bg-primary-700 text-neutral-300"
-                  }`}
-                  onClick={() => handleSelectBlockchain(blockchain.name)}
+
+          {/* Sidebar content container */}
+          <div className="flex flex-col h-full">
+            {/* Navigation Section */}
+            <div className="p-3">
+              <div className="space-y-1">
+                <button 
+                  onClick={() => navigate('/')}
+                  className={`w-full flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
+                    ${isActive('/') && !isActive('/trading') && !isActive('/api-keys') && !isActive('/algorithmic-trading')
+                      ? "bg-primary-700 text-white"
+                      : "text-muted-foreground hover:text-white hover:bg-primary-800"}
+                  `}
                 >
-                  <span className="w-5 h-5 mr-2 flex items-center justify-center">
-                    {selectedBlockchain === blockchain.name ? (
-                      <CircleCheck size={16} />
-                    ) : (
-                      <CircleDot size={16} />
-                    )}
-                  </span>
-                  {blockchain.name}
+                  <Home className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
                 </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Trading Category */}
-          <div className="p-4 border-b border-primary-700">
-            <h2 className="text-sm uppercase tracking-wider text-neutral-400 mb-3">Trading</h2>
-            <div className="flex flex-col space-y-2">
-              {tradingCategories.map((category) => (
-                <button
-                  key={category.id}
-                  className={`flex items-center p-2 rounded-md ${
-                    selectedCategory === category.name 
-                      ? "bg-accent-500 text-white" 
-                      : "hover:bg-primary-700 text-neutral-300"
-                  }`}
-                  onClick={() => handleSelectCategory(category.name)}
+
+                <Collapsible
+                  open={marketsOpen}
+                  onOpenChange={setMarketsOpen}
+                  className="w-full"
                 >
-                  <span className="w-5 h-5 mr-2 flex items-center justify-center">
-                    {selectedCategory === category.name ? (
-                      <CircleCheck size={16} />
+                  <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-white hover:bg-primary-800 transition-colors">
+                    <div className="flex items-center">
+                      <LineChart className="mr-2 h-4 w-4" />
+                      <span>Markets</span>
+                    </div>
+                    {marketsOpen ? (
+                      <ChevronDown className="h-4 w-4" />
                     ) : (
-                      <CircleDot size={16} />
+                      <ChevronRight className="h-4 w-4" />
                     )}
-                  </span>
-                  {category.name}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pl-9 pt-1 pb-1">
+                    <div className="space-y-1">
+                      {tradingCategories.map((category) => (
+                        <button
+                          key={category.id}
+                          onClick={() => handleSelectCategory(category.name)}
+                          className={`w-full flex items-center px-3 py-2 rounded-md text-sm transition-colors
+                            ${selectedCategory === category.name
+                              ? "bg-primary-700/60 text-white"
+                              : "text-muted-foreground hover:text-white hover:bg-primary-800/50"}
+                          `}
+                        >
+                          {category.name}
+                        </button>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                <button 
+                  onClick={() => navigate('/api-keys')}
+                  className={`w-full flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
+                    ${isActive('/api-keys')
+                      ? "bg-primary-700 text-white"
+                      : "text-muted-foreground hover:text-white hover:bg-primary-800"}
+                  `}
+                >
+                  <Key className="mr-2 h-4 w-4" />
+                  <span>API Keys</span>
                 </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Advanced Trading */}
-          <div className="p-4 border-b border-primary-700">
-            <h2 className="text-sm uppercase tracking-wider text-neutral-400 mb-3">Advanced Trading</h2>
-            <div className="flex flex-col space-y-2">
-              <button
-                className="flex items-center p-2 rounded-md hover:bg-primary-700 text-neutral-300"
-                onClick={() => navigate('/api-keys')}
-              >
-                <span className="w-5 h-5 mr-2 flex items-center justify-center">
-                  <CircleDot size={16} />
-                </span>
-                API Keys
-              </button>
-              <button
-                className="flex items-center p-2 rounded-md hover:bg-primary-700 text-neutral-300"
-                onClick={() => navigate('/algorithmic-trading')}
-              >
-                <span className="w-5 h-5 mr-2 flex items-center justify-center">
-                  <CircleDot size={16} />
-                </span>
-                Algorithmic Trading
-              </button>
-            </div>
-          </div>
-          
-          {/* Trading Pairs */}
-          <div className="p-4 flex-1 overflow-y-auto">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm uppercase tracking-wider text-neutral-400">Trading Pairs</h2>
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-primary-700 text-sm rounded-md px-3 py-1 w-28 h-7 focus:outline-none focus:ring-1 focus:ring-accent-500"
-                />
-                <Search className="absolute right-2 top-1 h-4 w-4 text-neutral-400" />
+
+                <button 
+                  onClick={() => navigate('/algorithmic-trading')}
+                  className={`w-full flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
+                    ${isActive('/algorithmic-trading')
+                      ? "bg-primary-700 text-white"
+                      : "text-muted-foreground hover:text-white hover:bg-primary-800"}
+                  `}
+                >
+                  <Code className="mr-2 h-4 w-4" />
+                  <span>Algorithmic Trading</span>
+                </button>
+
+                <Collapsible
+                  open={devToolsOpen}
+                  onOpenChange={setDevToolsOpen}
+                  className="w-full"
+                >
+                  <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-white hover:bg-primary-800 transition-colors">
+                    <div className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Developer</span>
+                    </div>
+                    {devToolsOpen ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pl-9 pt-1 pb-1">
+                    <div className="space-y-1">
+                      <button className="w-full flex items-center px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-white hover:bg-primary-800/50 transition-colors">
+                        WebSocket API
+                      </button>
+                      <button className="w-full flex items-center px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-white hover:bg-primary-800/50 transition-colors">
+                        Documentation
+                      </button>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
             </div>
-            
-            <div className="flex flex-col space-y-1">
-              {isLoading ? (
-                <div className="text-center py-4 text-neutral-400 text-sm">Loading pairs...</div>
-              ) : filteredPairs.length === 0 ? (
-                <div className="text-center py-4 text-neutral-400 text-sm">No pairs found</div>
-              ) : (
-                filteredPairs.map((pair) => (
-                  <button
-                    key={pair.id}
-                    className="flex justify-between items-center p-2 rounded-md hover:bg-primary-700"
-                    onClick={() => handleSelectPair(pair)}
-                  >
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium">{pair.name}</span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className={`text-xs font-mono ${pair.change24h >= 0 ? 'text-success' : 'text-error'}`}>
-                        {pair.price.toFixed(4)}
-                      </span>
-                      <span className={`text-xs font-mono ${pair.change24h >= 0 ? 'text-success' : 'text-error'}`}>
-                        {pair.change24h >= 0 ? '+' : ''}{pair.change24h.toFixed(2)}%
-                      </span>
-                    </div>
-                  </button>
-                ))
-              )}
+
+            {/* Trading Pairs Search */}
+            <div className="px-3 mb-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search trading pairs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 bg-primary-800/40 border-primary-700/50 focus-visible:ring-1 focus-visible:ring-[#f7a600] focus-visible:ring-offset-0"
+                />
+              </div>
+            </div>
+
+            {/* Trading Pairs */}
+            <div className="flex-1 overflow-y-auto px-3">
+              <div className="space-y-1 py-2">
+                <div className="flex items-center justify-between px-3 mb-2">
+                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {selectedCategory} Pairs
+                  </h3>
+                  <Badge variant="outline" className="text-xs font-normal px-1.5 py-0 border-primary-700/50">
+                    {filteredPairs.length}
+                  </Badge>
+                </div>
+                
+                <div className="space-y-0.5">
+                  {isLoading ? (
+                    <div className="text-center py-4 text-muted-foreground text-sm">Loading pairs...</div>
+                  ) : filteredPairs.length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground text-sm">No pairs found</div>
+                  ) : (
+                    filteredPairs.map((pair) => (
+                      <button
+                        key={pair.id}
+                        className={`w-full flex justify-between items-center px-3 py-2 rounded-md hover:bg-primary-800 transition-colors
+                          ${isActive(`/trading/${pair.name}`) ? "bg-primary-800/80" : ""}
+                        `}
+                        onClick={() => handleSelectPair(pair)}
+                      >
+                        <div className="flex items-center">
+                          <Star className={`h-3.5 w-3.5 mr-2 ${
+                            isActive(`/trading/${pair.name}`) ? "text-[#f7a600]" : "text-muted-foreground" 
+                          }`} />
+                          <span className="text-sm font-medium">{pair.name}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className={`text-xs font-mono ${pair.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {pair.price.toFixed(4)}
+                          </span>
+                          <span className={`text-xs font-mono ${pair.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {pair.change24h >= 0 ? '+' : ''}{pair.change24h.toFixed(2)}%
+                          </span>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-          
-          {/* Demo Mode */}
-          <div className="p-4 border-t border-primary-700 bg-primary-800">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Demo Mode</span>
-              <Switch 
-                checked={demoMode} 
-                onCheckedChange={toggleDemoMode}
-                className={demoMode ? "bg-accent-500" : ""} 
-              />
+
+          {/* Bottom section */}
+          <div className="border-t border-primary-700/50 pt-3 pb-3 px-3 space-y-3">
+            {/* Mode Switcher */}
+            <div className="bg-primary-800/40 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Trading Mode</span>
+                <Badge variant={professionalMode ? "default" : "outline"} className={professionalMode ? "bg-[#f7a600] hover:bg-[#f7a600]/90 text-primary-950" : "text-muted-foreground border-primary-700/50"}>
+                  {professionalMode ? "Pro" : "Basic"}
+                </Badge>
+              </div>
+              <div className="flex">
+                <button
+                  onClick={() => setProfessionalMode(false)}
+                  className={`flex-1 py-1 text-xs rounded-l-md border border-r-0 transition-colors ${!professionalMode 
+                    ? "bg-primary-700 text-white border-primary-700" 
+                    : "bg-transparent text-muted-foreground border-primary-700/50 hover:bg-primary-800/50"}`}
+                >
+                  Basic
+                </button>
+                <button
+                  onClick={() => setProfessionalMode(true)}
+                  className={`flex-1 py-1 text-xs rounded-r-md border transition-colors ${professionalMode 
+                    ? "bg-primary-700 text-white border-primary-700" 
+                    : "bg-transparent text-muted-foreground border-primary-700/50 hover:bg-primary-800/50"}`}
+                >
+                  Professional
+                </button>
+              </div>
             </div>
-            {demoMode && (
-              <div className="mt-2 bg-primary-700 rounded-md p-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-neutral-400">Demo Balance</span>
-                  <span className="text-sm font-medium font-mono">${demoBalance.toLocaleString(undefined, {
+
+            {/* Demo Mode */}
+            <div className="bg-primary-800/40 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Demo Mode</span>
+                <Switch 
+                  checked={demoMode} 
+                  onCheckedChange={toggleDemoMode}
+                  className={demoMode ? "bg-[#f7a600]" : ""} 
+                />
+              </div>
+              {demoMode && (
+                <div className="flex items-center justify-between text-sm bg-primary-800/60 rounded-md p-2">
+                  <div className="flex items-center">
+                    <DollarSign className="h-3.5 w-3.5 mr-1 text-[#f7a600]" />
+                    <span className="text-xs">Demo Balance:</span>
+                  </div>
+                  <span className="font-medium font-mono">${demoBalance.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}</span>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </aside>
