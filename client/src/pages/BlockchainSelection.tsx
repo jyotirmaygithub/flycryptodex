@@ -4,17 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Blockchain } from "@shared/schema";
+import { useWallet } from "@/hooks/useWallet";
 import {
   Globe,
   Home as HomeIcon,
   ChevronRight,
-  Check
+  Check, 
+  Wallet
 } from "lucide-react";
 import { SiSolana, SiInternetcomputer, SiEthereum } from "react-icons/si";
 
 export default function BlockchainSelection() {
   const [, navigate] = useLocation();
   const [selectedBlockchain, setSelectedBlockchain] = useState<number | null>(null);
+  const { walletAddress, isConnecting, connectPhantom, connectMetaMask, connectICPWallet, disconnectWallet } = useWallet();
   
   // Static blockchain data for the MVP
   const blockchains: Blockchain[] = [
@@ -65,6 +68,22 @@ export default function BlockchainSelection() {
       navigate("/select-category");
     }, 300); // Small delay for visual feedback
   };
+  
+  const handleConnectWallet = () => {
+    if (selectedBlockchain === 1) {
+      // Solana network selected
+      connectPhantom();
+    } else if (selectedBlockchain === 2) {
+      // ICP network selected
+      connectICPWallet();
+    } else if (selectedBlockchain === 3) {
+      // Base (Ethereum L2) selected
+      connectMetaMask();
+    } else {
+      // Default to MetaMask if no blockchain selected
+      connectMetaMask();
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0b0e11] text-white">
@@ -86,6 +105,21 @@ export default function BlockchainSelection() {
             <HomeIcon className="h-4 w-4 mr-2" />
             Home
           </Button>
+          
+          {walletAddress ? (
+            <Button variant="outline" className="border-[#f7a600] text-[#f7a600] hover:bg-[#f7a600]/10">
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleConnectWallet} 
+              className="bg-[#f7a600] hover:bg-[#f7a600]/90 text-black font-medium"
+              disabled={isConnecting}
+            >
+              {isConnecting ? "Connecting..." : "Connect Wallet"}
+              <Wallet className="ml-2 h-4 w-4" />
+            </Button>
+          )}
         </div>
       </header>
       

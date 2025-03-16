@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
+import { useWallet } from "@/hooks/useWallet";
 import {
   ArrowRight,
   Package,
@@ -12,7 +13,8 @@ import {
   BarChart3,
   LineChart,
   ChevronRight,
-  Check
+  Check,
+  Wallet
 } from "lucide-react";
 import { SiBitcoin, SiCoinmarketcap, SiGoldmansachs } from "react-icons/si";
 import { BsBank } from "react-icons/bs";

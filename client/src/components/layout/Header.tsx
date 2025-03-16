@@ -39,7 +39,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
   };
 
   return (
-    <header className="border-b border-primary-700 bg-primary-800 py-3 px-4 sm:px-6 flex items-center justify-between">
+    <header className="bybit-nav border-b border-[var(--border-color)] bg-[#0b0e11] py-3 px-4 sm:px-6 flex items-center justify-between">
       <div className="flex items-center">
         {/* Mobile menu button */}
         <button 
@@ -51,7 +51,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
         
         <Link href="/">
           <a className="flex items-center">
-            <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+            <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
           </a>
         </Link>
       </div>
@@ -62,20 +62,25 @@ export default function Header({ toggleSidebar }: HeaderProps) {
         {walletAddress ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="border-accent-500 text-accent-500">
+              <Button variant="outline" className="border-[#f7a600] text-[#f7a600] hover:bg-[#f7a600]/10">
                 {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={disconnectWallet}>Disconnect</DropdownMenuItem>
+            <DropdownMenuContent align="end" className="bg-[#181c25] border-[var(--border-color)]">
+              <DropdownMenuLabel className="text-white">My Wallet</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-[var(--border-color)]" />
+              <DropdownMenuItem 
+                onClick={disconnectWallet} 
+                className="text-neutral-300 hover:text-white hover:bg-[#22262f] cursor-pointer"
+              >
+                Disconnect
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
           <Button 
             onClick={handleConnectWallet} 
-            className="bg-accent-500 hover:bg-accent-600 text-white"
+            className="bg-[#f7a600] hover:bg-[#f7a600]/90 text-black font-medium"
             disabled={isConnecting}
           >
             {isConnecting ? "Connecting..." : "Connect Wallet"}
