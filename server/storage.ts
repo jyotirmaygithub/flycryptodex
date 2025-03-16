@@ -1,11 +1,9 @@
 import {
   users, blockchains, tradingCategories, tradingPairs, orders, aiRecommendations, forexNews,
-  apiKeys, tradingStrategies,
   type User, type InsertUser, type Blockchain, type InsertBlockchain,
   type TradingCategory, type InsertTradingCategory, type TradingPair, type InsertTradingPair,
   type Order, type InsertOrder, type AiRecommendation, type InsertAiRecommendation,
-  type ForexNews, type InsertForexNews, type ApiKey, type InsertApiKey,
-  type TradingStrategy, type InsertTradingStrategy,
+  type ForexNews, type InsertForexNews,
   type MarketData, type CandlestickData, type OrderBook
 } from "@shared/schema";
 
@@ -54,22 +52,6 @@ export interface IStorage {
   getMarketData(pair: string): Promise<MarketData | undefined>;
   getAllMarketData(): Promise<Record<string, MarketData>>;
   updateMarketData(pair: string, data: Partial<MarketData>): Promise<MarketData | undefined>;
-
-  // API key operations
-  getApiKeys(userId: number): Promise<ApiKey[]>;
-  getApiKey(id: number): Promise<ApiKey | undefined>;
-  getApiKeyByKey(apiKey: string): Promise<ApiKey | undefined>;
-  createApiKey(apiKey: InsertApiKey): Promise<ApiKey>;
-  updateApiKey(id: number, isActive: boolean): Promise<ApiKey | undefined>;
-  deleteApiKey(id: number): Promise<boolean>;
-
-  // Trading strategy operations
-  getTradingStrategies(userId: number): Promise<TradingStrategy[]>;
-  getTradingStrategy(id: number): Promise<TradingStrategy | undefined>;
-  createTradingStrategy(strategy: InsertTradingStrategy): Promise<TradingStrategy>;
-  updateTradingStrategy(id: number, isActive: boolean): Promise<TradingStrategy | undefined>;
-  updateTradingStrategyPerformance(id: number, performance: number): Promise<TradingStrategy | undefined>;
-  deleteTradingStrategy(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -80,8 +62,6 @@ export class MemStorage implements IStorage {
   private orders: Map<number, Order>;
   private aiRecommendations: Map<number, AiRecommendation>;
   private forexNews: Map<number, ForexNews>;
-  private apiKeys: Map<number, ApiKey>;
-  private tradingStrategies: Map<number, TradingStrategy>;
   private marketData: Map<string, MarketData>;
   
   private userId: number;
@@ -91,8 +71,6 @@ export class MemStorage implements IStorage {
   private orderId: number;
   private recommendationId: number;
   private newsId: number;
-  private apiKeyId: number;
-  private strategyId: number;
 
   constructor() {
     this.users = new Map();
@@ -102,8 +80,6 @@ export class MemStorage implements IStorage {
     this.orders = new Map();
     this.aiRecommendations = new Map();
     this.forexNews = new Map();
-    this.apiKeys = new Map();
-    this.tradingStrategies = new Map();
     this.marketData = new Map();
     
     this.userId = 1;
@@ -113,8 +89,6 @@ export class MemStorage implements IStorage {
     this.orderId = 1;
     this.recommendationId = 1;
     this.newsId = 1;
-    this.apiKeyId = 1;
-    this.strategyId = 1;
     
     // Initialize with default data
     this.initializeDefaultData();
@@ -456,97 +430,6 @@ export class MemStorage implements IStorage {
     const updatedData = { ...currentData, ...data };
     this.marketData.set(pair, updatedData);
     return updatedData;
-  }
-
-  // API key methods
-  async getApiKeys(userId: number): Promise<ApiKey[]> {
-    return Array.from(this.apiKeys.values()).filter(
-      (key) => key.userId === userId
-    );
-  }
-
-  async getApiKey(id: number): Promise<ApiKey | undefined> {
-    return this.apiKeys.get(id);
-  }
-
-  async getApiKeyByKey(apiKey: string): Promise<ApiKey | undefined> {
-    return Array.from(this.apiKeys.values()).find(
-      (key) => key.apiKey === apiKey
-    );
-  }
-
-  async createApiKey(key: InsertApiKey): Promise<ApiKey> {
-    const id = this.apiKeyId++;
-    const createdAt = new Date();
-    const newApiKey: ApiKey = { ...key, id, createdAt, lastUsed: null };
-    this.apiKeys.set(id, newApiKey);
-    return newApiKey;
-  }
-
-  async updateApiKey(id: number, isActive: boolean): Promise<ApiKey | undefined> {
-    const apiKey = this.apiKeys.get(id);
-    if (!apiKey) return undefined;
-    
-    const updatedApiKey = { ...apiKey, isActive };
-    this.apiKeys.set(id, updatedApiKey);
-    return updatedApiKey;
-  }
-
-  async deleteApiKey(id: number): Promise<boolean> {
-    if (!this.apiKeys.has(id)) return false;
-    return this.apiKeys.delete(id);
-  }
-
-  // Trading strategy methods
-  async getTradingStrategies(userId: number): Promise<TradingStrategy[]> {
-    return Array.from(this.tradingStrategies.values()).filter(
-      (strategy) => strategy.userId === userId
-    );
-  }
-
-  async getTradingStrategy(id: number): Promise<TradingStrategy | undefined> {
-    return this.tradingStrategies.get(id);
-  }
-
-  async createTradingStrategy(strategy: InsertTradingStrategy): Promise<TradingStrategy> {
-    const id = this.strategyId++;
-    const createdAt = new Date();
-    const newStrategy: TradingStrategy = { 
-      ...strategy, 
-      id, 
-      createdAt, 
-      lastRun: null, 
-      performance: null 
-    };
-    this.tradingStrategies.set(id, newStrategy);
-    return newStrategy;
-  }
-
-  async updateTradingStrategy(id: number, isActive: boolean): Promise<TradingStrategy | undefined> {
-    const strategy = this.tradingStrategies.get(id);
-    if (!strategy) return undefined;
-    
-    const updatedStrategy = { ...strategy, isActive };
-    this.tradingStrategies.set(id, updatedStrategy);
-    return updatedStrategy;
-  }
-
-  async updateTradingStrategyPerformance(id: number, performance: number): Promise<TradingStrategy | undefined> {
-    const strategy = this.tradingStrategies.get(id);
-    if (!strategy) return undefined;
-    
-    const updatedStrategy = { 
-      ...strategy, 
-      performance,
-      lastRun: new Date()
-    };
-    this.tradingStrategies.set(id, updatedStrategy);
-    return updatedStrategy;
-  }
-
-  async deleteTradingStrategy(id: number): Promise<boolean> {
-    if (!this.tradingStrategies.has(id)) return false;
-    return this.tradingStrategies.delete(id);
   }
 }
 
