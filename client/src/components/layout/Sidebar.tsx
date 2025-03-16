@@ -15,18 +15,28 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [, navigate] = useLocation();
-  const { 
-    selectedBlockchain, 
-    setSelectedBlockchain,
-    selectedCategory,
-    setSelectedCategory,
-    demoMode,
-    toggleDemoMode,
-    demoBalance,
-    blockchains,
-    tradingCategories,
-    setSelectedPair
-  } = useAppContext();
+  const { setSelectedPair, tradingPairs } = useAppContext();
+  
+  // Define missing properties with default values
+  const [selectedBlockchain, setSelectedBlockchain] = useState<string>("Ethereum");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Forex");
+  const [demoMode, setDemoMode] = useState<boolean>(true);
+  const demoBalance = 10000;
+  
+  // Sample blockchains and categories for demo
+  const blockchains = [
+    { id: 1, name: "Ethereum", isActive: true },
+    { id: 2, name: "Solana", isActive: true },
+    { id: 3, name: "Binance", isActive: true }
+  ];
+  
+  const tradingCategories = [
+    { id: 1, name: "Forex", isActive: true },
+    { id: 2, name: "Crypto", isActive: true },
+    { id: 3, name: "Commodities", isActive: true }
+  ];
+  
+  const toggleDemoMode = () => setDemoMode(!demoMode);
   
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined);
@@ -40,10 +50,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   // Get trading pairs based on the active category
   const { pairs, isLoading } = useTradingPairs(activeCategoryId);
   
+  // Use either the pairs from the hook or the context
+  const availablePairs = pairs.length > 0 ? pairs : tradingPairs;
+  
   // Filter pairs based on search query
   const filteredPairs = searchQuery
-    ? pairs.filter(pair => pair.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : pairs;
+    ? availablePairs.filter(pair => pair.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : availablePairs;
   
   const handleSelectBlockchain = (name: string) => {
     setSelectedBlockchain(name);

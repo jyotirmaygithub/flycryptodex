@@ -1,6 +1,5 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { useAppContext } from "@/context/AppContext";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
@@ -20,22 +19,9 @@ interface HeaderProps {
 
 export default function Header({ toggleSidebar }: HeaderProps) {
   const { walletAddress, isConnecting, connectPhantom, connectMetaMask, connectICPWallet, disconnectWallet } = useWallet();
-  const { selectedBlockchain } = useAppContext();
-
+  // Just call connectPhantom directly for simplicity
   const handleConnectWallet = () => {
-    switch (selectedBlockchain) {
-      case 'Solana':
-        connectPhantom();
-        break;
-      case 'Base':
-        connectMetaMask();
-        break;
-      case 'ICP':
-        connectICPWallet();
-        break;
-      default:
-        connectPhantom();
-    }
+    connectPhantom();
   };
 
   return (
@@ -50,9 +36,9 @@ export default function Header({ toggleSidebar }: HeaderProps) {
         </button>
         
         <Link href="/">
-          <a className="flex items-center">
+          <div className="flex items-center cursor-pointer">
             <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
-          </a>
+          </div>
         </Link>
       </div>
       
