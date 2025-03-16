@@ -18,6 +18,7 @@ import TradingViewChart from "@/components/trading/TradingViewChart";
 import { generateMockCandlestickData } from "@/lib/mockData";
 import ForexNews from "@/components/trading/ForexNews";
 import AiStrategyBox from "@/components/trading/AiStrategyBox";
+import { useWallet } from "@/hooks/useWallet";
 import {
   Home,
   TrendingUp,
@@ -88,6 +89,7 @@ export default function ForexTrading() {
   const [amount, setAmount] = useState<number>(0);
   const [favoriteList, setFavoriteList] = useState<number[]>([1, 2]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
+  const { walletAddress, isConnecting, connectPhantom, connectMetaMask, connectICPWallet, disconnectWallet } = useWallet();
 
   const candleData = useMemo(() => {
     try {
@@ -174,10 +176,43 @@ export default function ForexTrading() {
                 </Tooltip>
               </TooltipProvider>
               
-              <div className="bg-primary-800/80 rounded-full px-3 py-1 flex items-center">
-                <Wallet className="h-4 w-4 text-accent-500 mr-2" />
-                <span className="text-sm font-medium">$25,000.00</span>
-              </div>
+              {walletAddress ? (
+                <Button 
+                  variant="outline" 
+                  className="border-[#f7a600] text-[#f7a600] hover:bg-[#f7a600]/10 bg-[#f7a600]/5 font-medium"
+                  size="sm"
+                >
+                  <Wallet className="h-4 w-4 mr-2" />
+                  {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => {
+                    // Connect to the appropriate wallet based on the blockchain selected
+                    const blockchainId = localStorage.getItem('selectedBlockchainId');
+                    
+                    if (blockchainId === '1') {
+                      // Solana network selected
+                      connectPhantom();
+                    } else if (blockchainId === '2') {
+                      // ICP network selected
+                      connectICPWallet();
+                    } else if (blockchainId === '3') {
+                      // Base (Ethereum L2) selected
+                      connectMetaMask();
+                    } else {
+                      // Default to MetaMask if no blockchain selected
+                      connectMetaMask();
+                    }
+                  }}
+                  className="bg-[#f7a600] hover:bg-[#f7a600]/90 text-black font-medium"
+                  size="sm"
+                  disabled={isConnecting}
+                >
+                  {isConnecting ? "Connecting..." : "Connect Wallet"}
+                  <Wallet className="ml-2 h-4 w-4" />
+                </Button>
+              )}
               
               <div className="flex items-center space-x-2">
                 <Avatar className="h-8 w-8 border border-primary-700">
