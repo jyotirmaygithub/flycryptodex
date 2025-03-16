@@ -24,6 +24,7 @@ export default function CategorySelection() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [blockchainName, setBlockchainName] = useState<string>("");
   const [useProfessionalMode, setUseProfessionalMode] = useState<boolean>(true);
+  const { walletAddress, isConnecting, connectPhantom, connectMetaMask, connectICPWallet, disconnectWallet } = useWallet();
   
   useEffect(() => {
     // Get blockchain selection from localStorage
@@ -34,6 +35,25 @@ export default function CategorySelection() {
       setBlockchainName(blockchainName);
     }
   }, [navigate]);
+  
+  const handleConnectWallet = () => {
+    // Connect to the appropriate wallet based on the blockchain selected
+    const blockchainId = localStorage.getItem('selectedBlockchainId');
+    
+    if (blockchainId === '1') {
+      // Solana network selected
+      connectPhantom();
+    } else if (blockchainId === '2') {
+      // ICP network selected
+      connectICPWallet();
+    } else if (blockchainId === '3') {
+      // Base (Ethereum L2) selected
+      connectMetaMask();
+    } else {
+      // Default to MetaMask if no blockchain selected
+      connectMetaMask();
+    }
+  };
 
   // Trading categories
   const categories = [
@@ -121,6 +141,21 @@ export default function CategorySelection() {
             <HomeIcon className="h-4 w-4 mr-2" />
             Home
           </Button>
+          
+          {walletAddress ? (
+            <Button variant="outline" className="border-[#f7a600] text-[#f7a600] hover:bg-[#f7a600]/10">
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleConnectWallet} 
+              className="bg-[#f7a600] hover:bg-[#f7a600]/90 text-black font-medium"
+              disabled={isConnecting}
+            >
+              {isConnecting ? "Connecting..." : "Connect Wallet"}
+              <Wallet className="ml-2 h-4 w-4" />
+            </Button>
+          )}
         </div>
       </header>
       
