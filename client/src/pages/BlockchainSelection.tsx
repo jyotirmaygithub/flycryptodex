@@ -24,13 +24,29 @@ export default function BlockchainSelection() {
   const getBlockchainIcon = (name: string) => {
     switch (name) {
       case 'Solana':
-        return <SiSolana className="h-8 w-8 text-accent-500" />;
+        return (
+          <div className="bg-gradient-to-br from-purple-500 to-blue-500 p-4 rounded-full">
+            <SiSolana className="h-10 w-10 text-white" />
+          </div>
+        );
       case 'ICP':
-        return <SiInternetcomputer className="h-8 w-8 text-accent-500" />;
+        return (
+          <div className="bg-gradient-to-br from-indigo-600 to-sky-400 p-4 rounded-full">
+            <SiInternetcomputer className="h-10 w-10 text-white" />
+          </div>
+        );
       case 'Base':
-        return <SiCoinbase className="h-8 w-8 text-accent-500" />;
+        return (
+          <div className="bg-gradient-to-br from-blue-600 to-teal-400 p-4 rounded-full">
+            <SiCoinbase className="h-10 w-10 text-white" />
+          </div>
+        );
       default:
-        return <Globe className="h-8 w-8 text-accent-500" />;
+        return (
+          <div className="bg-gradient-to-br from-gray-700 to-gray-900 p-4 rounded-full">
+            <Globe className="h-10 w-10 text-white" />
+          </div>
+        );
     }
   };
 
@@ -75,12 +91,16 @@ export default function BlockchainSelection() {
       <main className="flex-1 py-16 px-4 md:px-8 lg:px-16 flex flex-col">
         <div className="max-w-4xl mx-auto w-full">
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              Select a <span className="text-accent-500">Blockchain</span>
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-accent-500/10 text-accent-500 font-medium mb-6">
+              <Globe className="w-4 h-4 mr-2" />
+              Select Your Network
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold mb-6">
+              Choose a <span className="text-accent-500 bg-accent-500/10 px-2 py-1 rounded-md">Blockchain Network</span>
             </h1>
-            <p className="text-lg text-neutral-300 max-w-2xl mx-auto">
-              Choose the blockchain network you want to connect to for trading.
-              Each blockchain offers different features and fee structures.
+            <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed">
+              Select the blockchain network you want to connect to for trading.
+              Each network offers different features, fees, and liquidity options.
             </p>
           </div>
           
@@ -88,25 +108,23 @@ export default function BlockchainSelection() {
             {blockchains.map((blockchain) => (
               <Card 
                 key={blockchain.id}
-                className={`bg-primary-800 border-2 transition-colors cursor-pointer hover:bg-primary-700 ${
+                className={`bg-primary-800/80 backdrop-blur-sm border-2 shadow-lg transition-all duration-300 cursor-pointer hover:shadow-accent-500/20 ${
                   selectedBlockchain === blockchain.id 
-                    ? 'border-accent-500' 
-                    : 'border-primary-700'
+                    ? 'border-accent-500 shadow-accent-500/30' 
+                    : 'border-primary-700 hover:border-primary-600'
                 }`}
                 onClick={() => handleSelectBlockchain(blockchain.id)}
               >
-                <CardContent className="pt-6 flex flex-col items-center text-center">
-                  <div className="mb-4 bg-accent-500/20 w-20 h-20 rounded-full flex items-center justify-center">
-                    {getBlockchainIcon(blockchain.name)}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{blockchain.name}</h3>
-                  <p className="text-neutral-300 mb-4">
+                <CardContent className="pt-8 pb-6 flex flex-col items-center text-center">
+                  {getBlockchainIcon(blockchain.name)}
+                  <h3 className="text-xl font-bold mt-6 mb-3">{blockchain.name}</h3>
+                  <p className="text-neutral-300 mb-4 leading-relaxed">
                     {blockchain.name === 'Solana' && 'Fast, scalable network with low transaction fees. Ideal for high-frequency trading.'}
                     {blockchain.name === 'ICP' && 'Decentralized cloud computing platform with high security and reliability.'}
                     {blockchain.name === 'Base' && 'Ethereum L2 optimized for DeFi applications with enhanced compatibility.'}
                   </p>
                   {selectedBlockchain === blockchain.id && (
-                    <div className="w-full bg-accent-500/20 py-1 px-2 rounded text-accent-500 mt-2">
+                    <div className="w-full bg-accent-500/20 py-2 px-3 rounded-md text-accent-500 mt-2 font-medium">
                       Selected
                     </div>
                   )}
