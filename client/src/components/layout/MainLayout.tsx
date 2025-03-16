@@ -10,15 +10,16 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-  const [sidebarMinimized, setSidebarMinimized] = useState(false);
+  const [sidebarMinimized, setSidebarMinimized] = useState(true); // Set to true by default
   
-  // Close sidebar by default on mobile
+  // Close sidebar by default on mobile, minimize by default on desktop
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
       setSidebarMinimized(false);
     } else {
       setSidebarOpen(true);
+      setSidebarMinimized(true); // Keep minimized on desktop
     }
   }, [isMobile]);
   
