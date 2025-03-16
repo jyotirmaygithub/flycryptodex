@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Check
 } from "lucide-react";
-import { SiSolana, SiInternetcomputer, SiCoinbase } from "react-icons/si";
+import { SiSolana, SiInternetcomputer, SiEthereum } from "react-icons/si";
 
 export default function BlockchainSelection() {
   const [, navigate] = useLocation();
@@ -39,8 +39,8 @@ export default function BlockchainSelection() {
         );
       case 'Base':
         return (
-          <div className="bg-gradient-to-br from-blue-600 to-teal-400 p-5 rounded-full shadow-lg shadow-blue-500/20">
-            <SiCoinbase className="h-12 w-12 text-white" />
+          <div className="bg-gradient-to-br from-blue-700 to-blue-500 p-5 rounded-full shadow-lg shadow-blue-500/20">
+            <SiEthereum className="h-12 w-12 text-white" />
           </div>
         );
       default:
