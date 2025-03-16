@@ -259,12 +259,12 @@ export default function CommodityTrading() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-primary-900 text-white">
-      {/* Header */}
-      <header className="border-b border-primary-700 bg-primary-800 py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-50 backdrop-blur-sm bg-opacity-80">
+    <div className="min-h-screen flex flex-col bg-[#0b0e11] text-white">
+      {/* Header - Bybit style */}
+      <header className="bybit-nav py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-50 backdrop-blur-sm bg-opacity-90">
         <div className="flex items-center">
-          <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
-          <span className="ml-4 py-1 px-3 bg-accent-500/20 text-accent-500 rounded-full text-xs font-semibold">CFD Trading</span>
+          <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+          <span className="ml-4 py-1 px-3 bg-[#f7a600]/10 text-[#f7a600] rounded-full text-xs font-semibold">CFD Trading</span>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -273,7 +273,7 @@ export default function CommodityTrading() {
           <Button 
             onClick={() => navigate("/")} 
             variant="ghost"
-            className="text-white"
+            className="text-white hover:bg-[#22262f] transition-colors"
             size="sm"
           >
             <HomeIcon className="h-4 w-4 mr-2" />
@@ -283,26 +283,30 @@ export default function CommodityTrading() {
       </header>
 
       <div className="flex-1 flex flex-col md:flex-row">
-        {/* Sidebar */}
-        <div className="w-full md:w-64 border-r border-primary-700 bg-primary-800 p-4 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
+        {/* Sidebar - Bybit style */}
+        <div className="w-full md:w-64 border-r border-[var(--border-color)] bg-[#181c25] p-4 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold mb-3">Commodity CFDs</h2>
-            <span className="text-xs bg-accent-600/20 text-accent-400 rounded-full px-2 py-0.5">0% Commission</span>
+            <h2 className="font-semibold mb-3 text-neutral-200">Commodity CFDs</h2>
+            <span className="text-xs bg-[#f7a600]/20 text-[#f7a600] rounded-full px-2 py-0.5">0% Commission</span>
           </div>
 
-          <div className="space-y-2 max-h-48 overflow-auto custom-scrollbar">
+          <div className="space-y-1 max-h-48 overflow-auto custom-scrollbar mt-2">
             {commodityPairs.map(pair => (
               <div key={pair.id} 
-                className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 cursor-pointer transition-all ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}
+                className={`flex items-center justify-between p-2 rounded hover:bg-[#22262f] cursor-pointer transition-all ${
+                  currentPair.id === pair.id 
+                    ? 'bg-[#22262f] border-l-2 border-[#f7a600] pl-1' 
+                    : ''
+                }`}
                 onClick={() => navigate(`/commodity-trading/${encodeURIComponent(pair.name)}`)}
               >
                 <div className="flex items-center">
-                  <Package className="h-4 w-4 text-accent-500 mr-2" />
+                  <Package className="h-4 w-4 text-[#f7a600] mr-2" />
                   <span>{pair.name}</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono">${pair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                  <div className={pair.change24h >= 0 ? 'text-green-500 text-xs flex items-center' : 'text-red-500 text-xs flex items-center'}>
+                  <div className="font-mono text-sm">${pair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                  <div className={pair.change24h >= 0 ? 'text-[#00c076] text-xs flex items-center justify-end' : 'text-[#ff5353] text-xs flex items-center justify-end'}>
                     {pair.change24h >= 0 ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                     {Math.abs(pair.change24h)}%
                   </div>
@@ -311,88 +315,95 @@ export default function CommodityTrading() {
             ))}
           </div>
 
-          <div className="mt-6 p-4 bg-primary-700 rounded-lg">
-            <h3 className="font-semibold mb-2 flex items-center">
-              <Info className="h-4 w-4 text-accent-500 mr-2" />
+          <div className="mt-6 p-4 bg-[#22262f] rounded-md border border-[var(--border-color)]">
+            <h3 className="font-semibold mb-2 flex items-center text-neutral-200">
+              <Info className="h-4 w-4 text-[#f7a600] mr-2" />
               CFD Benefits
             </h3>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center">
-                <CircleDollarSign className="h-4 w-4 text-green-500 mr-2" />
+              <li className="flex items-center text-neutral-300">
+                <CircleDollarSign className="h-4 w-4 text-[#00c076] mr-2" />
                 Trade with Leverage
               </li>
-              <li className="flex items-center">
-                <Gauge className="h-4 w-4 text-blue-500 mr-2" />
+              <li className="flex items-center text-neutral-300">
+                <Gauge className="h-4 w-4 text-[#1da2b4] mr-2" />
                 No Physical Delivery
               </li>
-              <li className="flex items-center">
-                <Percent className="h-4 w-4 text-purple-500 mr-2" />
+              <li className="flex items-center text-neutral-300">
+                <Percent className="h-4 w-4 text-[#4a4af4] mr-2" />
                 Profit from Both Directions
               </li>
-              <li className="flex items-center">
-                <TrendingUp className="h-4 w-4 text-orange-500 mr-2" />
+              <li className="flex items-center text-neutral-300">
+                <TrendingUp className="h-4 w-4 text-[#f7a600] mr-2" />
                 Low Capital Requirements
               </li>
             </ul>
           </div>
 
-          <div className="mt-4 p-4 bg-gradient-to-r from-accent-500/20 to-primary-700 rounded-lg">
-            <h3 className="font-semibold mb-2">Risk Warning</h3>
-            <p className="text-xs text-neutral-300">
+          <div className="mt-4 p-4 bg-[#22262f] border border-[var(--border-color)] rounded-md">
+            <h3 className="font-semibold mb-2 flex items-center text-neutral-200">
+              <ShieldAlert className="h-4 w-4 text-[#ff5353] mr-2" />
+              Risk Warning
+            </h3>
+            <p className="text-xs text-neutral-400">
               CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 78% of retail investor accounts lose money when trading CFDs. Consider if you understand how CFDs work and if you can afford the high risk of losing your money.
             </p>
           </div>
         </div>
 
-        {/* Main Trading Area */}
+        {/* Main Trading Area - Bybit style */}
         <main className="flex-1 p-4">
-          {/* Top Trading Bar */}
-          <div className="bg-primary-800 p-4 rounded-lg mb-4 border border-primary-700">
+          {/* Top Trading Bar - Bybit style */}
+          <div className="bybit-card p-4 mb-4">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold flex items-center">
-                  <Package className="mr-2 h-6 w-6 text-accent-500" />
-                  {currentPair.name} <span className="ml-2 text-sm bg-primary-700 px-2 py-1 rounded">CFD</span>
+                  <Package className="mr-2 h-6 w-6 text-[#f7a600]" />
+                  {currentPair.name} <span className="ml-2 text-xs bg-[#f7a600]/10 text-[#f7a600] px-2 py-1 rounded">CFD</span>
                 </h1>
-                <p className="text-neutral-300 text-sm mt-1">
-                  Contract for Difference | Multiplier: {leverage}x
+                <p className="text-neutral-400 text-sm mt-1">
+                  Contract for Difference | Multiplier: <span className="text-white font-medium">{leverage}x</span>
                 </p>
               </div>
 
               <div className="mt-4 md:mt-0 flex flex-col items-end">
                 <div className="flex items-center mb-1">
                   <span className="text-2xl font-bold">${currentPair.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                  <span className={`ml-2 px-2 py-1 rounded text-sm ${currentPair.change24h >= 0 ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                  <span className={`ml-2 px-2 py-1 rounded text-sm ${currentPair.change24h >= 0 ? 'bg-[#00c076]/10 text-[#00c076]' : 'bg-[#ff5353]/10 text-[#ff5353]'}`}>
                     {currentPair.change24h >= 0 ? '+' : ''}{currentPair.change24h}%
                   </span>
                 </div>
-                <span className="text-xs text-neutral-400">Last updated: {new Date().toLocaleTimeString()}</span>
+                <span className="text-xs text-neutral-500">Last updated: {new Date().toLocaleTimeString()}</span>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Order Form */}
-            <Card className="bg-primary-800 border-primary-700 col-span-1">
-              <CardContent className="pt-6">
-                <h2 className="text-xl font-bold mb-4">Place CFD Order</h2>
+            {/* Order Form - Bybit style */}
+            <div className="bybit-card col-span-1">
+              <div className="p-4">
+                <h2 className="text-lg font-bold mb-4 text-neutral-200">Place CFD Order</h2>
 
                 <Tabs defaultValue="market" className="mb-4" onValueChange={(value) => setOrderType(value)}>
-                  <TabsList className="grid grid-cols-2">
-                    <TabsTrigger value="market">Market</TabsTrigger>
-                    <TabsTrigger value="limit">Limit</TabsTrigger>
+                  <TabsList className="grid grid-cols-2 bg-[#22262f]">
+                    <TabsTrigger value="market" className="data-[state=active]:bg-[#181c25] data-[state=active]:text-white">Market</TabsTrigger>
+                    <TabsTrigger value="limit" className="data-[state=active]:bg-[#181c25] data-[state=active]:text-white">Limit</TabsTrigger>
                   </TabsList>
                 </Tabs>
 
                 <div className="flex mb-4">
                   <Button 
-                    className={`flex-1 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-700'}`}
+                    className={`flex-1 ${orderSide === 'buy' 
+                      ? 'bg-[#00c076] hover:bg-[#00c076]/90 text-white' 
+                      : 'bg-[#22262f] hover:bg-[#2b313a] text-neutral-300'}`}
                     onClick={() => setOrderSide('buy')}
                   >
                     Buy
                   </Button>
                   <Button 
-                    className={`flex-1 ml-2 ${orderSide === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-700'}`}
+                    className={`flex-1 ml-2 ${orderSide === 'sell' 
+                      ? 'bg-[#ff5353] hover:bg-[#ff5353]/90 text-white' 
+                      : 'bg-[#22262f] hover:bg-[#2b313a] text-neutral-300'}`}
                     onClick={() => setOrderSide('sell')}
                   >
                     Sell
@@ -401,17 +412,17 @@ export default function CommodityTrading() {
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="amount">Amount</Label>
+                    <Label htmlFor="amount" className="text-neutral-400 text-sm">Amount</Label>
                     <div className="relative">
                       <Input 
                         id="amount" 
                         type="number" 
                         placeholder="0.00" 
-                        className="pr-12"
+                        className="pr-12 bybit-input bg-[#181c25] text-white"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                       />
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-400">
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-500">
                         Units
                       </div>
                     </div>
@@ -419,17 +430,17 @@ export default function CommodityTrading() {
 
                   {orderType === 'limit' && (
                     <div>
-                      <Label htmlFor="price">Price</Label>
+                      <Label htmlFor="price" className="text-neutral-400 text-sm">Price</Label>
                       <div className="relative">
                         <Input 
                           id="price" 
                           type="number" 
                           placeholder={currentPair.price.toString()} 
-                          className="pr-12"
+                          className="pr-12 bybit-input bg-[#181c25] text-white"
                           value={price}
                           onChange={(e) => setPrice(e.target.value)}
                         />
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-400">
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-500">
                           USD
                         </div>
                       </div>
@@ -437,11 +448,15 @@ export default function CommodityTrading() {
                   )}
 
                   <div>
-                    <Label htmlFor="leverage">Leverage: {leverage}x</Label>
-                    <div className="flex items-center">
+                    <div className="flex justify-between items-center mb-1">
+                      <Label htmlFor="leverage" className="text-neutral-400 text-sm">Leverage</Label>
+                      <span className="text-sm font-medium">{leverage}x</span>
+                    </div>
+                    <div className="flex items-center py-2 px-4 bg-[#181c25] rounded-md">
                       <Button 
-                        variant="outline" 
+                        variant="ghost"
                         size="sm" 
+                        className="h-8 w-8 p-0 text-neutral-400 hover:text-white"
                         onClick={() => handleLeverageChange(leverage - 1)}
                         disabled={leverage <= 1}
                       >
@@ -454,11 +469,12 @@ export default function CommodityTrading() {
                         max="100" 
                         value={leverage} 
                         onChange={(e) => handleLeverageChange(parseInt(e.target.value))}
-                        className="mx-2"
+                        className="mx-2 accent-[#f7a600]"
                       />
                       <Button 
-                        variant="outline" 
+                        variant="ghost"
                         size="sm" 
+                        className="h-8 w-8 p-0 text-neutral-400 hover:text-white"
                         onClick={() => handleLeverageChange(leverage + 1)}
                         disabled={leverage >= 100}
                       >
@@ -467,38 +483,41 @@ export default function CommodityTrading() {
                     </div>
                   </div>
 
-                  <div className="pt-2">
-                    <div className="flex items-center justify-between mb-2">
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center justify-between">
                       <span className="text-sm text-neutral-400">Margin Mode</span>
                       <div className="flex items-center space-x-2">
                         <Switch 
                           id="margin-mode" 
                           checked={marginMode === 'cross'} 
                           onCheckedChange={(checked) => setMarginMode(checked ? 'cross' : 'isolated')}
+                          className="data-[state=checked]:bg-[#f7a600]"
                         />
-                        <Label htmlFor="margin-mode">{marginMode === 'cross' ? 'Cross' : 'Isolated'}</Label>
+                        <Label htmlFor="margin-mode" className="text-sm">{marginMode === 'cross' ? 'Cross' : 'Isolated'}</Label>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between mb-2 text-sm">
-                      <span className="text-neutral-400">Required Margin</span>
-                      <span className="font-mono">
-                        ${amount && !isNaN(parseFloat(amount)) 
-                          ? ((parseFloat(amount) * (orderType === 'limit' ? parseFloat(price) || currentPair.price : currentPair.price)) / leverage).toFixed(2) 
-                          : '0.00'}
-                      </span>
-                    </div>
+                    <div className="px-3 py-2 bg-[#181c25] rounded-md space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-neutral-400">Required Margin</span>
+                        <span className="font-mono">
+                          ${amount && !isNaN(parseFloat(amount)) 
+                            ? ((parseFloat(amount) * (orderType === 'limit' ? parseFloat(price) || currentPair.price : currentPair.price)) / leverage).toFixed(2) 
+                            : '0.00'}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center justify-between mb-2 text-sm">
-                      <span className="text-neutral-400">Fees</span>
-                      <span className="font-mono text-green-500">$0.00</span>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-neutral-400">Fees</span>
+                        <span className="font-mono text-[#00c076]">$0.00</span>
+                      </div>
                     </div>
                     
                     {/* Liquidation Price */}
                     <Button 
                       variant="link" 
                       size="sm" 
-                      className="p-0 h-auto text-accent-400 text-xs flex items-center"
+                      className="p-0 h-auto text-[#f7a600] text-xs flex items-center"
                       onClick={() => setShowLiquidationPrice(!showLiquidationPrice)}
                     >
                       <ShieldAlert className="h-3 w-3 mr-1" />
@@ -506,50 +525,54 @@ export default function CommodityTrading() {
                     </Button>
                     
                     {showLiquidationPrice && (
-                      <div className="mt-2 p-2 bg-primary-700/60 rounded-md border border-primary-600 text-xs">
+                      <div className="mt-2 p-3 bg-[#181c25] rounded-md text-xs border border-[var(--border-color)]">
                         <div className="flex justify-between items-center">
-                          <span className="text-neutral-400">Estimated Liquidation Price:</span>
-                          <span className={`font-mono ${orderSide === 'buy' ? 'text-red-500' : 'text-green-500'}`}>
+                          <span className="text-neutral-400">Est. Liquidation Price:</span>
+                          <span className={`font-mono ${orderSide === 'buy' ? 'text-[#ff5353]' : 'text-[#00c076]'}`}>
                             ${calculateLiquidationPrice()}
                           </span>
                         </div>
                         <p className="mt-1 text-neutral-500 text-xs">
-                          This price is estimated and may vary based on market volatility and margin requirements.
+                          This is an estimate and may vary based on market conditions.
                         </p>
                       </div>
                     )}
                   </div>
 
                   <Button 
-                    className={`w-full mt-4 ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                    className={`w-full mt-4 ${orderSide === 'buy' 
+                      ? 'bg-[#00c076] hover:bg-[#00c076]/90' 
+                      : 'bg-[#ff5353] hover:bg-[#ff5353]/90'}`}
                     disabled={!amount || parseFloat(amount) <= 0}
                     onClick={handlePlaceOrder}
                   >
-                    {orderSide === 'buy' ? 'Buy' : 'Sell'} {currentPair.baseAsset} CFD
+                    {orderSide === 'buy' ? 'Buy/Long' : 'Sell/Short'} {currentPair.baseAsset}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Price Chart */}
+            {/* Price Chart - Bybit style */}
             <div className="col-span-2">
-              <Card className="bg-primary-800 border-primary-700 h-full">
-                <CardContent className="pt-4 px-4 pb-0">
+              <div className="bybit-card h-full">
+                <div className="p-4 pb-0">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">{currentPair.name} Price Chart</h2>
+                    <h2 className="text-lg font-bold text-neutral-200">{currentPair.name} Price Chart</h2>
                     <div className="flex space-x-1">
-                      <div className="flex border border-primary-700 rounded overflow-hidden mr-2">
+                      <div className="flex border border-[var(--border-color)] rounded overflow-hidden mr-2">
                         {['1m', '5m', '15m', '1h', '4h', '1d'].map(tf => (
                           <button 
                             key={tf}
-                            className={`px-2 py-1 text-xs ${timeFrame === tf ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
+                            className={`px-2 py-1 text-xs ${timeFrame === tf 
+                              ? 'bg-[#22262f] text-[#f7a600]' 
+                              : 'bg-[#181c25] text-neutral-400 hover:bg-[#22262f]'}`}
                             onClick={() => setTimeFrame(tf)}
                           >
                             {tf.toUpperCase()}
                           </button>
                         ))}
                       </div>
-                      <div className="flex border border-primary-700 rounded overflow-hidden">
+                      <div className="flex border border-[var(--border-color)] rounded overflow-hidden">
                         {[
                           { type: 'candlestick', label: 'Candle' },
                           { type: 'line', label: 'Line' },
@@ -557,7 +580,9 @@ export default function CommodityTrading() {
                         ].map(item => (
                           <button 
                             key={item.type}
-                            className={`px-2 py-1 text-xs ${chartType === item.type ? 'bg-primary-700' : 'bg-primary-800 hover:bg-primary-700/50'}`}
+                            className={`px-2 py-1 text-xs ${chartType === item.type 
+                              ? 'bg-[#22262f] text-[#f7a600]' 
+                              : 'bg-[#181c25] text-neutral-400 hover:bg-[#22262f]'}`}
                             onClick={() => setChartType(item.type as any)}
                           >
                             {item.label}
@@ -571,96 +596,99 @@ export default function CommodityTrading() {
                     pair={currentPair.name} 
                     height={400} 
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Market Information */}
+          {/* Market Information - Bybit style */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <Card className="bg-primary-800 border-primary-700">
-              <CardContent className="pt-6">
-                <h2 className="text-xl font-bold mb-4">CFD Contract Specifications</h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+            <div className="bybit-card">
+              <div className="p-4">
+                <h2 className="text-lg font-bold mb-4 text-neutral-200">CFD Contract Specifications</h2>
+                <div className="space-y-2">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">Contract Type</span>
-                    <span>Contracts for Difference (CFD)</span>
+                    <span className="text-neutral-200">Contracts for Difference (CFD)</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">Trading Hours</span>
-                    <span>24/7</span>
+                    <span className="text-neutral-200">24/7</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">Min Contract Size</span>
-                    <span>0.01 Units</span>
+                    <span className="text-neutral-200">0.01 Units</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">Max Leverage</span>
-                    <span>Up to 100x</span>
+                    <span className="text-neutral-200">Up to 100x</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">Spread</span>
-                    <span>Variable (Market Conditions)</span>
+                    <span className="text-neutral-200">Variable (Market Conditions)</span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span className="text-neutral-400">Settlement</span>
-                    <span>Cash Settlement Only</span>
+                    <span className="text-neutral-200">Cash Settlement Only</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="bg-primary-800 border-primary-700">
-              <CardContent className="pt-6">
-                <h2 className="text-xl font-bold mb-4">Market Information</h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+            <div className="bybit-card">
+              <div className="p-4">
+                <h2 className="text-lg font-bold mb-4 text-neutral-200">Market Information</h2>
+                <div className="space-y-2">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">24h Volume</span>
-                    <span>$12.5M</span>
+                    <span className="text-neutral-200 font-medium">$12.5M</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">24h High</span>
-                    <span>${(currentPair.price * 1.02).toFixed(2)}</span>
+                    <span className="text-neutral-200 font-medium">${(currentPair.price * 1.02).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">24h Low</span>
-                    <span>${(currentPair.price * 0.98).toFixed(2)}</span>
+                    <span className="text-neutral-200 font-medium">${(currentPair.price * 0.98).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">Open Interest</span>
-                    <span>$8.3M</span>
+                    <span className="text-neutral-200 font-medium">$8.3M</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-primary-700">
+                  <div className="flex justify-between py-2 border-b border-[var(--border-color)]">
                     <span className="text-neutral-400">Funding Rate</span>
-                    <span className="text-green-500">+0.01%</span>
+                    <span className="text-[#00c076] font-medium">+0.01%</span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span className="text-neutral-400">Funding Interval</span>
-                    <span>8 Hours</span>
+                    <span className="text-neutral-200 font-medium">8 Hours</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
-          {/* AI Strategy and News Section */}
+          {/* AI Strategy and News Section - Bybit style */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
             <AiStrategyBox pairName={currentPair.name} pairId={currentPair.id} />
             <CommodityNewsBox commodityType={currentPair.name} />
           </div>
 
-          {/* Open Positions */}
-          <div className="grid grid-cols-1 gap-4 mt-4">
-            <Card className="bg-primary-800 border-primary-700">
-              <CardContent className="pt-6">
-                <h2 className="text-xl font-bold mb-4">Your Open CFD Positions</h2>
-                <div className="text-center py-8 text-neutral-400">
+          {/* Open Positions - Bybit style */}
+          <div className="mt-4">
+            <div className="bybit-card">
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-neutral-200">Your Open CFD Positions</h2>
+                  <span className="text-xs bg-[#22262f] text-neutral-400 py-1 px-2 rounded">Demo Account</span>
+                </div>
+                <div className="text-center py-10 text-neutral-400">
                   <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>You don't have any open positions yet.</p>
-                  <p className="text-sm mt-2">Place a trade to get started!</p>
+                  <p className="text-sm mt-2 text-neutral-500">Place a trade to get started with commodity CFDs</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </main>
       </div>
