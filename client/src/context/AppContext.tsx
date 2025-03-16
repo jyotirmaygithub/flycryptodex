@@ -22,6 +22,8 @@ interface AppContextType {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isConnected: boolean;
   setIsConnected: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedBlockchain: string | null;
+  setSelectedBlockchain: (blockchain: string | null) => void;
 }
 
 const defaultContext: AppContextType = {

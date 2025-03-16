@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { TradingLogo, BybitLogo } from "@/components/ui/logo";
 import {
   BarChart2,
   Wallet,
@@ -42,7 +43,8 @@ export default function Home() {
       {/* Header - Bybit style */}
       <header className="bybit-nav py-3 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+          <TradingLogo size={36} />
+          <BybitLogo className="ml-2 text-xl" />
         </div>
         
         <div className="flex items-center space-x-4">
@@ -281,8 +283,9 @@ export default function Home() {
       {/* Footer - Bybit style */}
       <footer className="py-8 px-4 md:px-8 lg:px-16 bg-[#0b0e11] border-t border-[var(--border-color)]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+          <div className="mb-4 md:mb-0 flex items-center">
+            <TradingLogo size={32} />
+            <BybitLogo className="ml-2 text-xl" />
           </div>
           
           <div className="text-neutral-500 text-sm">
