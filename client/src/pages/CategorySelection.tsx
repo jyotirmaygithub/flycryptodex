@@ -62,6 +62,11 @@ export default function CategorySelection() {
 
   const handleSelectCategory = (categoryName: string) => {
     setSelectedCategory(categoryName);
+    
+    // Force professional mode to be off for Commodity Trading
+    if (categoryName === 'Commodity Trading') {
+      setUseProfessionalMode(false);
+    }
   };
   
   const handleContinue = () => {
@@ -73,7 +78,13 @@ export default function CategorySelection() {
       // Navigate to the appropriate trading page
       const category = categories.find(c => c.name === selectedCategory);
       if (category) {
-        // Use pro route if professional mode is enabled, otherwise use regular route
+        // Special handling for Commodity Trading (no pro mode)
+        if (category.name === 'Commodity Trading') {
+          navigate(category.route);
+          return;
+        }
+        
+        // For other categories, use pro route if professional mode is enabled
         const route = useProfessionalMode ? category.proRoute : category.route;
         navigate(route);
       }
@@ -132,12 +143,19 @@ export default function CategorySelection() {
                   checked={useProfessionalMode} 
                   onCheckedChange={setUseProfessionalMode}
                   className="data-[state=checked]:bg-accent-500"
+                  disabled={selectedCategory === 'Commodity Trading'}
                 />
                 
                 <div className="flex items-center space-x-2">
                   <LineChart className={`h-4 w-4 ${useProfessionalMode ? 'text-accent-500' : 'text-neutral-400'}`} />
                   <span className={`text-sm ${useProfessionalMode ? 'text-white font-medium' : 'text-neutral-400'}`}>Professional Interface</span>
                 </div>
+                
+                {selectedCategory === 'Commodity Trading' && (
+                  <div className="ml-2 text-xs text-amber-500">
+                    * Pro mode not available for Commodity Trading
+                  </div>
+                )}
               </div>
             </div>
           </div>

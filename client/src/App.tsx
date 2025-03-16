@@ -28,7 +28,7 @@ function Router() {
       {/* Professional trading interfaces with TradingView charts */}
       <Route path="/forex-trading-pro/:pair?" component={ForexTradingPro} />
       <Route path="/crypto-trading-pro/:pair?" component={CryptoTradingPro} />
-      <Route path="/commodity-trading-pro/:pair?" component={CommodityTradingPro} />
+      {/* Commodity Pro mode disabled per user request */}
       
       <Route component={NotFound} />
     </Switch>
