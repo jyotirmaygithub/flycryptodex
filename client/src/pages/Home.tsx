@@ -133,7 +133,10 @@ export default function Home() {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bybit-card p-6 hover:border-[#f7a600] transition-colors">
+            <div 
+              className="bybit-card p-6 hover:border-[#f7a600] transition-colors cursor-pointer" 
+              onClick={() => navigate("/api-trading")}
+            >
               <div className="mb-4 bg-[#f7a600]/10 w-12 h-12 rounded-lg flex items-center justify-center">
                 <Zap className="h-6 w-6 text-[#f7a600]" />
               </div>
@@ -153,7 +156,10 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="bybit-card p-6 hover:border-[#f7a600] transition-colors">
+            <div 
+              className="bybit-card p-6 hover:border-[#f7a600] transition-colors cursor-pointer" 
+              onClick={() => navigate("/algo-trading")}
+            >
               <div className="mb-4 bg-[#f7a600]/10 w-12 h-12 rounded-lg flex items-center justify-center">
                 <ShieldCheck className="h-6 w-6 text-[#f7a600]" />
               </div>
