@@ -47,6 +47,8 @@ const defaultContext: AppContextType = {
   setIsLoading: () => {},
   isConnected: false,
   setIsConnected: () => {},
+  selectedBlockchain: null,
+  setSelectedBlockchain: () => {},
 };
 
 const AppContext = createContext<AppContextType>(defaultContext);
@@ -64,6 +66,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tradingPairs, setTradingPairs] = useState<TradingPair[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [selectedBlockchain, setSelectedBlockchain] = useState<string | null>(null);
 
   // Load preferences from localStorage on component mount
   useEffect(() => {
@@ -120,6 +123,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLoading,
     isConnected,
     setIsConnected,
+    selectedBlockchain,
+    setSelectedBlockchain,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
