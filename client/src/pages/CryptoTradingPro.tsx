@@ -801,7 +801,7 @@ export default function CryptoTradingPro() {
               {/* Chart area - spans 8 columns on large screens */}
               <div className="col-span-12 lg:col-span-8">
                 <div className="bg-primary-800 border border-primary-700 rounded-lg p-0 overflow-hidden">
-                  <TradingViewChart candleData={candleData} pair={currentPair.name} height={460} />
+                  <TradingViewChart candleData={candleData} pair={currentPair.name} height={480} />
                 </div>
                 
                 <div className="mt-2">
@@ -816,9 +816,9 @@ export default function CryptoTradingPro() {
                       <OpenPositions />
                     </TabsContent>
                     <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
-                      <div className="flex items-center justify-center h-[100px] text-neutral-400">
+                      <div className="flex items-center justify-center h-[80px] text-neutral-400">
                         <div className="text-center">
-                          <Clock className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                          <Clock className="h-5 w-5 mx-auto mb-1 opacity-50" />
                           <p className="text-sm">You have no active orders</p>
                         </div>
                       </div>
@@ -827,11 +827,11 @@ export default function CryptoTradingPro() {
                       <RecentTrades />
                     </TabsContent>
                     <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
-                      <div className="flex items-center justify-center h-[100px] text-neutral-400">
+                      <div className="flex items-center justify-center h-[80px] text-neutral-400">
                         <div className="text-center">
-                          <Bell className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                          <Bell className="h-5 w-5 mx-auto mb-1 opacity-50" />
                           <p className="text-sm">No price alerts set</p>
-                          <Button size="sm" variant="outline" className="mt-2">
+                          <Button size="sm" variant="outline" className="mt-1">
                             <AlertCircle className="h-3 w-3 mr-1.5" />
                             Create Alert
                           </Button>
