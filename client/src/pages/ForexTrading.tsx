@@ -507,11 +507,27 @@ export default function ForexTrading() {
                 </div>
                 
                 <div className="h-[380px] mt-0">
-                  <TradingViewChart 
-                    candleData={candleData}
-                    pair={currentPair.name}
-                    height={380}
-                  />
+                  {chartType === 'candlestick' && (
+                    <TradingViewChart 
+                      candleData={candleData}
+                      pair={currentPair.name}
+                      height={380}
+                    />
+                  )}
+                  {chartType === 'line' && (
+                    <TradingViewChart 
+                      candleData={candleData}
+                      pair={currentPair.name}
+                      height={380}
+                    />
+                  )}
+                  {chartType === 'area' && (
+                    <TradingViewChart 
+                      candleData={candleData}
+                      pair={currentPair.name}
+                      height={380}
+                    />
+                  )}
                 </div>
               </CardContent>
             </Card>
