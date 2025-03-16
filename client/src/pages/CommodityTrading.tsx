@@ -20,6 +20,7 @@ import {
   BarChart4,
   Clock,
   Calendar,
+  History,
   Info,
   AlertCircle,
   Package,
@@ -29,7 +30,8 @@ import {
   ChevronDown,
   ChevronUp,
   BadgeDollarSign,
-  ShieldAlert
+  ShieldAlert,
+  ExternalLink
 } from "lucide-react";
 
 // Mock trading pairs for commodities
@@ -700,15 +702,45 @@ export default function CommodityTrading() {
           {/* Open Positions - Bybit style */}
           <div className="mt-4">
             <div className="bybit-card">
-              <div className="p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-bold text-neutral-200">Your Open CFD Positions</h2>
-                  <span className="text-xs bg-[#22262f] text-neutral-400 py-1 px-2 rounded">Demo Account</span>
+              <div className="bybit-card-header border-b-0">
+                <div className="flex items-center space-x-2">
+                  <h2 className="bybit-card-title">Positions</h2>
+                  <div className="text-xs py-1 px-2 bg-[#f7a600]/10 text-[#f7a600] rounded-sm">CFD</div>
                 </div>
-                <div className="text-center py-10 text-neutral-400">
+                <div className="flex items-center space-x-3">
+                  <span className="text-xs bg-[#22262f] text-neutral-300 py-1 px-2 rounded">Demo Account</span>
+                  <Switch 
+                    id="hide-zero-positions" 
+                    className="data-[state=checked]:bg-[#f7a600] scale-75"
+                  />
+                  <Label htmlFor="hide-zero-positions" className="text-xs text-neutral-400">Hide Zero</Label>
+                </div>
+              </div>
+              
+              <div className="px-4 pb-4">
+                <div className="flex items-center border-b border-[var(--border-color)] pb-2 text-xs text-neutral-400">
+                  <div className="w-[15%]">Symbol</div>
+                  <div className="w-[15%]">Size</div>
+                  <div className="w-[15%]">Entry Price</div>
+                  <div className="w-[15%]">Mark Price</div>
+                  <div className="w-[15%]">Liq. Price</div>
+                  <div className="w-[15%]">Margin</div>
+                  <div className="w-[10%]">PnL</div>
+                </div>
+                
+                <div className="text-center py-12 text-neutral-400">
                   <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>You don't have any open positions yet.</p>
-                  <p className="text-sm mt-2 text-neutral-500">Place a trade to get started with commodity CFDs</p>
+                  <p className="text-xs mt-2 text-neutral-500">Place a trade to get started with commodity CFDs</p>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="mt-4 text-xs bg-transparent border-[var(--border-color)] hover:bg-[#22262f] text-neutral-300"
+                    size="sm"
+                  >
+                    <History className="h-3 w-3 mr-1" />
+                    Position History
+                  </Button>
                 </div>
               </div>
             </div>
