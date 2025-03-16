@@ -37,7 +37,8 @@ class WebSocketService {
     try {
       // Create WebSocket connection
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      // For development in Replit, use direct port
+      const wsUrl = `${protocol}//${window.location.hostname}:5000/ws`;
       
       console.log(`Connecting to WebSocket at ${wsUrl}`);
       this.socket = new WebSocket(wsUrl);
