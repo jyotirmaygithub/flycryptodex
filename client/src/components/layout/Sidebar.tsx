@@ -26,11 +26,6 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { TradingPair } from "@shared/schema";
-import { 
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -65,6 +60,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   ];
   
   const toggleDemoMode = () => setDemoMode(!demoMode);
+  const toggleMarketsSection = () => setMarketsOpen(!marketsOpen);
+  const toggleDevToolsSection = () => setDevToolsOpen(!devToolsOpen);
   
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined);
@@ -149,12 +146,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <span>Dashboard</span>
                 </button>
 
-                <Collapsible
-                  open={marketsOpen}
-                  onOpenChange={setMarketsOpen}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-white hover:bg-primary-800 transition-colors">
+                {/* Markets Section (custom collapsible) */}
+                <div className="w-full">
+                  <button 
+                    onClick={toggleMarketsSection}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-white hover:bg-primary-800 transition-colors"
+                  >
                     <div className="flex items-center">
                       <LineChart className="mr-2 h-4 w-4" />
                       <span>Markets</span>
@@ -164,25 +161,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     ) : (
                       <ChevronRight className="h-4 w-4" />
                     )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="pl-9 pt-1 pb-1">
-                    <div className="space-y-1">
-                      {tradingCategories.map((category) => (
-                        <button
-                          key={category.id}
-                          onClick={() => handleSelectCategory(category.name)}
-                          className={`w-full flex items-center px-3 py-2 rounded-md text-sm transition-colors
-                            ${selectedCategory === category.name
-                              ? "bg-primary-700/60 text-white"
-                              : "text-muted-foreground hover:text-white hover:bg-primary-800/50"}
-                          `}
-                        >
-                          {category.name}
-                        </button>
-                      ))}
+                  </button>
+                  
+                  {marketsOpen && (
+                    <div className="pl-9 pt-1 pb-1">
+                      <div className="space-y-1">
+                        {tradingCategories.map((category) => (
+                          <button
+                            key={category.id}
+                            onClick={() => handleSelectCategory(category.name)}
+                            className={`w-full flex items-center px-3 py-2 rounded-md text-sm transition-colors
+                              ${selectedCategory === category.name
+                                ? "bg-primary-700/60 text-white"
+                                : "text-muted-foreground hover:text-white hover:bg-primary-800/50"}
+                            `}
+                          >
+                            {category.name}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                  )}
+                </div>
 
                 <button 
                   onClick={() => navigate('/api-keys')}
@@ -208,12 +208,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <span>Algorithmic Trading</span>
                 </button>
 
-                <Collapsible
-                  open={devToolsOpen}
-                  onOpenChange={setDevToolsOpen}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-white hover:bg-primary-800 transition-colors">
+                {/* Developer Section (custom collapsible) */}
+                <div className="w-full">
+                  <button 
+                    onClick={toggleDevToolsSection}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-white hover:bg-primary-800 transition-colors"
+                  >
                     <div className="flex items-center">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Developer</span>
@@ -223,18 +223,25 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     ) : (
                       <ChevronRight className="h-4 w-4" />
                     )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="pl-9 pt-1 pb-1">
-                    <div className="space-y-1">
-                      <button className="w-full flex items-center px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-white hover:bg-primary-800/50 transition-colors">
-                        WebSocket API
-                      </button>
-                      <button className="w-full flex items-center px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-white hover:bg-primary-800/50 transition-colors">
-                        Documentation
-                      </button>
+                  </button>
+                  
+                  {devToolsOpen && (
+                    <div className="pl-9 pt-1 pb-1">
+                      <div className="space-y-1">
+                        <button 
+                          className="w-full flex items-center px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-white hover:bg-primary-800/50 transition-colors"
+                        >
+                          WebSocket API
+                        </button>
+                        <button 
+                          className="w-full flex items-center px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-white hover:bg-primary-800/50 transition-colors"
+                        >
+                          Documentation
+                        </button>
+                      </div>
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                  )}
+                </div>
               </div>
             </div>
 
