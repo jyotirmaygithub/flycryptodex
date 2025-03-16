@@ -133,41 +133,72 @@ function DeliverySchedule({ pair }: { pair: TradingPair }) {
 }
 
 function CommodityOrderForm({ pair }: { pair: TradingPair }) {
-  const [orderType, setOrderType] = useState<string>('Market');
+  const [orderType, setOrderType] = useState<string>('market');
   const [orderSide, setOrderSide] = useState<string>('buy');
-  const [contracts, setContracts] = useState<number>(1);
-  const [price, setPrice] = useState<number>(pair.price);
+  const [amount, setAmount] = useState<string>('');
+  const [price, setPrice] = useState<string>(pair.price.toString());
+  const [marginMode, setMarginMode] = useState<'cross' | 'isolated'>('cross');
+  const [leverage, setLeverage] = useState<number>(10);
+  const [showLiquidationPrice, setShowLiquidationPrice] = useState<boolean>(false);
   
   useEffect(() => {
-    setPrice(pair.price);
+    setPrice(pair.price.toString());
   }, [pair.price]);
 
+  const handleLeverageChange = (newLeverage: number) => {
+    if (newLeverage >= 1 && newLeverage <= 100) {
+      setLeverage(newLeverage);
+    }
+  };
+
   const handlePlaceOrder = () => {
-    console.log('Placing order:', {
+    // Mock order placement
+    console.log("Placing CFD order:", {
       pair: pair.name,
       type: orderType,
       side: orderSide,
-      contracts,
-      price: orderType !== 'Market' ? price : undefined
+      amount: parseFloat(amount),
+      price: orderType === 'market' ? pair.price : parseFloat(price),
+      leverage: leverage,
+      marginMode: marginMode
     });
+
+    // Reset form
+    setAmount('');
+    setPrice(pair.price.toString());
+  };
+  
+  // Calculate liquidation price (simplified formula)
+  const calculateLiquidationPrice = (): string => {
+    if (!amount || isNaN(parseFloat(amount))) return "N/A";
     
-    // Here you would call the API to place the order
-    alert(`Order placed: ${orderSide.toUpperCase()} ${contracts} ${pair.name} contract(s) at ${orderType === 'Market' ? 'market price' : '$' + price}`);
+    const entryPrice = orderType === 'market' ? pair.price : (parseFloat(price) || pair.price);
+    const positionSize = parseFloat(amount) * entryPrice;
+    const margin = positionSize / leverage;
+    const maintenanceMargin = margin * 0.5; // 50% of initial margin as example
+    
+    let liquidationPrice;
+    if (orderSide === 'buy') {
+      liquidationPrice = entryPrice * (1 - (margin - maintenanceMargin) / positionSize);
+    } else {
+      liquidationPrice = entryPrice * (1 + (margin - maintenanceMargin) / positionSize);
+    }
+    
+    return liquidationPrice.toFixed(2);
   };
 
   return (
     <div className="rounded-lg border border-primary-700 bg-primary-800">
       <div className="border-b border-primary-700 px-4 py-3">
-        <h3 className="font-medium text-sm">Place Order</h3>
+        <h3 className="font-medium text-sm">Place CFD Order</h3>
       </div>
       
       <div className="p-4">
         <div className="mb-4">
-          <Tabs defaultValue="Market" onValueChange={setOrderType}>
-            <TabsList className="grid w-full grid-cols-3 h-8">
-              <TabsTrigger value="Market" className="text-xs">Market</TabsTrigger>
-              <TabsTrigger value="Limit" className="text-xs">Limit</TabsTrigger>
-              <TabsTrigger value="Stop" className="text-xs">Stop</TabsTrigger>
+          <Tabs defaultValue="market" onValueChange={(value) => setOrderType(value)}>
+            <TabsList className="grid w-full grid-cols-2 h-8">
+              <TabsTrigger value="market" className="text-xs">Market</TabsTrigger>
+              <TabsTrigger value="limit" className="text-xs">Limit</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -188,71 +219,124 @@ function CommodityOrderForm({ pair }: { pair: TradingPair }) {
         </div>
         
         <div className="space-y-3 mb-4">
-          {orderType !== 'Market' && (
+          <div>
+            <Label htmlFor="amount" className="text-xs text-neutral-400">Amount</Label>
+            <div className="relative mt-1">
+              <Input 
+                id="amount" 
+                className="bg-primary-700 border-primary-600 h-8 pr-12"
+                value={amount} 
+                onChange={(e) => setAmount(e.target.value)}
+                type="number"
+                min={0}
+                step={0.01}
+                placeholder="0.00"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-400 text-xs">
+                Units
+              </div>
+            </div>
+          </div>
+            
+          {orderType === 'limit' && (
             <div>
               <Label htmlFor="price" className="text-xs text-neutral-400">Limit Price</Label>
               <div className="relative mt-1">
                 <Input 
                   id="price" 
-                  className="bg-primary-700 border-primary-600 h-8"
+                  className="bg-primary-700 border-primary-600 h-8 pr-12"
                   value={price} 
-                  onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setPrice(e.target.value)}
                   type="number"
                   min={0}
                   step={0.01}
+                  placeholder={pair.price.toString()}
                 />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-400 text-xs">
+                  USD
+                </div>
               </div>
             </div>
           )}
           
           <div>
-            <Label htmlFor="contracts" className="text-xs text-neutral-400">Contracts</Label>
-            <div className="relative mt-1">
+            <Label htmlFor="leverage" className="text-xs text-neutral-400">Leverage: {leverage}x</Label>
+            <div className="flex items-center mt-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleLeverageChange(leverage - 1)}
+                disabled={leverage <= 1}
+                className="h-7 w-7 p-0"
+              >
+                -
+              </Button>
               <Input 
-                id="contracts" 
-                className="bg-primary-700 border-primary-600 h-8"
-                value={contracts} 
-                onChange={(e) => setContracts(parseInt(e.target.value) || 1)}
-                type="number"
-                min={1}
-                step={1}
+                id="leverage" 
+                type="range" 
+                min="1" 
+                max="100" 
+                value={leverage} 
+                onChange={(e) => handleLeverageChange(parseInt(e.target.value))}
+                className="mx-2 bg-primary-700 h-2"
               />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleLeverageChange(leverage + 1)}
+                disabled={leverage >= 100}
+                className="h-7 w-7 p-0"
+              >
+                +
+              </Button>
             </div>
           </div>
         </div>
         
         <div className="space-y-3 mb-4">
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="text-neutral-400">Contract Size</div>
-            <div className="text-right">
-              {pair.name.includes('GOLD') ? '100 troy oz' : 
-              pair.name.includes('SILVER') ? '5,000 troy oz' :
-              pair.name.includes('OIL') ? '1,000 barrels' :
-              pair.name.includes('NATGAS') ? '10,000 mmBtu' :
-              pair.name.includes('COPPER') ? '25,000 lbs' : '5,000 bushels'}
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-neutral-400">Margin Mode</div>
+            <div className="flex items-center space-x-2">
+              <span className={`text-xs ${marginMode === 'cross' ? 'text-accent-500' : 'text-neutral-400'}`}>Cross</span>
+              <Switch 
+                checked={marginMode === 'isolated'} 
+                onCheckedChange={checked => setMarginMode(checked ? 'isolated' : 'cross')}
+                className="data-[state=checked]:bg-accent-500"
+              />
+              <span className={`text-xs ${marginMode === 'isolated' ? 'text-accent-500' : 'text-neutral-400'}`}>Isolated</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-neutral-400">Liquidation Price</div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs">
+                {showLiquidationPrice ? `$${calculateLiquidationPrice()}` : 'Hidden'}
+              </span>
+              <Switch 
+                checked={showLiquidationPrice} 
+                onCheckedChange={setShowLiquidationPrice}
+                className="data-[state=checked]:bg-accent-500"
+              />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="text-neutral-400">Notional Value</div>
-            <div className="text-right">${(contracts * pair.price * (
-              pair.name.includes('GOLD') ? 100 : 
-              pair.name.includes('SILVER') ? 5000 :
-              pair.name.includes('OIL') ? 1000 :
-              pair.name.includes('NATGAS') ? 10000 :
-              pair.name.includes('COPPER') ? 25000 : 5000
-            )).toLocaleString()}</div>
+            <div className="text-neutral-400">Estimated Value</div>
+            <div className="text-right">
+              ${!amount || isNaN(parseFloat(amount)) 
+                ? '0.00' 
+                : (parseFloat(amount) * (orderType === 'market' ? pair.price : (parseFloat(price) || pair.price))).toFixed(2)}
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="text-neutral-400">Initial Margin</div>
-            <div className="text-right">${(contracts * pair.price * (
-              pair.name.includes('GOLD') ? 100 : 
-              pair.name.includes('SILVER') ? 5000 :
-              pair.name.includes('OIL') ? 1000 :
-              pair.name.includes('NATGAS') ? 10000 :
-              pair.name.includes('COPPER') ? 25000 : 5000
-            ) * 0.1).toLocaleString()}</div>
+            <div className="text-neutral-400">Max Position</div>
+            <div className="text-right">
+              ${!amount || isNaN(parseFloat(amount)) 
+                ? '0.00' 
+                : (parseFloat(amount) * (orderType === 'market' ? pair.price : (parseFloat(price) || pair.price)) * leverage).toFixed(2)}
+            </div>
           </div>
         </div>
         
@@ -260,11 +344,12 @@ function CommodityOrderForm({ pair }: { pair: TradingPair }) {
           <Button 
             className={`w-full py-4 text-sm ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
             onClick={handlePlaceOrder}
+            disabled={!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0}
           >
-            {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {contracts} {pair.name}
-            {orderType === 'Market' 
+            {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.name}
+            {orderType === 'market' 
               ? ' at Market' 
-              : ` at $${price.toFixed(2)}`}
+              : ` at $${parseFloat(price).toFixed(2)}`}
           </Button>
         </div>
       </div>
