@@ -53,29 +53,29 @@ const cryptoPairs = [
 function FundingInfo({ pair }: { pair: TradingPair }) {
   return (
     <div className="rounded-lg border border-primary-700 bg-primary-800">
-      <div className="border-b border-primary-700 px-4 py-3 flex items-center justify-between">
-        <h3 className="font-medium text-sm flex items-center">
-          <DollarSign className="w-4 h-4 mr-2 text-neutral-400" />
+      <div className="border-b border-primary-700 px-3 py-2 flex items-center justify-between">
+        <h3 className="font-medium text-xs flex items-center">
+          <DollarSign className="w-3.5 h-3.5 mr-1.5 text-neutral-400" />
           Funding Info
         </h3>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <Info className="h-4 w-4 text-neutral-400" />
+        <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
+          <Info className="h-3.5 w-3.5 text-neutral-400" />
         </Button>
       </div>
       
-      <div className="p-4">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-          <div className="text-xs text-neutral-400">Next Funding</div>
-          <div className="text-xs">{new Date(Date.now() + 3600000).toLocaleTimeString()}</div>
+      <div className="p-2">
+        <div className="grid grid-cols-4 gap-x-2 gap-y-1.5 text-[11px]">
+          <div className="text-neutral-400">Next</div>
+          <div className="font-mono">{new Date(Date.now() + 3600000).toLocaleTimeString()}</div>
           
-          <div className="text-xs text-neutral-400">Funding Rate</div>
-          <div className="text-xs text-green-500">+0.01%</div>
+          <div className="text-neutral-400">Rate</div>
+          <div className="text-green-500">+0.01%</div>
           
-          <div className="text-xs text-neutral-400">Predicted Rate</div>
-          <div className="text-xs text-green-500">+0.008%</div>
+          <div className="text-neutral-400">Predicted</div>
+          <div className="text-green-500">+0.008%</div>
           
-          <div className="text-xs text-neutral-400">8h Funding</div>
-          <div className="text-xs text-green-500">+0.024%</div>
+          <div className="text-neutral-400">8h APR</div>
+          <div className="text-green-500">+0.024%</div>
         </div>
       </div>
     </div>
@@ -105,56 +105,58 @@ function LiquidationCalculator({ pair }: { pair: TradingPair }) {
   
   return (
     <div className="rounded-lg border border-primary-700 bg-primary-800">
-      <div className="border-b border-primary-700 px-4 py-3">
-        <h3 className="font-medium text-sm flex items-center">
-          <AlertCircle className="w-4 h-4 mr-2 text-neutral-400" />
+      <div className="border-b border-primary-700 px-3 py-2">
+        <h3 className="font-medium text-xs flex items-center">
+          <AlertCircle className="w-3.5 h-3.5 mr-1.5 text-neutral-400" />
           Liquidation Calculator
         </h3>
       </div>
       
-      <div className="p-4">
-        <div className="mb-3">
+      <div className="p-2">
+        <div className="mb-2">
           <Tabs value={position} onValueChange={(value) => setPosition(value as 'long' | 'short')}>
-            <TabsList className="w-full grid grid-cols-2 h-8">
-              <TabsTrigger value="long" className="text-xs">Long</TabsTrigger>
-              <TabsTrigger value="short" className="text-xs">Short</TabsTrigger>
+            <TabsList className="w-full grid grid-cols-2 h-7">
+              <TabsTrigger value="long" className="text-[11px] h-6">Long</TabsTrigger>
+              <TabsTrigger value="short" className="text-[11px] h-6">Short</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
         
-        <div className="space-y-3">
-          <div>
-            <Label htmlFor="size" className="text-xs text-neutral-400">Position Size</Label>
-            <Input
-              id="size"
-              className="bg-primary-700 border-primary-600 h-8 mt-1"
-              value={size}
-              onChange={(e) => setSize(parseFloat(e.target.value) || 0)}
-              type="number"
-              min={0.001}
-              step={0.001}
-            />
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="size" className="text-[10px] text-neutral-400 mb-1 block">Position Size</Label>
+              <Input
+                id="size"
+                className="bg-primary-700 border-primary-600 h-7 text-xs"
+                value={size}
+                onChange={(e) => setSize(parseFloat(e.target.value) || 0)}
+                type="number"
+                min={0.001}
+                step={0.001}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="leverage" className="text-[10px] text-neutral-400 mb-1 block">Leverage</Label>
+              <select
+                id="leverage"
+                className="w-full bg-primary-700 border border-primary-600 rounded px-2 h-7 text-xs"
+                value={leverage}
+                onChange={(e) => setLeverage(parseInt(e.target.value))}
+              >
+                {[1, 2, 3, 5, 10, 20, 50, 100].map(lev => (
+                  <option key={lev} value={lev}>{lev}x</option>
+                ))}
+              </select>
+            </div>
           </div>
           
           <div>
-            <Label htmlFor="leverage" className="text-xs text-neutral-400">Leverage</Label>
-            <select
-              id="leverage"
-              className="w-full bg-primary-700 border border-primary-600 rounded px-2 py-1 text-sm h-8 mt-1"
-              value={leverage}
-              onChange={(e) => setLeverage(parseInt(e.target.value))}
-            >
-              {[1, 2, 3, 5, 10, 20, 50, 100].map(lev => (
-                <option key={lev} value={lev}>{lev}x</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <Label htmlFor="entryPrice" className="text-xs text-neutral-400">Entry Price</Label>
+            <Label htmlFor="entryPrice" className="text-[10px] text-neutral-400 mb-1 block">Entry Price</Label>
             <Input
               id="entryPrice"
-              className="bg-primary-700 border-primary-600 h-8 mt-1"
+              className="bg-primary-700 border-primary-600 h-7 text-xs"
               value={entryPrice}
               onChange={(e) => setEntryPrice(parseFloat(e.target.value) || 0)}
               type="number"
@@ -163,15 +165,15 @@ function LiquidationCalculator({ pair }: { pair: TradingPair }) {
             />
           </div>
           
-          <div className="pt-2 border-t border-primary-700 mt-3">
+          <div className="pt-2 border-t border-primary-700 mt-2">
             <div className="flex justify-between items-center">
-              <span className="text-xs text-neutral-400">Liquidation Price</span>
-              <span className="text-sm font-semibold text-red-500">${liquidationPrice.toFixed(2)}</span>
+              <span className="text-[11px] text-neutral-400">Liquidation Price</span>
+              <span className="text-[11px] font-semibold text-red-500">${liquidationPrice.toFixed(2)}</span>
             </div>
             
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-xs text-neutral-400">Price Distance</span>
-              <span className="text-xs">
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-[11px] text-neutral-400">Price Distance</span>
+              <span className="text-[11px]">
                 {position === 'long' 
                   ? `${((entryPrice - liquidationPrice) / entryPrice * 100).toFixed(2)}%` 
                   : `${((liquidationPrice - entryPrice) / entryPrice * 100).toFixed(2)}%`}
