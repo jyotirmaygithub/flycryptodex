@@ -624,6 +624,15 @@ export default function CryptoTradingPro() {
             </div>
           </div>
           
+          <Button 
+            onClick={() => navigate(`/crypto-trading/${encodeURIComponent(currentPair.name)}`)}
+            size="sm"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+          >
+            <LineChart className="h-4 w-4 mr-2" />
+            Basic Mode
+          </Button>
+          
           <ThemeToggle />
           
           <Button 

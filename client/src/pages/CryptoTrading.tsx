@@ -618,6 +618,15 @@ export default function CryptoTrading() {
         </div>
         
         <div className="flex items-center space-x-4">
+          <Button 
+            onClick={() => navigate(`/crypto-trading-pro/${encodeURIComponent(currentPair.name)}`)}
+            size="sm"
+            className="bg-gradient-to-r from-accent-500 to-accent-600 text-white mr-2"
+          >
+            <Sliders className="h-4 w-4 mr-2" />
+            Pro Mode
+          </Button>
+          
           <ThemeToggle />
           
           <Button 
