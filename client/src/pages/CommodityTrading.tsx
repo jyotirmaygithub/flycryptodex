@@ -738,7 +738,7 @@ export default function CommodityTrading() {
                     className="mt-4 text-xs bg-transparent border-[var(--border-color)] hover:bg-[#22262f] text-neutral-300"
                     size="sm"
                   >
-                    <History className="h-3 w-3 mr-1" />
+                    <Clock className="h-3 w-3 mr-1" />
                     Position History
                   </Button>
                 </div>
