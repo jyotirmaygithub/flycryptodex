@@ -410,7 +410,7 @@ export default function CommodityTrading() {
                 <div className="flex mb-4">
                   <Button 
                     className={`flex-1 ${orderSide === 'buy' 
-                      ? 'bg-[#00c076] hover:bg-[#00c076]/90 text-white' 
+                      ? 'bg-[#16a34a] hover:bg-[#16a34a]/90 text-white' 
                       : 'bg-[#22262f] hover:bg-[#2b313a] text-neutral-300'}`}
                     onClick={() => setOrderSide('buy')}
                   >
@@ -418,7 +418,7 @@ export default function CommodityTrading() {
                   </Button>
                   <Button 
                     className={`flex-1 ml-2 ${orderSide === 'sell' 
-                      ? 'bg-[#ff5353] hover:bg-[#ff5353]/90 text-white' 
+                      ? 'bg-[#dc2626] hover:bg-[#dc2626]/90 text-white' 
                       : 'bg-[#22262f] hover:bg-[#2b313a] text-neutral-300'}`}
                     onClick={() => setOrderSide('sell')}
                   >
@@ -544,7 +544,7 @@ export default function CommodityTrading() {
                       <div className="mt-2 p-3 bg-[#181c25] rounded-md text-xs border border-[var(--border-color)]">
                         <div className="flex justify-between items-center">
                           <span className="text-neutral-400">Est. Liquidation Price:</span>
-                          <span className={`font-mono ${orderSide === 'buy' ? 'text-[#ff5353]' : 'text-[#00c076]'}`}>
+                          <span className={`font-mono ${orderSide === 'buy' ? 'text-[#dc2626]' : 'text-[#16a34a]'}`}>
                             ${calculateLiquidationPrice()}
                           </span>
                         </div>
@@ -557,8 +557,8 @@ export default function CommodityTrading() {
 
                   <Button 
                     className={`w-full mt-4 ${orderSide === 'buy' 
-                      ? 'bg-[#00c076] hover:bg-[#00c076]/90' 
-                      : 'bg-[#ff5353] hover:bg-[#ff5353]/90'}`}
+                      ? 'bg-[#16a34a] hover:bg-[#16a34a]/90' 
+                      : 'bg-[#dc2626] hover:bg-[#dc2626]/90'}`}
                     disabled={!amount || parseFloat(amount) <= 0}
                     onClick={handlePlaceOrder}
                   >
