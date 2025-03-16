@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { useWallet } from "@/hooks/useWallet";
 import AiStrategyBox from "@/components/trading/AiStrategyBox";
 import CommodityNewsBox from "@/components/trading/CommodityNewsBox";
 import TradingViewChart from "@/components/trading/TradingViewChart";
@@ -31,7 +32,8 @@ import {
   ChevronUp,
   BadgeDollarSign,
   ShieldAlert,
-  ExternalLink
+  ExternalLink,
+  Wallet
 } from "lucide-react";
 
 // Mock trading pairs for commodities
@@ -122,6 +124,7 @@ export default function CommodityTrading() {
   const [candleData, setCandleData] = useState<CandlestickData[]>([]);
   const [timeFrame, setTimeFrame] = useState<string>('1h');
   const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('line');
+  const { walletAddress, isConnecting, connectPhantom, connectMetaMask, connectICPWallet, disconnectWallet } = useWallet();
 
   // Connect to WebSocket when component mounts
   useEffect(() => {
@@ -259,6 +262,25 @@ export default function CommodityTrading() {
     
     return liquidationPrice.toFixed(2);
   };
+  
+  const handleConnectWallet = () => {
+    // Connect to the appropriate wallet based on the blockchain selected
+    const blockchainId = localStorage.getItem('selectedBlockchainId');
+    
+    if (blockchainId === '1') {
+      // Solana network selected
+      connectPhantom();
+    } else if (blockchainId === '2') {
+      // ICP network selected
+      connectICPWallet();
+    } else if (blockchainId === '3') {
+      // Base (Ethereum L2) selected
+      connectMetaMask();
+    } else {
+      // Default to MetaMask if no blockchain selected
+      connectMetaMask();
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0b0e11] text-white">
@@ -295,6 +317,27 @@ export default function CommodityTrading() {
             <HomeIcon className="h-4 w-4 mr-2" />
             Home
           </Button>
+          
+          {walletAddress ? (
+            <Button 
+              variant="outline" 
+              className="border-[#f7a600] text-[#f7a600] hover:bg-[#f7a600]/10 bg-[#f7a600]/5 font-medium"
+              size="sm"
+            >
+              <Wallet className="h-4 w-4 mr-2" />
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleConnectWallet} 
+              className="bg-[#f7a600] hover:bg-[#f7a600]/90 text-black font-medium"
+              size="sm"
+              disabled={isConnecting}
+            >
+              {isConnecting ? "Connecting..." : "Connect Wallet"}
+              <Wallet className="ml-2 h-4 w-4" />
+            </Button>
+          )}
         </div>
       </header>
 
