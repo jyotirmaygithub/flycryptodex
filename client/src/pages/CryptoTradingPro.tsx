@@ -455,16 +455,20 @@ function RecentTrades() {
   }));
 
   return (
-    <div className="h-full">
-      <div className="grid grid-cols-3 text-[10px] text-neutral-400 px-1.5 py-1 border-b border-primary-700">
+    <div className="rounded-lg border border-primary-700 bg-primary-800 h-full">
+      <div className="border-b border-primary-700 px-4 py-3">
+        <h3 className="font-medium text-sm">Recent Trades</h3>
+      </div>
+      
+      <div className="grid grid-cols-3 text-xs text-neutral-400 p-2 border-b border-primary-700">
         <div>Price</div>
         <div className="text-right">Size</div>
         <div className="text-right">Time</div>
       </div>
       
-      <div className="max-h-[120px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
+      <div className="max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
         {trades.map(trade => (
-          <div key={trade.id} className="grid grid-cols-3 text-[10px] px-1.5 py-0.5 hover:bg-primary-700">
+          <div key={trade.id} className="grid grid-cols-3 text-xs p-2 hover:bg-primary-700">
             <div className={trade.side === 'buy' ? 'text-green-500' : 'text-red-500'}>
               ${trade.price.toFixed(2)}
             </div>
@@ -472,7 +476,7 @@ function RecentTrades() {
               {trade.size.toFixed(3)}
             </div>
             <div className="text-right text-neutral-400">
-              {new Date(trade.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              {new Date(trade.time).toLocaleTimeString()}
             </div>
           </div>
         ))}
@@ -497,45 +501,47 @@ function OpenPositions() {
   ];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-1 text-[10px]">
-        <span className="text-neutral-400">Total PnL:</span>
-        <span className="text-green-500">$92.00</span>
+    <div className="rounded-lg border border-primary-700 bg-primary-800">
+      <div className="border-b border-primary-700 px-4 py-3 flex items-center justify-between">
+        <h3 className="font-medium text-sm">Open Positions</h3>
+        <div className="text-sm">
+          Total PnL: <span className="text-green-500">$92.00</span>
+        </div>
       </div>
       
       {positions.length === 0 ? (
-        <div className="text-center text-neutral-400 text-xs py-2">
+        <div className="p-8 text-center text-neutral-400 text-sm">
           No open positions
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-[10px]">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="text-[10px] text-neutral-400 border-b border-primary-700">
-                <th className="py-1 px-1 text-left">Pair</th>
-                <th className="py-1 px-1 text-left">Side</th>
-                <th className="py-1 px-1 text-right">Size</th>
-                <th className="py-1 px-1 text-right">Entry</th>
-                <th className="py-1 px-1 text-right">Price</th>
-                <th className="py-1 px-1 text-right">PnL</th>
-                <th className="py-1 px-1 text-right">Actions</th>
+              <tr className="text-xs text-neutral-400 border-b border-primary-700">
+                <th className="p-2 text-left">Pair</th>
+                <th className="p-2 text-left">Side</th>
+                <th className="p-2 text-right">Size</th>
+                <th className="p-2 text-right">Entry</th>
+                <th className="p-2 text-right">Price</th>
+                <th className="p-2 text-right">PnL</th>
+                <th className="p-2 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {positions.map(pos => (
-                <tr key={pos.id} className="border-b border-primary-700/50 hover:bg-primary-700/50">
-                  <td className="py-1 px-1">{pos.pair}</td>
-                  <td className={`py-1 px-1 ${pos.side === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                <tr key={pos.id} className="border-b border-primary-700 hover:bg-primary-700/50">
+                  <td className="p-2">{pos.pair}</td>
+                  <td className={`p-2 ${pos.side === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
                     {pos.side.toUpperCase()}
                   </td>
-                  <td className="py-1 px-1 text-right">{pos.size}</td>
-                  <td className="py-1 px-1 text-right">${pos.entryPrice.toFixed(2)}</td>
-                  <td className="py-1 px-1 text-right">${pos.currentPrice.toFixed(2)}</td>
-                  <td className={`py-1 px-1 text-right ${pos.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  <td className="p-2 text-right">{pos.size}</td>
+                  <td className="p-2 text-right">${pos.entryPrice.toFixed(2)}</td>
+                  <td className="p-2 text-right">${pos.currentPrice.toFixed(2)}</td>
+                  <td className={`p-2 text-right ${pos.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     ${pos.pnl.toFixed(2)} ({pos.pnlPercent.toFixed(2)}%)
                   </td>
-                  <td className="py-1 px-1 text-right">
-                    <Button variant="outline" size="sm" className="h-5 text-[10px] px-1.5">
+                  <td className="p-2 text-right">
+                    <Button variant="outline" size="sm" className="h-6 text-xs px-2">
                       Close
                     </Button>
                   </td>
@@ -587,15 +593,15 @@ export default function CryptoTradingPro() {
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
       {/* Header */}
-      <header className="border-b border-primary-700 bg-primary-800 py-1.5 px-3 sm:px-4 flex items-center justify-between">
+      <header className="border-b border-primary-700 bg-primary-800 py-2 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="text-accent-500 text-lg font-bold">Fly<span className="text-white">Crypto</span></span>
+          <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
           
-          <div className="hidden md:flex ml-6 space-x-1">
+          <div className="hidden md:flex ml-8 space-x-1">
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-7 text-xs px-2"
+              className="h-8 text-sm"
               onClick={() => navigate("/select-blockchain")}
             >
               Markets
@@ -603,38 +609,38 @@ export default function CryptoTradingPro() {
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-7 text-xs px-2"
+              className="h-8 text-sm"
             >
               Trade
             </Button>
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-7 text-xs px-2"
+              className="h-8 text-sm"
             >
               Portfolio
             </Button>
           </div>
         </div>
         
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-1">
-            <div className="bg-primary-700 rounded-lg py-0.5 px-2 flex items-center">
-              <Wallet className="h-3.5 w-3.5 mr-1.5 text-neutral-400" />
-              <span className="text-xs">$10,000.00</span>
+            <div className="bg-primary-700 rounded-lg py-1 px-3 flex items-center">
+              <Wallet className="h-4 w-4 mr-2 text-neutral-400" />
+              <span className="text-sm">$10,000.00</span>
             </div>
             
-            <div className="bg-accent-500/20 rounded-lg py-0.5 px-2 text-accent-500">
-              <span className="text-xs">Demo Account</span>
+            <div className="bg-accent-500/20 rounded-lg py-1 px-3 text-accent-500">
+              <span className="text-sm">Demo Account</span>
             </div>
           </div>
           
           <Button 
             onClick={() => navigate(`/crypto-trading/${encodeURIComponent(currentPair.name)}`)}
             size="sm"
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white h-7 text-xs px-2"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
           >
-            <LineChart className="h-3.5 w-3.5 mr-1.5" />
+            <LineChart className="h-4 w-4 mr-2" />
             Basic Mode
           </Button>
           
@@ -643,10 +649,10 @@ export default function CryptoTradingPro() {
           <Button 
             onClick={() => navigate("/")} 
             variant="ghost"
-            className="text-white h-7 text-xs px-2"
+            className="text-white"
             size="sm"
           >
-            <HomeIcon className="h-3.5 w-3.5 mr-1.5" />
+            <HomeIcon className="h-4 w-4 mr-2" />
             Home
           </Button>
         </div>
@@ -802,33 +808,33 @@ export default function CryptoTradingPro() {
                 
                 <div className="mt-2">
                   <Tabs defaultValue="positions" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 mb-0.5 h-8">
-                      <TabsTrigger value="positions" className="text-[10px] h-7">Positions</TabsTrigger>
-                      <TabsTrigger value="orders" className="text-[10px] h-7">Open Orders</TabsTrigger>
-                      <TabsTrigger value="history" className="text-[10px] h-7">Trade History</TabsTrigger>
-                      <TabsTrigger value="alerts" className="text-[10px] h-7">Price Alerts</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-4 mb-1">
+                      <TabsTrigger value="positions" className="text-xs">Positions</TabsTrigger>
+                      <TabsTrigger value="orders" className="text-xs">Open Orders</TabsTrigger>
+                      <TabsTrigger value="history" className="text-xs">Trade History</TabsTrigger>
+                      <TabsTrigger value="alerts" className="text-xs">Price Alerts</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="positions" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
+                    <TabsContent value="positions" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
                       <OpenPositions />
                     </TabsContent>
-                    <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
-                      <div className="flex items-center justify-center h-[60px] text-neutral-400">
+                    <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
+                      <div className="flex items-center justify-center h-[80px] text-neutral-400">
                         <div className="text-center">
-                          <Clock className="h-4 w-4 mx-auto mb-0.5 opacity-50" />
-                          <p className="text-[10px]">You have no active orders</p>
+                          <Clock className="h-5 w-5 mx-auto mb-1 opacity-50" />
+                          <p className="text-sm">You have no active orders</p>
                         </div>
                       </div>
                     </TabsContent>
-                    <TabsContent value="history" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
+                    <TabsContent value="history" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
                       <RecentTrades />
                     </TabsContent>
-                    <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
-                      <div className="flex items-center justify-center h-[60px] text-neutral-400">
+                    <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
+                      <div className="flex items-center justify-center h-[80px] text-neutral-400">
                         <div className="text-center">
-                          <Bell className="h-4 w-4 mx-auto mb-0.5 opacity-50" />
-                          <p className="text-[10px]">No price alerts set</p>
-                          <Button size="sm" variant="outline" className="mt-0.5 h-6 text-[10px]">
-                            <AlertCircle className="h-3 w-3 mr-1" />
+                          <Bell className="h-5 w-5 mx-auto mb-1 opacity-50" />
+                          <p className="text-sm">No price alerts set</p>
+                          <Button size="sm" variant="outline" className="mt-1">
+                            <AlertCircle className="h-3 w-3 mr-1.5" />
                             Create Alert
                           </Button>
                         </div>
@@ -840,11 +846,11 @@ export default function CryptoTradingPro() {
               
               {/* Right sidebar - spans 4 columns on large screens */}
               <div className="col-span-12 lg:col-span-4">
-                <div className="grid grid-cols-1 gap-1">
+                <div className="grid grid-cols-1 gap-2">
                   <div>
                     <AdvancedOrderForm pair={currentPair} />
                   </div>
-                  <div className="h-[280px]">
+                  <div className="h-[300px]">
                     <OrderBook pair={currentPair} />
                   </div>
                   <FundingInfo pair={currentPair} />
@@ -853,27 +859,27 @@ export default function CryptoTradingPro() {
             </div>
             
             {/* Bottom row with AI and Liquidation */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1 mt-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
               <Card className="border-primary-700 bg-primary-800">
-                <CardHeader className="py-1 px-3">
-                  <CardTitle className="text-sm flex items-center">
-                    <Zap className="h-3.5 w-3.5 mr-1.5 text-accent-500" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center">
+                    <Zap className="h-4 w-4 mr-2 text-accent-500" />
                     AI Strategy Analysis
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-1 px-2 pb-2">
+                <CardContent>
                   <AiStrategyPanel pair={currentPair.name} currentPrice={currentPair.price} />
                 </CardContent>
               </Card>
               
               <Card className="border-primary-700 bg-primary-800">
-                <CardHeader className="py-1 px-3">
-                  <CardTitle className="text-sm flex items-center">
-                    <AlertTriangle className="h-3.5 w-3.5 mr-1.5 text-yellow-500" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center">
+                    <AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" />
                     Liquidation Calculator
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-1 px-2 pb-2">
+                <CardContent>
                   <LiquidationCalculator pair={currentPair} />
                 </CardContent>
               </Card>
