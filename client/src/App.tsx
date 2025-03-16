@@ -11,6 +11,8 @@ import CommodityTrading from "@/pages/CommodityTrading";
 import ForexTradingPro from "@/pages/ForexTradingPro";
 import CryptoTradingPro from "@/pages/CryptoTradingPro";
 import CommodityTradingPro from "@/pages/CommodityTradingPro";
+import ApiKeys from "@/pages/ApiKeys";
+import AlgorithmicTrading from "@/pages/AlgorithmicTrading";
 
 function Router() {
   return (
@@ -29,6 +31,10 @@ function Router() {
       <Route path="/forex-trading-pro/:pair?" component={ForexTradingPro} />
       <Route path="/crypto-trading-pro/:pair?" component={CryptoTradingPro} />
       {/* Commodity Pro mode disabled per user request */}
+      
+      {/* API Trading and Algorithmic Trading */}
+      <Route path="/api-keys" component={ApiKeys} />
+      <Route path="/algorithmic-trading" component={AlgorithmicTrading} />
       
       <Route component={NotFound} />
     </Switch>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -182,7 +182,7 @@ const strategyTemplates = [
 ];
 
 export default function AlgorithmicTrading() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { currentUser } = useAppContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();

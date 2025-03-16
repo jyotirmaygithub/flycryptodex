@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { 
@@ -88,7 +88,7 @@ type CreateApiKeyRequest = {
 };
 
 export default function ApiKeys() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { currentUser } = useAppContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
