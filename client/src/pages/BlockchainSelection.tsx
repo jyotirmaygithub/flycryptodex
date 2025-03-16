@@ -6,7 +6,9 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Blockchain } from "@shared/schema";
 import {
   Globe,
-  Home as HomeIcon
+  Home as HomeIcon,
+  ChevronRight,
+  Check
 } from "lucide-react";
 import { SiSolana, SiInternetcomputer, SiCoinbase } from "react-icons/si";
 
@@ -25,26 +27,26 @@ export default function BlockchainSelection() {
     switch (name) {
       case 'Solana':
         return (
-          <div className="bg-gradient-to-br from-purple-500 to-blue-500 p-4 rounded-full">
-            <SiSolana className="h-10 w-10 text-white" />
+          <div className="bg-gradient-to-br from-purple-600 to-blue-500 p-5 rounded-full shadow-lg shadow-purple-500/20">
+            <SiSolana className="h-12 w-12 text-white" />
           </div>
         );
       case 'ICP':
         return (
-          <div className="bg-gradient-to-br from-indigo-600 to-sky-400 p-4 rounded-full">
-            <SiInternetcomputer className="h-10 w-10 text-white" />
+          <div className="bg-gradient-to-br from-indigo-600 to-sky-400 p-5 rounded-full shadow-lg shadow-indigo-500/20">
+            <SiInternetcomputer className="h-12 w-12 text-white" />
           </div>
         );
       case 'Base':
         return (
-          <div className="bg-gradient-to-br from-blue-600 to-teal-400 p-4 rounded-full">
-            <SiCoinbase className="h-10 w-10 text-white" />
+          <div className="bg-gradient-to-br from-blue-600 to-teal-400 p-5 rounded-full shadow-lg shadow-blue-500/20">
+            <SiCoinbase className="h-12 w-12 text-white" />
           </div>
         );
       default:
         return (
-          <div className="bg-gradient-to-br from-gray-700 to-gray-900 p-4 rounded-full">
-            <Globe className="h-10 w-10 text-white" />
+          <div className="bg-gradient-to-br from-gray-700 to-gray-900 p-5 rounded-full">
+            <Globe className="h-12 w-12 text-white" />
           </div>
         );
     }
@@ -59,17 +61,17 @@ export default function BlockchainSelection() {
     localStorage.setItem('selectedBlockchainName', blockchain?.name || '');
     
     // Navigate to category selection
-    navigate("/select-category");
+    setTimeout(() => {
+      navigate("/select-category");
+    }, 300); // Small delay for visual feedback
   };
-  
-  // Navigation now happens directly in handleSelectBlockchain
 
   return (
-    <div className="min-h-screen flex flex-col bg-primary-900 text-white">
-      {/* Header */}
-      <header className="border-b border-primary-700 bg-primary-800 py-3 px-4 sm:px-6 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col bg-[#0b0e11] text-white">
+      {/* Header - Bybit style */}
+      <header className="bybit-nav py-3 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+          <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
         </div>
         
         <div className="flex items-center space-x-4">
@@ -78,7 +80,7 @@ export default function BlockchainSelection() {
           <Button 
             onClick={() => navigate("/")} 
             variant="ghost"
-            className="text-white"
+            className="text-white hover:bg-[#22262f] transition-colors"
             size="sm"
           >
             <HomeIcon className="h-4 w-4 mr-2" />
@@ -87,65 +89,86 @@ export default function BlockchainSelection() {
         </div>
       </header>
       
-      {/* Main Content */}
-      <main className="flex-1 py-16 px-4 md:px-8 lg:px-16 flex flex-col">
+      {/* Main Content - Bybit style */}
+      <main className="flex-1 py-12 px-4 md:px-8 lg:px-16 flex flex-col">
         <div className="max-w-4xl mx-auto w-full">
+          {/* Breadcrumb */}
+          <div className="flex items-center text-sm text-neutral-400 mb-8">
+            <span onClick={() => navigate("/")} className="cursor-pointer hover:text-[#f7a600]">Home</span>
+            <ChevronRight className="h-3 w-3 mx-2" />
+            <span className="text-[#f7a600]">Select Network</span>
+          </div>
+          
           <div className="text-center mb-12">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-accent-500/10 text-accent-500 font-medium mb-6">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-[#f7a600]/10 text-[#f7a600] font-medium mb-6">
               <Globe className="w-4 h-4 mr-2" />
-              Select Your Network
+              Network Selection
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-6">
-              Choose a <span className="text-accent-500 bg-accent-500/10 px-2 py-1 rounded-md">Blockchain Network</span>
+              Choose a <span className="text-[#f7a600]">Blockchain Network</span>
             </h1>
-            <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-neutral-400 max-w-2xl mx-auto leading-relaxed">
               Select the blockchain network you want to connect to for trading.
-              Each network offers different features, fees, and liquidity options.
+              Each network offers different features, fees, and settlement times.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {blockchains.map((blockchain) => (
-              <Card 
+              <div 
                 key={blockchain.id}
-                className={`bg-primary-800/80 backdrop-blur-sm border-2 shadow-lg transition-all duration-300 cursor-pointer hover:shadow-accent-500/20 ${
-                  selectedBlockchain === blockchain.id 
-                    ? 'border-accent-500 shadow-accent-500/30' 
-                    : 'border-primary-700 hover:border-primary-600'
-                }`}
+                className={`bybit-card p-6 transition-all duration-300 cursor-pointer hover:shadow-lg 
+                  ${selectedBlockchain === blockchain.id 
+                    ? 'border-[#f7a600] shadow-[#f7a600]/10' 
+                    : 'hover:border-[#f7a600]/50'}`
+                }
                 onClick={() => handleSelectBlockchain(blockchain.id)}
               >
-                <CardContent className="pt-8 pb-6 flex flex-col items-center text-center">
-                  {getBlockchainIcon(blockchain.name)}
-                  <h3 className="text-xl font-bold mt-6 mb-3">{blockchain.name}</h3>
-                  <p className="text-neutral-300 mb-4 leading-relaxed">
-                    {blockchain.name === 'Solana' && 'Fast, scalable network with low transaction fees. Ideal for high-frequency trading.'}
-                    {blockchain.name === 'ICP' && 'Decentralized cloud computing platform with high security and reliability.'}
-                    {blockchain.name === 'Base' && 'Ethereum L2 optimized for DeFi applications with enhanced compatibility.'}
-                  </p>
+                <div className="relative">
                   {selectedBlockchain === blockchain.id && (
-                    <div className="w-full bg-accent-500/20 py-2 px-3 rounded-md text-accent-500 mt-2 font-medium">
-                      Selected
+                    <div className="absolute -right-2 -top-2 bg-[#f7a600] text-white p-1 rounded-full">
+                      <Check className="h-4 w-4" />
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                  
+                  <div className="flex flex-col items-center text-center">
+                    {getBlockchainIcon(blockchain.name)}
+                    <h3 className="text-xl font-bold mt-6 mb-3">{blockchain.name}</h3>
+                    <p className="text-neutral-400 mb-4 text-sm leading-relaxed">
+                      {blockchain.name === 'Solana' && 'Fast, scalable network with low transaction fees. Ideal for high-frequency trading.'}
+                      {blockchain.name === 'ICP' && 'Decentralized cloud computing platform with high security and reliability.'}
+                      {blockchain.name === 'Base' && 'Ethereum L2 optimized for DeFi applications with enhanced compatibility.'}
+                    </p>
+                    
+                    <div className={`w-full py-2 px-3 rounded-md mt-2 font-medium flex justify-center items-center
+                      ${selectedBlockchain === blockchain.id 
+                        ? 'bg-[#f7a600] text-white' 
+                        : 'bg-[#22262f] text-neutral-300 hover:bg-[#f7a600]/10 hover:text-[#f7a600]'}`
+                    }>
+                      {selectedBlockchain === blockchain.id ? 'Selected' : 'Select'}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
           
-          {/* Navigation happens automatically when a blockchain is selected */}
+          <div className="text-center text-neutral-400 text-sm">
+            <p>All blockchain networks support the same trading pairs and functionalities.</p>
+            <p className="mt-2">Need help? <span className="text-[#f7a600] cursor-pointer">Contact support</span></p>
+          </div>
         </div>
       </main>
       
-      {/* Footer */}
-      <footer className="py-6 px-4 md:px-8 lg:px-16 bg-primary-900 border-t border-primary-700">
+      {/* Footer - Bybit style */}
+      <footer className="py-6 px-4 md:px-8 lg:px-16 bg-[#0b0e11] border-t border-[var(--border-color)]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
-            <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+            <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
           </div>
           
-          <div className="text-neutral-400 text-sm">
-            © {new Date().getFullYear()} FlyCrypto DEX. All rights reserved.
+          <div className="text-neutral-500 text-sm">
+            © {new Date().getFullYear()} FlyCrypto. All rights reserved.
           </div>
         </div>
       </footer>
