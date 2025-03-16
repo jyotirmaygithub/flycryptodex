@@ -587,15 +587,15 @@ export default function CryptoTradingPro() {
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
       {/* Header */}
-      <header className="border-b border-primary-700 bg-primary-800 py-2 px-4 sm:px-6 flex items-center justify-between">
+      <header className="border-b border-primary-700 bg-primary-800 py-1.5 px-3 sm:px-4 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+          <span className="text-accent-500 text-lg font-bold">Fly<span className="text-white">Crypto</span></span>
           
-          <div className="hidden md:flex ml-8 space-x-1">
+          <div className="hidden md:flex ml-6 space-x-1">
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-8 text-sm"
+              className="h-7 text-xs px-2"
               onClick={() => navigate("/select-blockchain")}
             >
               Markets
@@ -603,38 +603,38 @@ export default function CryptoTradingPro() {
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-8 text-sm"
+              className="h-7 text-xs px-2"
             >
               Trade
             </Button>
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-8 text-sm"
+              className="h-7 text-xs px-2"
             >
               Portfolio
             </Button>
           </div>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <div className="hidden md:flex items-center space-x-1">
-            <div className="bg-primary-700 rounded-lg py-1 px-3 flex items-center">
-              <Wallet className="h-4 w-4 mr-2 text-neutral-400" />
-              <span className="text-sm">$10,000.00</span>
+            <div className="bg-primary-700 rounded-lg py-0.5 px-2 flex items-center">
+              <Wallet className="h-3.5 w-3.5 mr-1.5 text-neutral-400" />
+              <span className="text-xs">$10,000.00</span>
             </div>
             
-            <div className="bg-accent-500/20 rounded-lg py-1 px-3 text-accent-500">
-              <span className="text-sm">Demo Account</span>
+            <div className="bg-accent-500/20 rounded-lg py-0.5 px-2 text-accent-500">
+              <span className="text-xs">Demo Account</span>
             </div>
           </div>
           
           <Button 
             onClick={() => navigate(`/crypto-trading/${encodeURIComponent(currentPair.name)}`)}
             size="sm"
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white h-7 text-xs px-2"
           >
-            <LineChart className="h-4 w-4 mr-2" />
+            <LineChart className="h-3.5 w-3.5 mr-1.5" />
             Basic Mode
           </Button>
           
@@ -643,10 +643,10 @@ export default function CryptoTradingPro() {
           <Button 
             onClick={() => navigate("/")} 
             variant="ghost"
-            className="text-white"
+            className="text-white h-7 text-xs px-2"
             size="sm"
           >
-            <HomeIcon className="h-4 w-4 mr-2" />
+            <HomeIcon className="h-3.5 w-3.5 mr-1.5" />
             Home
           </Button>
         </div>
@@ -802,33 +802,33 @@ export default function CryptoTradingPro() {
                 
                 <div className="mt-2">
                   <Tabs defaultValue="positions" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 mb-1">
-                      <TabsTrigger value="positions" className="text-xs">Positions</TabsTrigger>
-                      <TabsTrigger value="orders" className="text-xs">Open Orders</TabsTrigger>
-                      <TabsTrigger value="history" className="text-xs">Trade History</TabsTrigger>
-                      <TabsTrigger value="alerts" className="text-xs">Price Alerts</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-4 mb-0.5 h-8">
+                      <TabsTrigger value="positions" className="text-[10px] h-7">Positions</TabsTrigger>
+                      <TabsTrigger value="orders" className="text-[10px] h-7">Open Orders</TabsTrigger>
+                      <TabsTrigger value="history" className="text-[10px] h-7">Trade History</TabsTrigger>
+                      <TabsTrigger value="alerts" className="text-[10px] h-7">Price Alerts</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="positions" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
+                    <TabsContent value="positions" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
                       <OpenPositions />
                     </TabsContent>
-                    <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
-                      <div className="flex items-center justify-center h-[80px] text-neutral-400">
+                    <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
+                      <div className="flex items-center justify-center h-[60px] text-neutral-400">
                         <div className="text-center">
-                          <Clock className="h-5 w-5 mx-auto mb-1 opacity-50" />
-                          <p className="text-sm">You have no active orders</p>
+                          <Clock className="h-4 w-4 mx-auto mb-0.5 opacity-50" />
+                          <p className="text-[10px]">You have no active orders</p>
                         </div>
                       </div>
                     </TabsContent>
-                    <TabsContent value="history" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
+                    <TabsContent value="history" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
                       <RecentTrades />
                     </TabsContent>
-                    <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
-                      <div className="flex items-center justify-center h-[80px] text-neutral-400">
+                    <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-1">
+                      <div className="flex items-center justify-center h-[60px] text-neutral-400">
                         <div className="text-center">
-                          <Bell className="h-5 w-5 mx-auto mb-1 opacity-50" />
-                          <p className="text-sm">No price alerts set</p>
-                          <Button size="sm" variant="outline" className="mt-1">
-                            <AlertCircle className="h-3 w-3 mr-1.5" />
+                          <Bell className="h-4 w-4 mx-auto mb-0.5 opacity-50" />
+                          <p className="text-[10px]">No price alerts set</p>
+                          <Button size="sm" variant="outline" className="mt-0.5 h-6 text-[10px]">
+                            <AlertCircle className="h-3 w-3 mr-1" />
                             Create Alert
                           </Button>
                         </div>
@@ -840,11 +840,11 @@ export default function CryptoTradingPro() {
               
               {/* Right sidebar - spans 4 columns on large screens */}
               <div className="col-span-12 lg:col-span-4">
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-1">
                   <div>
                     <AdvancedOrderForm pair={currentPair} />
                   </div>
-                  <div className="h-[300px]">
+                  <div className="h-[280px]">
                     <OrderBook pair={currentPair} />
                   </div>
                   <FundingInfo pair={currentPair} />
@@ -853,27 +853,27 @@ export default function CryptoTradingPro() {
             </div>
             
             {/* Bottom row with AI and Liquidation */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1 mt-1">
               <Card className="border-primary-700 bg-primary-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center">
-                    <Zap className="h-4 w-4 mr-2 text-accent-500" />
+                <CardHeader className="py-1 px-3">
+                  <CardTitle className="text-sm flex items-center">
+                    <Zap className="h-3.5 w-3.5 mr-1.5 text-accent-500" />
                     AI Strategy Analysis
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-1 px-2 pb-2">
                   <AiStrategyPanel pair={currentPair.name} currentPrice={currentPair.price} />
                 </CardContent>
               </Card>
               
               <Card className="border-primary-700 bg-primary-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center">
-                    <AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" />
+                <CardHeader className="py-1 px-3">
+                  <CardTitle className="text-sm flex items-center">
+                    <AlertTriangle className="h-3.5 w-3.5 mr-1.5 text-yellow-500" />
                     Liquidation Calculator
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-1 px-2 pb-2">
                   <LiquidationCalculator pair={currentPair} />
                 </CardContent>
               </Card>
