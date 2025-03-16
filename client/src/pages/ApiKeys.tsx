@@ -108,19 +108,16 @@ export default function ApiKeys() {
   // Load API keys
   const { data: apiKeys, isLoading } = useQuery({
     queryKey: ['/api/api-keys', userId],
-    queryFn: () => apiRequest<ApiKey[]>(`/api/api-keys?userId=${userId}`),
     enabled: !!userId,
   });
   
   // Create new API key
   const createApiKeyMutation = useMutation({
     mutationFn: (apiKeyData: CreateApiKeyRequest) => 
-      apiRequest<ApiKey>('/api/api-keys', {
-        method: 'POST',
-        body: JSON.stringify(apiKeyData),
-      }),
-    onSuccess: (data) => {
-      setNewKeyData(data);
+      apiRequest('POST', '/api/api-keys', apiKeyData),
+    onSuccess: async (data) => {
+      const jsonData = await data.json();
+      setNewKeyData(jsonData);
       queryClient.invalidateQueries({ queryKey: ['/api/api-keys', userId] });
       resetForm();
       setShowNewKeyDialog(false);
@@ -142,10 +139,7 @@ export default function ApiKeys() {
   // Update API key status
   const updateApiKeyMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: number, isActive: boolean }) => 
-      apiRequest<ApiKey>(`/api/api-keys/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ isActive }),
-      }),
+      apiRequest('PATCH', `/api/api-keys/${id}`, { isActive }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/api-keys', userId] });
       toast({
@@ -165,9 +159,7 @@ export default function ApiKeys() {
   // Delete API key
   const deleteApiKeyMutation = useMutation({
     mutationFn: (id: number) => 
-      apiRequest<void>(`/api/api-keys/${id}`, {
-        method: 'DELETE',
-      }),
+      apiRequest('DELETE', `/api/api-keys/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/api-keys', userId] });
       setApiKeyToDelete(null);
