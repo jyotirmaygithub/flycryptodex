@@ -640,7 +640,7 @@ export default function CryptoTrading() {
             {cryptoPairs.map(pair => (
               <div key={pair.id} 
                 className={`flex items-center justify-between p-2 rounded hover:bg-primary-700 cursor-pointer ${currentPair.id === pair.id ? 'bg-primary-700 border-l-2 border-accent-500 pl-1' : ''}`}
-                onClick={() => window.location.href = `/crypto-trading/${encodeURIComponent(pair.name)}`}
+                onClick={() => navigate(`/crypto-trading/${encodeURIComponent(pair.name)}`)}
               >
                 <span>{pair.name}</span>
                 <div className="text-right">
