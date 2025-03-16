@@ -6,7 +6,6 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
 import {
   ArrowRight,
-  DollarSign,
   Package,
   Home as HomeIcon,
   ArrowLeft,
@@ -15,7 +14,8 @@ import {
   ChevronRight,
   Check
 } from "lucide-react";
-import { Bitcoin } from "lucide-react";
+import { SiBitcoin, SiCoinmarketcap, SiGoldmansachs } from "react-icons/si";
+import { BsBank } from "react-icons/bs";
 
 export default function CategorySelection() {
   const [, navigate] = useLocation();
@@ -41,7 +41,7 @@ export default function CategorySelection() {
       shortName: 'Forex',
       route: '/forex-trading', 
       proRoute: '/forex-trading-pro',
-      icon: <DollarSign className="h-6 w-6 text-[#1da2b4]" />, 
+      icon: <BsBank className="h-6 w-6 text-[#1da2b4]" />, 
       description: 'Trade major, minor and exotic currency pairs with tight spreads and SL/TP features.',
       bgColor: 'bg-[#1da2b4]/20',
       pairs: '50+ pairs'
@@ -52,7 +52,7 @@ export default function CategorySelection() {
       shortName: 'Crypto',
       route: '/crypto-trading', 
       proRoute: '/crypto-trading-pro',
-      icon: <Bitcoin className="h-6 w-6 text-[#4a4af4]" />, 
+      icon: <SiBitcoin className="h-6 w-6 text-[#4a4af4]" />, 
       description: 'Trade perpetual futures on major cryptocurrencies with up to 100x leverage.',
       bgColor: 'bg-[#4a4af4]/20',
       pairs: '100+ coins'
@@ -63,7 +63,7 @@ export default function CategorySelection() {
       shortName: 'Commodities',
       route: '/commodity-trading', 
       proRoute: '/commodity-trading-pro',
-      icon: <Package className="h-6 w-6 text-[#f7a600]" />, 
+      icon: <SiGoldmansachs className="h-6 w-6 text-[#f7a600]" />, 
       description: 'Trade gold, silver, oil and other commodities with competitive pricing.',
       bgColor: 'bg-[#f7a600]/20',
       pairs: '30+ commodities'
