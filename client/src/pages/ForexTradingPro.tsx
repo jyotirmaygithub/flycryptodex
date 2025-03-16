@@ -289,7 +289,7 @@ function OrderBook({ pair }: { pair: TradingPair }) {
         </div>
         
         {/* Asks (Sells) */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
+        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700 max-h-[150px]">
           <div className="space-y-[2px]">
             {asks.map((ask, index) => (
               <div key={`ask-${index}`} className="grid grid-cols-3 text-xs px-2 py-1 hover:bg-primary-700">
@@ -309,7 +309,7 @@ function OrderBook({ pair }: { pair: TradingPair }) {
         </div>
         
         {/* Bids (Buys) */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
+        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700 max-h-[150px]">
           <div className="space-y-[2px]">
             {bids.map((bid, index) => (
               <div key={`bid-${index}`} className="grid grid-cols-3 text-xs px-2 py-1 hover:bg-primary-700">
@@ -647,6 +647,16 @@ export default function ForexTradingPro() {
               </div>
               
               <div className="flex items-center gap-4">
+                <Button 
+                  onClick={() => navigate(`/forex-trading/${encodeURIComponent(currentPair.name)}`)}
+                  variant="outline"
+                  size="sm"
+                  className="border-accent-500 text-accent-500 hover:bg-accent-500/10 h-8"
+                >
+                  <MonitorSmartphone className="w-4 h-4 mr-2" />
+                  Switch to Basic Mode
+                </Button>
+                
                 <div className="flex items-center">
                   <Label className="mr-2 text-sm text-neutral-400">Margin</Label>
                   <Tabs defaultValue={marginMode} onValueChange={(value) => setMarginMode(value as 'cross' | 'isolated')}>
@@ -727,18 +737,6 @@ export default function ForexTradingPro() {
                   <OrderBook pair={currentPair} />
                 </div>
               </div>
-            </div>
-            
-            {/* Basic Mode Button */}
-            <div className="flex justify-end mt-4 mb-2">
-              <Button 
-                onClick={() => navigate(`/forex-trading/${encodeURIComponent(currentPair.name)}`)}
-                variant="outline"
-                className="border-accent-500 text-accent-500 hover:bg-accent-500/10"
-              >
-                <MonitorSmartphone className="w-4 h-4 mr-2" />
-                Switch to Basic Mode
-              </Button>
             </div>
             
             {/* AI Strategy */}
