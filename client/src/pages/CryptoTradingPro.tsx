@@ -688,9 +688,9 @@ export default function CryptoTradingPro() {
         
         {/* Main content */}
         <div className="flex-1 overflow-auto">
-          <div className="p-4">
+          <div className="p-2">
             {/* Top bar with pair info */}
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold mr-2">{currentPair.name} Perpetual</h1>
                 <div className={`text-sm px-2 py-0.5 rounded ${currentPair.change24h >= 0 ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
@@ -728,7 +728,7 @@ export default function CryptoTradingPro() {
             </div>
             
             {/* Chart Control Panel */}
-            <div className="mb-4 bg-primary-800 border border-primary-700 rounded-lg p-3 flex flex-wrap items-center justify-between">
+            <div className="mb-2 bg-primary-800 border border-primary-700 rounded-lg p-2 flex flex-wrap items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <Button size="sm" variant={chartType === 'candlestick' ? 'default' : 'outline'} 
@@ -797,40 +797,40 @@ export default function CryptoTradingPro() {
             </div>
 
             {/* Main grid layout */}
-            <div className="grid grid-cols-12 gap-4">
+            <div className="grid grid-cols-12 gap-2">
               {/* Chart area - spans 8 columns on large screens */}
               <div className="col-span-12 lg:col-span-8">
                 <div className="bg-primary-800 border border-primary-700 rounded-lg p-0 overflow-hidden">
                   <TradingViewChart candleData={candleData} pair={currentPair.name} height={460} />
                 </div>
                 
-                <div className="mt-4">
+                <div className="mt-2">
                   <Tabs defaultValue="positions" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 mb-2">
-                      <TabsTrigger value="positions">Positions</TabsTrigger>
-                      <TabsTrigger value="orders">Open Orders</TabsTrigger>
-                      <TabsTrigger value="history">Trade History</TabsTrigger>
-                      <TabsTrigger value="alerts">Price Alerts</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-4 mb-1">
+                      <TabsTrigger value="positions" className="text-xs">Positions</TabsTrigger>
+                      <TabsTrigger value="orders" className="text-xs">Open Orders</TabsTrigger>
+                      <TabsTrigger value="history" className="text-xs">Trade History</TabsTrigger>
+                      <TabsTrigger value="alerts" className="text-xs">Price Alerts</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="positions" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
+                    <TabsContent value="positions" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
                       <OpenPositions />
                     </TabsContent>
-                    <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
-                      <div className="flex items-center justify-center h-[120px] text-neutral-400">
+                    <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
+                      <div className="flex items-center justify-center h-[100px] text-neutral-400">
                         <div className="text-center">
-                          <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p>You have no active orders</p>
+                          <Clock className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">You have no active orders</p>
                         </div>
                       </div>
                     </TabsContent>
-                    <TabsContent value="history" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
+                    <TabsContent value="history" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
                       <RecentTrades />
                     </TabsContent>
-                    <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
-                      <div className="flex items-center justify-center h-[120px] text-neutral-400">
+                    <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-2">
+                      <div className="flex items-center justify-center h-[100px] text-neutral-400">
                         <div className="text-center">
-                          <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p>No price alerts set</p>
+                          <Bell className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">No price alerts set</p>
                           <Button size="sm" variant="outline" className="mt-2">
                             <AlertCircle className="h-3 w-3 mr-1.5" />
                             Create Alert
@@ -844,7 +844,7 @@ export default function CryptoTradingPro() {
               
               {/* Right sidebar - spans 4 columns on large screens */}
               <div className="col-span-12 lg:col-span-4">
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-2">
                   <div>
                     <AdvancedOrderForm pair={currentPair} />
                   </div>
@@ -857,7 +857,7 @@ export default function CryptoTradingPro() {
             </div>
             
             {/* Bottom row with AI and Liquidation */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
               <Card className="border-primary-700 bg-primary-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center">
