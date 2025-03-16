@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TradingPair, CandlestickData } from "@shared/schema";
 import TradingViewChart from "@/components/trading/TradingViewChart";
 import AdvancedOrderForm from "@/components/trading/AdvancedOrderForm";
@@ -29,7 +31,13 @@ import {
   Wallet,
   Users,
   Info,
-  DollarSign
+  DollarSign,
+  CandlestickChart,
+  AreaChart,
+  RefreshCw,
+  Zap,
+  AlertTriangle,
+  Bell
 } from "lucide-react";
 
 // Mock trading pairs for crypto
@@ -552,12 +560,13 @@ export default function CryptoTradingPro() {
   const [leverage, setLeverage] = useState<number>(10);
   const [currentPair, setCurrentPair] = useState<TradingPair>(cryptoPairs[0]);
   const [candleData, setCandleData] = useState<CandlestickData[]>([]);
-  const [timeframe, setTimeframe] = useState<string>('1h');
+  const [timeFrame, setTimeFrame] = useState<string>('1h');
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
   
   // Generate mock candle data
   useEffect(() => {
-    // Generate candle data when the pair or timeframe changes
-    const data = generateMockCandlestickData(timeframe, 100);
+    // Generate candle data when the pair or timeFrame changes
+    const data = generateMockCandlestickData(timeFrame, 100);
     // Adjust for crypto price range
     const adjustedData = data.map(candle => ({
       ...candle,
@@ -567,7 +576,7 @@ export default function CryptoTradingPro() {
       close: candle.close * currentPair.price * 10
     }));
     setCandleData(adjustedData);
-  }, [currentPair.id, timeframe]);
+  }, [currentPair.id, timeFrame]);
   
   useEffect(() => {
     // Set the current pair based on URL param or default to first pair
@@ -718,18 +727,118 @@ export default function CryptoTradingPro() {
               </div>
             </div>
             
+            {/* Chart Control Panel */}
+            <div className="mb-4 bg-primary-800 border border-primary-700 rounded-lg p-3 flex flex-wrap items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Button size="sm" variant={chartType === 'candlestick' ? 'default' : 'outline'} 
+                    className="h-8 px-3" onClick={() => setChartType('candlestick')}>
+                    <CandlestickChart className="h-4 w-4 mr-1.5" />
+                    <span className="text-xs">Candles</span>
+                  </Button>
+                  <Button size="sm" variant={chartType === 'line' ? 'default' : 'outline'} 
+                    className="h-8 px-3" onClick={() => setChartType('line')}>
+                    <LineChart className="h-4 w-4 mr-1.5" />
+                    <span className="text-xs">Line</span>
+                  </Button>
+                  <Button size="sm" variant={chartType === 'area' ? 'default' : 'outline'} 
+                    className="h-8 px-3" onClick={() => setChartType('area')}>
+                    <AreaChart className="h-4 w-4 mr-1.5" />
+                    <span className="text-xs">Area</span>
+                  </Button>
+                </div>
+                
+                <Separator orientation="vertical" className="h-8" />
+                
+                <select 
+                  className="bg-primary-700 border border-primary-600 rounded h-8 px-2 text-sm"
+                  value={timeFrame}
+                  onChange={(e) => setTimeFrame(e.target.value)}
+                >
+                  <option value="1m">1m</option>
+                  <option value="5m">5m</option>
+                  <option value="15m">15m</option>
+                  <option value="30m">30m</option>
+                  <option value="1h">1h</option>
+                  <option value="4h">4h</option>
+                  <option value="1d">1D</option>
+                  <option value="1w">1W</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p className="text-xs">Refresh Chart</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button size="sm" variant="outline" className="h-8 px-3">
+                        <BarChart className="h-4 w-4 mr-1.5" />
+                        <span className="text-xs">Indicators</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="w-60">
+                      <p className="text-xs">Add technical indicators (Pro feature)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+
             {/* Main grid layout */}
             <div className="grid grid-cols-12 gap-4">
               {/* Chart area - spans 8 columns on large screens */}
               <div className="col-span-12 lg:col-span-8">
-                <TradingViewChart candleData={candleData} pair={currentPair.name} height={400} />
-                
-                <div className="mt-4">
-                  <AiStrategyPanel pair={currentPair.name} currentPrice={currentPair.price} />
+                <div className="bg-primary-800 border border-primary-700 rounded-lg p-0 overflow-hidden">
+                  <TradingViewChart candleData={candleData} pair={currentPair.name} height={460} />
                 </div>
                 
                 <div className="mt-4">
-                  <OpenPositions />
+                  <Tabs defaultValue="positions" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4 mb-2">
+                      <TabsTrigger value="positions">Positions</TabsTrigger>
+                      <TabsTrigger value="orders">Open Orders</TabsTrigger>
+                      <TabsTrigger value="history">Trade History</TabsTrigger>
+                      <TabsTrigger value="alerts">Price Alerts</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="positions" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
+                      <OpenPositions />
+                    </TabsContent>
+                    <TabsContent value="orders" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
+                      <div className="flex items-center justify-center h-[120px] text-neutral-400">
+                        <div className="text-center">
+                          <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p>You have no active orders</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="history" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
+                      <RecentTrades />
+                    </TabsContent>
+                    <TabsContent value="alerts" className="border border-primary-700 rounded-lg bg-primary-800 p-4">
+                      <div className="flex items-center justify-center h-[120px] text-neutral-400">
+                        <div className="text-center">
+                          <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p>No price alerts set</p>
+                          <Button size="sm" variant="outline" className="mt-2">
+                            <AlertCircle className="h-3 w-3 mr-1.5" />
+                            Create Alert
+                          </Button>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
               
@@ -739,23 +848,39 @@ export default function CryptoTradingPro() {
                   <div>
                     <AdvancedOrderForm pair={currentPair} />
                   </div>
-                  <div className="h-[280px]">
+                  <div className="h-[300px]">
                     <OrderBook pair={currentPair} />
                   </div>
+                  <FundingInfo pair={currentPair} />
                 </div>
               </div>
             </div>
             
-            {/* Bottom row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <AiStrategyPanel pair={currentPair.name} currentPrice={currentPair.price} />
-              <FundingInfo pair={currentPair} />
-              <RecentTrades />
-            </div>
-            
-            {/* Additional row for liquidation calculator */}
-            <div className="mt-4">
-              <LiquidationCalculator pair={currentPair} />
+            {/* Bottom row with AI and Liquidation */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <Card className="border-primary-700 bg-primary-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center">
+                    <Zap className="h-4 w-4 mr-2 text-accent-500" />
+                    AI Strategy Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AiStrategyPanel pair={currentPair.name} currentPrice={currentPair.price} />
+                </CardContent>
+              </Card>
+              
+              <Card className="border-primary-700 bg-primary-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center">
+                    <AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" />
+                    Liquidation Calculator
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <LiquidationCalculator pair={currentPair} />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
