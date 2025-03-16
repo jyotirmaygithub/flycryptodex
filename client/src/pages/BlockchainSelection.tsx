@@ -6,7 +6,6 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Blockchain } from "@shared/schema";
 import {
   Globe,
-  ArrowRight,
   Home as HomeIcon
 } from "lucide-react";
 import { SiSolana, SiInternetcomputer, SiCoinbase } from "react-icons/si";
@@ -37,19 +36,17 @@ export default function BlockchainSelection() {
 
   const handleSelectBlockchain = (id: number) => {
     setSelectedBlockchain(id);
+    
+    // Save blockchain selection to localStorage
+    localStorage.setItem('selectedBlockchainId', id.toString());
+    const blockchain = blockchains.find(b => b.id === id);
+    localStorage.setItem('selectedBlockchainName', blockchain?.name || '');
+    
+    // Navigate to category selection
+    navigate("/select-category");
   };
   
-  const handleContinue = () => {
-    if (selectedBlockchain) {
-      // Save blockchain selection to localStorage
-      localStorage.setItem('selectedBlockchainId', selectedBlockchain.toString());
-      const blockchain = blockchains.find(b => b.id === selectedBlockchain);
-      localStorage.setItem('selectedBlockchainName', blockchain?.name || '');
-      
-      // Navigate to category selection
-      navigate("/select-category");
-    }
-  };
+  // Navigation now happens directly in handleSelectBlockchain
 
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
@@ -118,16 +115,7 @@ export default function BlockchainSelection() {
             ))}
           </div>
           
-          <div className="flex justify-center">
-            <Button 
-              onClick={handleContinue} 
-              className="bg-accent-500 hover:bg-accent-600 text-white text-lg py-6 px-8"
-              disabled={!selectedBlockchain}
-            >
-              Continue
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
+          {/* Navigation happens automatically when a blockchain is selected */}
         </div>
       </main>
       

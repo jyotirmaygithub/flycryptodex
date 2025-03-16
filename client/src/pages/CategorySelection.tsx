@@ -67,29 +67,27 @@ export default function CategorySelection() {
     if (categoryName === 'Commodity Trading') {
       setUseProfessionalMode(false);
     }
-  };
-  
-  const handleContinue = () => {
-    if (selectedCategory) {
-      // Save category selection to localStorage
-      localStorage.setItem('selectedCategory', selectedCategory);
-      localStorage.setItem('useProfessionalMode', String(useProfessionalMode));
-      
-      // Navigate to the appropriate trading page
-      const category = categories.find(c => c.name === selectedCategory);
-      if (category) {
-        // Special handling for Commodity Trading (no pro mode)
-        if (category.name === 'Commodity Trading') {
-          navigate(category.route);
-          return;
-        }
-        
-        // For other categories, use pro route if professional mode is enabled
-        const route = useProfessionalMode ? category.proRoute : category.route;
-        navigate(route);
+    
+    // Save category selection to localStorage
+    localStorage.setItem('selectedCategory', categoryName);
+    localStorage.setItem('useProfessionalMode', String(categoryName === 'Commodity Trading' ? false : useProfessionalMode));
+    
+    // Navigate to the appropriate trading page immediately
+    const category = categories.find(c => c.name === categoryName);
+    if (category) {
+      // Special handling for Commodity Trading (no pro mode)
+      if (category.name === 'Commodity Trading') {
+        navigate(category.route);
+        return;
       }
+      
+      // For other categories, use pro route if professional mode is enabled
+      const route = useProfessionalMode ? category.proRoute : category.route;
+      navigate(route);
     }
   };
+  
+  // Navigation now happens directly in handleSelectCategory
 
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
@@ -189,7 +187,7 @@ export default function CategorySelection() {
             ))}
           </div>
           
-          <div className="flex justify-between">
+          <div className="flex justify-start">
             <Button 
               onClick={() => navigate("/select-blockchain")} 
               variant="outline"
@@ -197,15 +195,6 @@ export default function CategorySelection() {
             >
               <ArrowLeft className="mr-2 h-5 w-5" />
               Back to Networks
-            </Button>
-            
-            <Button 
-              onClick={handleContinue} 
-              className="bg-accent-500 hover:bg-accent-600 text-white"
-              disabled={!selectedCategory}
-            >
-              Continue
-              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>
