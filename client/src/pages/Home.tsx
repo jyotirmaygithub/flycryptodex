@@ -42,7 +42,7 @@ export default function Home() {
       {/* Header - Bybit style */}
       <header className="bybit-nav py-3 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="text-[#f7a600] text-xl font-bold">Cryp<span className="text-white">Trade</span></span>
+          <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
         </div>
         
         <div className="flex items-center space-x-4">
@@ -67,7 +67,7 @@ export default function Home() {
                 <span className="text-[#f7a600]"> Powerful Tools</span>
               </h1>
               <p className="text-lg text-neutral-300 mb-8">
-                CrypTrade offers a professional trading experience with advanced charting, 
+                FlyCrypto offers a professional trading experience with advanced charting, 
                 AI-powered insights, and multi-market trading all on one platform.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -282,11 +282,11 @@ export default function Home() {
       <footer className="py-8 px-4 md:px-8 lg:px-16 bg-[#0b0e11] border-t border-[var(--border-color)]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
-            <span className="text-[#f7a600] text-xl font-bold">Cryp<span className="text-white">Trade</span></span>
+            <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
           </div>
           
           <div className="text-neutral-500 text-sm">
-            © {new Date().getFullYear()} CrypTrade. All rights reserved.
+            © {new Date().getFullYear()} FlyCrypto. All rights reserved.
           </div>
         </div>
       </footer>
