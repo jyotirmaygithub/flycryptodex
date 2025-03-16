@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { TradingPair, CandlestickData } from "@shared/schema";
 import TradingViewChart from "@/components/trading/TradingViewChart";
 import { generateMockCandlestickData, generateMockOrderBook } from "@/lib/mockData";
+import { webSocketService } from "@/lib/websocket";
 import {
   Home as HomeIcon,
   TrendingUp,
@@ -569,6 +570,51 @@ export default function CommodityTradingPro() {
   const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
   
   // Generate mock candle data
+  // Connect to WebSocket when component mounts
+  useEffect(() => {
+    webSocketService.connect();
+    
+    // Return cleanup function
+    return () => {
+      if (currentPair) {
+        webSocketService.unsubscribe(currentPair.name);
+      }
+    };
+  }, []);
+
+  // Subscribe to current pair's market data
+  useEffect(() => {
+    if (currentPair) {
+      // Unsubscribe from previous pair if exists
+      webSocketService.unsubscribe(currentPair.name);
+      // Subscribe to new pair
+      webSocketService.subscribe(currentPair.name);
+      
+      // Setup message handler for market data updates
+      const removeListener = webSocketService.onMessage((event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === 'marketData' || message.type === 'marketUpdate') {
+            if (message.pair === currentPair.name || (message.data && message.data.pair === currentPair.name)) {
+              // Update candlestick data if available
+              const data = message.data || message;
+              if (data.candlesticks && data.candlesticks.length > 0) {
+                setCandleData(data.candlesticks);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error processing market data:', error);
+        }
+      });
+      
+      return () => {
+        removeListener();
+      };
+    }
+  }, [currentPair]);
+
+  // Fallback to generate mock candle data when WebSocket data is not available
   useEffect(() => {
     // Generate candle data when the pair or timeFrame changes
     const data = generateMockCandlestickData(timeFrame, 100);
@@ -584,6 +630,13 @@ export default function CommodityTradingPro() {
   }, [currentPair.id, timeFrame]);
   
   useEffect(() => {
+    // Get blockchain selection from localStorage
+    const blockchainName = localStorage.getItem('selectedBlockchainName');
+    if (!blockchainName) {
+      navigate("/select-blockchain");
+      return;
+    }
+    
     // Set the current pair based on URL param or default to first pair
     if (pairParam) {
       const foundPair = commodityPairs.find(p => p.name === decodeURIComponent(pairParam));
@@ -591,7 +644,7 @@ export default function CommodityTradingPro() {
         setCurrentPair(foundPair);
       }
     }
-  }, [pairParam]);
+  }, [pairParam, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col bg-primary-900 text-white">
