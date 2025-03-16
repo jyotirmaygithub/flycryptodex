@@ -9,6 +9,10 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 import { TradingPair, CandlestickData } from "@shared/schema";
 import TradingViewChart from "@/components/trading/TradingViewChart";
 import { generateMockCandlestickData } from "@/lib/mockData";
@@ -34,7 +38,21 @@ import {
   StarOff,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Zap,
+  Bell,
+  Settings,
+  User,
+  HelpCircle,
+  AreaChart,
+  CandlestickChart,
+  LineChart,
+  PieChart,
+  Wallet,
+  Search,
+  History,
+  Bookmark,
+  CheckCircle,
+  AlertTriangle
 } from "lucide-react";
 
 const forexPairs = [
@@ -64,6 +82,7 @@ export default function ForexTrading() {
   const [, navigate] = useLocation();
   const [currentPair, setCurrentPair] = useState<TradingPair>(forexPairs[0]);
   const [timeFrame, setTimeFrame] = useState<string>('1h');
+  const [chartType, setChartType] = useState<'candlestick' | 'line' | 'area'>('candlestick');
   const [lotSize, setLotSize] = useState<number>(0.1);
   const [price, setPrice] = useState<number>(0);
   const [amount, setAmount] = useState<number>(0);
@@ -114,41 +133,133 @@ export default function ForexTrading() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-900 to-primary-950 text-white">
       {/* Header with navigation */}
-      <header className="border-b border-primary-700/50 bg-primary-900/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <span className="text-2xl font-bold bg-gradient-to-r from-accent-400 to-accent-600 text-transparent bg-clip-text">
-              FlyCrypto Forex
-            </span>
-            <nav className="hidden md:flex space-x-4">
-              <Button variant="ghost" size="sm" className="text-white/80 hover:text-white">
+      <header className="border-b border-primary-700/50 bg-primary-900/70 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
+          {/* Top navigation bar */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-6">
+              <div className="relative flex items-center">
+                <span className="text-2xl font-bold flex items-center gap-2">
+                  <span className="bg-gradient-to-r from-accent-400 to-accent-600 text-transparent bg-clip-text">
+                    FlyCrypto
+                  </span>
+                  <Badge variant="outline" className="uppercase text-xs font-bold tracking-wider bg-green-500/10 text-green-400 border-green-500/30">
+                    Live
+                  </Badge>
+                </span>
+              </div>
+              <div className="hidden md:flex items-center space-x-2 bg-primary-950/50 rounded-lg p-1">
+                <div className="relative">
+                  <Search className="h-3.5 w-3.5 text-neutral-400 absolute left-2 top-1/2 transform -translate-y-1/2" />
+                  <Input 
+                    placeholder="Search markets..." 
+                    className="h-8 bg-transparent border-none text-sm w-48 pl-8 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full">
+                      <Bell className="h-5 w-5 text-neutral-400" />
+                      <span className="absolute -top-0.5 -right-0.5 h-3 w-3 bg-red-500 rounded-full border-2 border-primary-900"></span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Notifications</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <div className="bg-primary-800/80 rounded-full px-3 py-1 flex items-center">
+                <Wallet className="h-4 w-4 text-accent-500 mr-2" />
+                <span className="text-sm font-medium">$25,000.00</span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Avatar className="h-8 w-8 border border-primary-700">
+                  <AvatarFallback className="bg-primary-800 text-accent-500">JD</AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
+          </div>
+          
+          {/* Bottom navigation bar */}
+          <div className="flex items-center justify-between pt-1">
+            <nav className="flex space-x-1">
+              <Button variant="ghost" size="sm" className="h-8 rounded-md text-white/80 hover:text-white hover:bg-primary-800">
                 <Home className="w-4 h-4 mr-2" />
                 Dashboard
               </Button>
-              <Button variant="ghost" size="sm" className="text-white/80 hover:text-white">
-                <Clock className="w-4 h-4 mr-2" />
+              <Button variant="ghost" size="sm" className="h-8 rounded-md text-accent-500 hover:text-accent-400 hover:bg-primary-800">
+                <BarChart2 className="w-4 h-4 mr-2" />
+                Trading
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 rounded-md text-white/80 hover:text-white hover:bg-primary-800">
+                <History className="w-4 h-4 mr-2" />
                 History
               </Button>
-              <Button variant="ghost" size="sm" className="text-white/80 hover:text-white">
+              <Button variant="ghost" size="sm" className="h-8 rounded-md text-white/80 hover:text-white hover:bg-primary-800">
+                <Bookmark className="w-4 h-4 mr-2" />
+                Watchlist
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 rounded-md text-white/80 hover:text-white hover:bg-primary-800">
                 <Globe className="w-4 h-4 mr-2" />
                 Markets
               </Button>
             </nav>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button 
-              onClick={() => navigate(`/forex-trading-pro/${encodeURIComponent(currentPair.name)}`)}
-              variant="outline" 
-              size="sm" 
-              className="bg-accent-500/10 text-accent-500 border-accent-500/20 hover:bg-accent-500/20"
-            >
-              <Sliders className="w-4 h-4 mr-2" />
-              Pro Mode
-            </Button>
-            <ThemeToggle />
-            <Button variant="outline" size="sm" onClick={() => navigate("/")}>
-              Exit Trading
-            </Button>
+            
+            <div className="flex items-center space-x-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md hover:bg-primary-800">
+                      <HelpCircle className="h-4 w-4 text-neutral-400" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Help & Support</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md hover:bg-primary-800">
+                      <Settings className="h-4 w-4 text-neutral-400" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Settings</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <ThemeToggle />
+              
+              <Button 
+                onClick={() => navigate(`/forex-trading-pro/${encodeURIComponent(currentPair.name)}`)}
+                variant="outline" 
+                size="sm" 
+                className="bg-accent-500/10 text-accent-500 border-accent-500/20 hover:bg-accent-500/20"
+              >
+                <Sliders className="w-4 h-4 mr-2" />
+                Pro Mode
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/")}
+                className="text-neutral-400 hover:text-white hover:bg-primary-800"
+              >
+                Exit
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -283,6 +394,75 @@ export default function ForexTrading() {
                         </Button>
                       ))}
                     </div>
+                    
+                    <div className="flex bg-primary-900/70 rounded-md overflow-hidden">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`h-8 w-8 rounded-none ${
+                                chartType === 'candlestick'
+                                  ? 'bg-accent-500/20 text-accent-400'
+                                  : 'text-neutral-400 hover:bg-primary-800 hover:text-white'
+                              }`}
+                              onClick={() => setChartType('candlestick')}
+                            >
+                              <CandlestickChart className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom">
+                            <p>Candlestick</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`h-8 w-8 rounded-none ${
+                                chartType === 'line'
+                                  ? 'bg-accent-500/20 text-accent-400'
+                                  : 'text-neutral-400 hover:bg-primary-800 hover:text-white'
+                              }`}
+                              onClick={() => setChartType('line')}
+                            >
+                              <LineChart className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom">
+                            <p>Line</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`h-8 w-8 rounded-none ${
+                                chartType === 'area'
+                                  ? 'bg-accent-500/20 text-accent-400'
+                                  : 'text-neutral-400 hover:bg-primary-800 hover:text-white'
+                              }`}
+                              onClick={() => setChartType('area')}
+                            >
+                              <AreaChart className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom">
+                            <p>Area</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -293,7 +473,39 @@ export default function ForexTrading() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 relative">
+                {/* Chart Stats Overlay */}
+                <div className="absolute top-3 left-3 z-10 bg-primary-900/70 border border-primary-700/50 rounded-md p-2 backdrop-blur-sm flex flex-col space-y-1">
+                  <div className="text-xs text-neutral-400 flex items-center justify-between gap-6">
+                    <span>Open</span>
+                    <span className="font-mono text-white">{(currentPair.price * 0.998).toFixed(4)}</span>
+                  </div>
+                  <div className="text-xs text-neutral-400 flex items-center justify-between gap-6">
+                    <span>High</span>
+                    <span className="font-mono text-green-400">{(currentPair.price * 1.003).toFixed(4)}</span>
+                  </div>
+                  <div className="text-xs text-neutral-400 flex items-center justify-between gap-6">
+                    <span>Low</span>
+                    <span className="font-mono text-red-400">{(currentPair.price * 0.997).toFixed(4)}</span>
+                  </div>
+                  <div className="text-xs text-neutral-400 flex items-center justify-between gap-6">
+                    <span>Close</span>
+                    <span className="font-mono text-white">{currentPair.price.toFixed(4)}</span>
+                  </div>
+                </div>
+                
+                {/* Chart Indicators */}
+                <div className="absolute top-3 right-3 z-10">
+                  <Badge className="bg-primary-900/70 border-primary-700/50 text-xs backdrop-blur-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="text-neutral-400">MA</span>
+                      <span className="text-accent-400">21</span>
+                      <span className="text-green-400">50</span>
+                      <span className="text-blue-400">200</span>
+                    </div>
+                  </Badge>
+                </div>
+                
                 <div className="h-[380px] mt-0">
                   <TradingViewChart 
                     candleData={candleData}
