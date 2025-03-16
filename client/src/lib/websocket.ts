@@ -163,9 +163,16 @@ class WebSocketService {
 
   private notifyMessageListeners(event: MessageEvent) {
     try {
-      const data = JSON.parse(event.data);
-      console.log('Received WebSocket message:', data);
+      // Try to parse the message as JSON, but don't fail if it's not valid JSON
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received WebSocket message:', data);
+      } catch (parseError) {
+        // Message might not be JSON, which is okay in some cases
+        console.log('Received non-JSON WebSocket message');
+      }
       
+      // Always notify listeners with the raw event, even if JSON parsing failed
       this.messageListeners.forEach(listener => {
         try {
           listener(event);
@@ -174,7 +181,7 @@ class WebSocketService {
         }
       });
     } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
+      console.error('Error handling WebSocket message:', error);
     }
   }
 

@@ -38,7 +38,27 @@ export function useWebSocket(pair?: string) {
     
     const onMessage = (event: MessageEvent) => {
       try {
-        const message = JSON.parse(event.data) as WebSocketMessage;
+        // Skip processing if data is not provided or is not a string
+        if (!event.data || typeof event.data !== 'string') {
+          return;
+        }
+        
+        let message: WebSocketMessage;
+        try {
+          message = JSON.parse(event.data) as WebSocketMessage;
+          // Skip if message type is not recognized
+          if (!message || !message.type) {
+            return;
+          }
+        } catch (parseError) {
+          // Silently ignore JSON parsing errors
+          if (parseError instanceof SyntaxError) {
+            console.debug('Received non-JSON message from WebSocket');
+          } else {
+            console.error('Error parsing WebSocket message:', parseError);
+          }
+          return;
+        }
         
         switch (message.type) {
           case 'marketData':

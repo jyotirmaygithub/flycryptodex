@@ -162,18 +162,33 @@ export default function CommodityTrading() {
       // Setup message handler for market data updates
       const removeListener = webSocketService.onMessage((event) => {
         try {
+          // Skip processing if data is not provided or is not a string
+          if (!event.data || typeof event.data !== 'string') {
+            return;
+          }
+          
           const message = JSON.parse(event.data);
-          if (message.type === 'marketData' || message.type === 'marketUpdate') {
-            if (message.pair === currentPair.name || (message.data && message.data.pair === currentPair.name)) {
-              // Update candlestick data if available
-              const data = message.data || message;
-              if (data.candlesticks && data.candlesticks.length > 0) {
-                setCandleData(data.candlesticks);
-              }
+          // Skip if message type is not what we expect
+          if (!message || (message.type !== 'marketData' && message.type !== 'marketUpdate')) {
+            return;
+          }
+          
+          // Check if this message is for our current pair
+          if (message.pair === currentPair.name || (message.data && message.data.pair === currentPair.name)) {
+            // Update candlestick data if available
+            const data = message.data || message;
+            if (data.candlesticks && Array.isArray(data.candlesticks) && data.candlesticks.length > 0) {
+              setCandleData(data.candlesticks);
             }
           }
         } catch (error) {
-          console.error('Error processing market data:', error);
+          // Silently ignore JSON parsing errors - the message might not be for us
+          // Only log actual processing errors
+          if (error instanceof SyntaxError) {
+            console.debug('Received non-JSON message from WebSocket');
+          } else {
+            console.error('Error processing market data:', error);
+          }
         }
       });
       
