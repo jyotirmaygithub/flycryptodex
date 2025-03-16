@@ -137,9 +137,9 @@ export default function Home() {
               <div className="mb-4 bg-[#f7a600]/10 w-12 h-12 rounded-lg flex items-center justify-center">
                 <Zap className="h-6 w-6 text-[#f7a600]" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Lightning Fast Execution</h3>
+              <h3 className="text-xl font-bold mb-2">API Trading</h3>
               <p className="text-neutral-400">
-                Execute trades with millisecond precision on our high-performance trading infrastructure.
+                Connect directly to our platform APIs for seamless integration and customized trading solutions.
               </p>
             </div>
             
@@ -157,9 +157,9 @@ export default function Home() {
               <div className="mb-4 bg-[#f7a600]/10 w-12 h-12 rounded-lg flex items-center justify-center">
                 <ShieldCheck className="h-6 w-6 text-[#f7a600]" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Secure & Reliable</h3>
+              <h3 className="text-xl font-bold mb-2">Algo Trading</h3>
               <p className="text-neutral-400">
-                Trade with confidence on our secure platform with non-custodial wallet integration.
+                Deploy automated trading strategies with our advanced algorithmic trading tools.
               </p>
             </div>
           </div>
