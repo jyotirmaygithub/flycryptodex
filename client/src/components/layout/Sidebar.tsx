@@ -141,6 +141,31 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </div>
           
+          {/* Advanced Trading */}
+          <div className="p-4 border-b border-primary-700">
+            <h2 className="text-sm uppercase tracking-wider text-neutral-400 mb-3">Advanced Trading</h2>
+            <div className="flex flex-col space-y-2">
+              <button
+                className="flex items-center p-2 rounded-md hover:bg-primary-700 text-neutral-300"
+                onClick={() => navigate('/api-keys')}
+              >
+                <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                  <CircleDot size={16} />
+                </span>
+                API Keys
+              </button>
+              <button
+                className="flex items-center p-2 rounded-md hover:bg-primary-700 text-neutral-300"
+                onClick={() => navigate('/algorithmic-trading')}
+              >
+                <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                  <CircleDot size={16} />
+                </span>
+                Algorithmic Trading
+              </button>
+            </div>
+          </div>
+          
           {/* Trading Pairs */}
           <div className="p-4 flex-1 overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
