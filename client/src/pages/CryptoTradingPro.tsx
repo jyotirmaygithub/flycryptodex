@@ -455,20 +455,16 @@ function RecentTrades() {
   }));
 
   return (
-    <div className="rounded-lg border border-primary-700 bg-primary-800 h-full">
-      <div className="border-b border-primary-700 px-4 py-3">
-        <h3 className="font-medium text-sm">Recent Trades</h3>
-      </div>
-      
-      <div className="grid grid-cols-3 text-xs text-neutral-400 p-2 border-b border-primary-700">
+    <div className="h-full">
+      <div className="grid grid-cols-3 text-[10px] text-neutral-400 px-1.5 py-1 border-b border-primary-700">
         <div>Price</div>
         <div className="text-right">Size</div>
         <div className="text-right">Time</div>
       </div>
       
-      <div className="max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
+      <div className="max-h-[120px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
         {trades.map(trade => (
-          <div key={trade.id} className="grid grid-cols-3 text-xs p-2 hover:bg-primary-700">
+          <div key={trade.id} className="grid grid-cols-3 text-[10px] px-1.5 py-0.5 hover:bg-primary-700">
             <div className={trade.side === 'buy' ? 'text-green-500' : 'text-red-500'}>
               ${trade.price.toFixed(2)}
             </div>
@@ -476,7 +472,7 @@ function RecentTrades() {
               {trade.size.toFixed(3)}
             </div>
             <div className="text-right text-neutral-400">
-              {new Date(trade.time).toLocaleTimeString()}
+              {new Date(trade.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
             </div>
           </div>
         ))}
@@ -501,47 +497,45 @@ function OpenPositions() {
   ];
 
   return (
-    <div className="rounded-lg border border-primary-700 bg-primary-800">
-      <div className="border-b border-primary-700 px-4 py-3 flex items-center justify-between">
-        <h3 className="font-medium text-sm">Open Positions</h3>
-        <div className="text-sm">
-          Total PnL: <span className="text-green-500">$92.00</span>
-        </div>
+    <div>
+      <div className="flex items-center justify-between mb-1 text-[10px]">
+        <span className="text-neutral-400">Total PnL:</span>
+        <span className="text-green-500">$92.00</span>
       </div>
       
       {positions.length === 0 ? (
-        <div className="p-8 text-center text-neutral-400 text-sm">
+        <div className="text-center text-neutral-400 text-xs py-2">
           No open positions
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-[10px]">
             <thead>
-              <tr className="text-xs text-neutral-400 border-b border-primary-700">
-                <th className="p-2 text-left">Pair</th>
-                <th className="p-2 text-left">Side</th>
-                <th className="p-2 text-right">Size</th>
-                <th className="p-2 text-right">Entry</th>
-                <th className="p-2 text-right">Price</th>
-                <th className="p-2 text-right">PnL</th>
-                <th className="p-2 text-right">Actions</th>
+              <tr className="text-[10px] text-neutral-400 border-b border-primary-700">
+                <th className="py-1 px-1 text-left">Pair</th>
+                <th className="py-1 px-1 text-left">Side</th>
+                <th className="py-1 px-1 text-right">Size</th>
+                <th className="py-1 px-1 text-right">Entry</th>
+                <th className="py-1 px-1 text-right">Price</th>
+                <th className="py-1 px-1 text-right">PnL</th>
+                <th className="py-1 px-1 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {positions.map(pos => (
-                <tr key={pos.id} className="border-b border-primary-700 hover:bg-primary-700/50">
-                  <td className="p-2">{pos.pair}</td>
-                  <td className={`p-2 ${pos.side === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                <tr key={pos.id} className="border-b border-primary-700/50 hover:bg-primary-700/50">
+                  <td className="py-1 px-1">{pos.pair}</td>
+                  <td className={`py-1 px-1 ${pos.side === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
                     {pos.side.toUpperCase()}
                   </td>
-                  <td className="p-2 text-right">{pos.size}</td>
-                  <td className="p-2 text-right">${pos.entryPrice.toFixed(2)}</td>
-                  <td className="p-2 text-right">${pos.currentPrice.toFixed(2)}</td>
-                  <td className={`p-2 text-right ${pos.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  <td className="py-1 px-1 text-right">{pos.size}</td>
+                  <td className="py-1 px-1 text-right">${pos.entryPrice.toFixed(2)}</td>
+                  <td className="py-1 px-1 text-right">${pos.currentPrice.toFixed(2)}</td>
+                  <td className={`py-1 px-1 text-right ${pos.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     ${pos.pnl.toFixed(2)} ({pos.pnlPercent.toFixed(2)}%)
                   </td>
-                  <td className="p-2 text-right">
-                    <Button variant="outline" size="sm" className="h-6 text-xs px-2">
+                  <td className="py-1 px-1 text-right">
+                    <Button variant="outline" size="sm" className="h-5 text-[10px] px-1.5">
                       Close
                     </Button>
                   </td>
