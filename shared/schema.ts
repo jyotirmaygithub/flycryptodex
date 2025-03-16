@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, real, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -63,6 +63,33 @@ export const forexNews = pgTable("forex_news", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const apiKeys = pgTable("api_keys", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  name: text("name").notNull(),
+  apiKey: text("api_key").notNull().unique(),
+  secretKey: text("secret_key").notNull(),
+  permissions: text("permissions").notNull(), // "read", "trade", "withdraw" as comma-separated values
+  ipWhitelist: text("ip_whitelist"), // comma-separated IPs
+  isActive: boolean("is_active").default(true).notNull(),
+  lastUsed: timestamp("last_used"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const tradingStrategies = pgTable("trading_strategies", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("type").notNull(), // "indicator", "custom", "template"
+  config: jsonb("config").notNull(), // JSON configuration of the strategy
+  pairIds: text("pair_ids").notNull(), // comma-separated pair IDs
+  isActive: boolean("is_active").default(false).notNull(),
+  lastRun: timestamp("last_run"),
+  performance: real("performance"), // percentage performance
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertBlockchainSchema = createInsertSchema(blockchains).omit({ id: true });
@@ -71,6 +98,8 @@ export const insertTradingPairSchema = createInsertSchema(tradingPairs).omit({ i
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
 export const insertAiRecommendationSchema = createInsertSchema(aiRecommendations).omit({ id: true, createdAt: true });
 export const insertForexNewsSchema = createInsertSchema(forexNews).omit({ id: true, createdAt: true });
+export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ id: true, createdAt: true, lastUsed: true });
+export const insertTradingStrategySchema = createInsertSchema(tradingStrategies).omit({ id: true, createdAt: true, lastRun: true, performance: true });
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -80,6 +109,8 @@ export type InsertTradingPair = z.infer<typeof insertTradingPairSchema>;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type InsertAiRecommendation = z.infer<typeof insertAiRecommendationSchema>;
 export type InsertForexNews = z.infer<typeof insertForexNewsSchema>;
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
+export type InsertTradingStrategy = z.infer<typeof insertTradingStrategySchema>;
 
 export type User = typeof users.$inferSelect;
 export type Blockchain = typeof blockchains.$inferSelect;
@@ -88,6 +119,8 @@ export type TradingPair = typeof tradingPairs.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type AiRecommendation = typeof aiRecommendations.$inferSelect;
 export type ForexNews = typeof forexNews.$inferSelect;
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type TradingStrategy = typeof tradingStrategies.$inferSelect;
 
 // Candlestick data type for WebSocket
 export type CandlestickData = {
