@@ -486,26 +486,115 @@ function RecentTrades() {
 }
 
 function OpenPositions() {
-  // Mock positions
-  const positions = [
-    {
-      id: 1,
-      pair: 'BTC/USD',
-      side: 'buy',
-      size: 0.1,
-      entryPrice: 64500.75,
-      currentPrice: 65420.75,
-      pnl: 92.00,
-      pnlPercent: 1.42
+  const [positions, setPositions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const userId = 1; // Using the demo user we created
+  
+  // Fetch open demo trades for the user
+  useEffect(() => {
+    const fetchOpenTrades = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/demo-trades/open?userId=${userId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch open trades');
+        }
+        
+        const trades = await response.json();
+        
+        // Get current trading pairs to calculate PnL
+        const pairsResponse = await fetch('/api/pairs');
+        if (!pairsResponse.ok) {
+          throw new Error('Failed to fetch trading pairs');
+        }
+        
+        const tradingPairs = await pairsResponse.json();
+        
+        // Format positions with current prices and calculated PnL
+        const formattedPositions = trades.map((trade: any) => {
+          const pair = tradingPairs.find((p: any) => p.id === trade.pairId);
+          if (!pair) return null;
+          
+          // Calculate current PnL
+          let pnl = 0;
+          if (trade.side === 'buy') {
+            pnl = (pair.price - trade.entryPrice) / trade.entryPrice * trade.size * trade.leverage;
+          } else {
+            pnl = (trade.entryPrice - pair.price) / trade.entryPrice * trade.size * trade.leverage;
+          }
+          
+          // Calculate PnL percentage
+          const pnlPercent = (pnl / trade.size) * 100;
+          
+          return {
+            id: trade.id,
+            pair: pair.name,
+            side: trade.side,
+            size: trade.size,
+            entryPrice: trade.entryPrice,
+            currentPrice: pair.price,
+            pnl: parseFloat(pnl.toFixed(2)),
+            pnlPercent: parseFloat(pnlPercent.toFixed(2)),
+            leverage: trade.leverage
+          };
+        }).filter(Boolean);
+        
+        setPositions(formattedPositions);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching trades:', err);
+        setError('Failed to load open positions');
+        setPositions([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchOpenTrades();
+    
+    // Set up a refresh interval
+    const intervalId = setInterval(fetchOpenTrades, 5000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Calculate total PnL
+  const totalPnl = positions.reduce((sum, pos) => sum + pos.pnl, 0);
+  
+  // Handle closing a position
+  const handleClosePosition = async (positionId: number, currentPrice: number) => {
+    try {
+      const response = await fetch(`/api/demo-trades/${positionId}/close`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ exitPrice: currentPrice })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to close position');
+      }
+      
+      // Remove closed position from local state for immediate UI update
+      setPositions(positions.filter(pos => pos.id !== positionId));
+      
+    } catch (err) {
+      console.error('Error closing position:', err);
+      alert('Failed to close position. Please try again.');
     }
-  ];
+  };
 
   return (
     <div className="rounded-lg border border-primary-700 bg-primary-800">
       <div className="border-b border-primary-700 px-4 py-3 flex items-center justify-between">
         <h3 className="font-medium text-sm">Open Positions</h3>
         <div className="text-sm">
-          Total PnL: <span className="text-green-500">$92.00</span>
+          Total PnL: <span className={totalPnl >= 0 ? 'text-green-500' : 'text-red-500'}>
+            ${totalPnl.toFixed(2)}
+          </span>
         </div>
       </div>
       
@@ -541,7 +630,12 @@ function OpenPositions() {
                     ${pos.pnl.toFixed(2)} ({pos.pnlPercent.toFixed(2)}%)
                   </td>
                   <td className="p-2 text-right">
-                    <Button variant="outline" size="sm" className="h-6 text-xs px-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-6 text-xs px-2"
+                      onClick={() => handleClosePosition(pos.id, pos.currentPrice)}
+                    >
                       Close
                     </Button>
                   </td>
