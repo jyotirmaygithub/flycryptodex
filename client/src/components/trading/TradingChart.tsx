@@ -153,7 +153,7 @@ export default function TradingChart({
               <Button
                 size="sm"
                 variant={chartType === 'line' ? 'default' : 'ghost'}
-                className={chartType === 'line' ? 'bg-accent-500 text-white' : 'text-neutral-300 hover:text-white'}
+                className={chartType === 'line' ? 'bg-[#00C7B4] text-white' : 'text-neutral-300 hover:text-white'}
                 onClick={() => onChangeChartType('line')}
               >
                 <TrendingUp className="h-4 w-4 mr-1" />
