@@ -109,6 +109,15 @@ export class MemStorage implements IStorage {
   }
 
   private initializeDefaultData() {
+    // Create default demo user
+    this.createUser({
+      username: "demo_user",
+      password: "demo_password",
+      isDemo: true,
+      balance: 10000,
+      walletAddress: null
+    });
+    
     // Add default blockchains
     const solana = this.createBlockchain({ name: "Solana", isActive: true });
     const icp = this.createBlockchain({ name: "ICP", isActive: true });
@@ -127,6 +136,37 @@ export class MemStorage implements IStorage {
       price: 1.0721,
       change24h: 0.21,
       categoryId: forex.id,
+      isActive: true
+    });
+    
+    // Add default trading pairs for Crypto
+    const btcUsd = this.createTradingPair({
+      name: "BTC/USD",
+      baseAsset: "BTC",
+      quoteAsset: "USD",
+      price: 68547.32,
+      change24h: 2.34,
+      categoryId: crypto.id,
+      isActive: true
+    });
+    
+    const ethUsd = this.createTradingPair({
+      name: "ETH/USD",
+      baseAsset: "ETH",
+      quoteAsset: "USD",
+      price: 3921.15,
+      change24h: 1.87,
+      categoryId: crypto.id,
+      isActive: true
+    });
+    
+    const solUsd = this.createTradingPair({
+      name: "SOL/USD",
+      baseAsset: "SOL",
+      quoteAsset: "USD",
+      price: 172.38,
+      change24h: 3.42,
+      categoryId: crypto.id,
       isActive: true
     });
 
@@ -258,9 +298,112 @@ export class MemStorage implements IStorage {
       orderBook: mockOrderBook,
       candlesticks: mockCandlesticks
     });
+    
+    // Initialize market data for BTC/USD
+    this.marketData.set("BTC/USD", {
+      pair: "BTC/USD",
+      price: 68547.32,
+      change24h: 2.34,
+      orderBook: {
+        asks: Array.from({ length: 10 }).map((_, i) => ({
+          price: 68547.32 + (i + 1) * 10,
+          size: Math.random() * 2 + 0.1,
+          total: 0 // Will be calculated
+        })),
+        bids: Array.from({ length: 10 }).map((_, i) => ({
+          price: 68547.32 - (i + 1) * 10,
+          size: Math.random() * 2 + 0.1,
+          total: 0 // Will be calculated
+        }))
+      },
+      candlesticks: Array.from({ length: 30 }).map((_, i) => {
+        const time = now - (30 - i) * fiveMinutes;
+        const basePrice = 68500 + Math.random() * 200;
+        const high = basePrice + Math.random() * 50;
+        const low = basePrice - Math.random() * 50;
+        return {
+          time,
+          open: basePrice,
+          high,
+          low,
+          close: basePrice + (Math.random() - 0.5) * 30,
+          volume: Math.random() * 10 + 2
+        };
+      })
+    });
+    
+    // Initialize market data for ETH/USD
+    this.marketData.set("ETH/USD", {
+      pair: "ETH/USD",
+      price: 3921.15,
+      change24h: 1.87,
+      orderBook: {
+        asks: Array.from({ length: 10 }).map((_, i) => ({
+          price: 3921.15 + (i + 1) * 1,
+          size: Math.random() * 5 + 0.5,
+          total: 0 // Will be calculated
+        })),
+        bids: Array.from({ length: 10 }).map((_, i) => ({
+          price: 3921.15 - (i + 1) * 1,
+          size: Math.random() * 5 + 0.5,
+          total: 0 // Will be calculated
+        }))
+      },
+      candlesticks: Array.from({ length: 30 }).map((_, i) => {
+        const time = now - (30 - i) * fiveMinutes;
+        const basePrice = 3900 + Math.random() * 50;
+        const high = basePrice + Math.random() * 10;
+        const low = basePrice - Math.random() * 10;
+        return {
+          time,
+          open: basePrice,
+          high,
+          low,
+          close: basePrice + (Math.random() - 0.5) * 5,
+          volume: Math.random() * 20 + 5
+        };
+      })
+    });
+    
+    // Initialize market data for SOL/USD
+    this.marketData.set("SOL/USD", {
+      pair: "SOL/USD",
+      price: 172.38,
+      change24h: 3.42,
+      orderBook: {
+        asks: Array.from({ length: 10 }).map((_, i) => ({
+          price: 172.38 + (i + 1) * 0.2,
+          size: Math.random() * 10 + 1,
+          total: 0 // Will be calculated
+        })),
+        bids: Array.from({ length: 10 }).map((_, i) => ({
+          price: 172.38 - (i + 1) * 0.2,
+          size: Math.random() * 10 + 1,
+          total: 0 // Will be calculated
+        }))
+      },
+      candlesticks: Array.from({ length: 30 }).map((_, i) => {
+        const time = now - (30 - i) * fiveMinutes;
+        const basePrice = 170 + Math.random() * 5;
+        const high = basePrice + Math.random() * 1;
+        const low = basePrice - Math.random() * 1;
+        return {
+          time,
+          open: basePrice,
+          high,
+          low,
+          close: basePrice + (Math.random() - 0.5) * 0.5,
+          volume: Math.random() * 50 + 10
+        };
+      })
+    });
   }
 
   // User methods
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+  
   async getUser(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
