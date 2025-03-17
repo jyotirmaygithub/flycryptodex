@@ -147,14 +147,14 @@ export default function SimpleChart({
               />
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <Tooltip content={<CustomTooltip />} />
-              <ReferenceLine y={chartData[chartData.length - 1]?.close} stroke="#00C7B4" strokeDasharray="3 3" />
+              <ReferenceLine y={chartData[chartData.length - 1]?.close} stroke="#6366f1" strokeDasharray="3 3" />
               <Line 
                 type="monotone" 
                 dataKey="price" 
-                stroke="#00C7B4" 
+                stroke="#6366f1" 
                 dot={false} 
                 strokeWidth={2}
-                activeDot={{ r: 5, stroke: "#00A997", strokeWidth: 1, fill: "#35E2D0" }}
+                activeDot={{ r: 5, stroke: "#4f46e5", strokeWidth: 1, fill: "#818cf8" }}
               />
             </LineChart>
           ) : (
@@ -181,15 +181,15 @@ export default function SimpleChart({
               <Area 
                 type="monotone" 
                 dataKey="price" 
-                stroke="#00C7B4" 
+                stroke="#6366f1" 
                 fill="url(#colorGradient)" 
                 dot={false}
-                activeDot={{ r: 5, stroke: "#00A997", strokeWidth: 1, fill: "#35E2D0" }}
+                activeDot={{ r: 5, stroke: "#4f46e5", strokeWidth: 1, fill: "#818cf8" }}
               />
               <defs>
                 <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00C7B4" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#00C7B4" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                 </linearGradient>
               </defs>
             </AreaChart>

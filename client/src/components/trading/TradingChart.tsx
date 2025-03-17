@@ -43,19 +43,19 @@ export default function TradingChart({
         width: container.clientWidth,
         height: 400,
         layout: {
-          background: { color: 'rgba(30, 41, 59, 1)' }, // Darker background
-          textColor: 'rgba(255, 255, 255, 0.8)', // Brighter text
+          background: { color: 'rgba(45, 55, 72, 1)' },
+          textColor: 'rgba(255, 255, 255, 0.7)',
         },
         grid: {
-          vertLines: { color: 'rgba(51, 65, 85, 0.3)' }, // Slightly brighter grid
-          horzLines: { color: 'rgba(51, 65, 85, 0.3)' },
+          vertLines: { color: 'rgba(74, 85, 104, 0.3)' },
+          horzLines: { color: 'rgba(74, 85, 104, 0.3)' },
         },
         timeScale: {
-          borderColor: 'rgba(51, 65, 85, 0.6)', // Brighter border
+          borderColor: 'rgba(74, 85, 104, 0.5)',
           timeVisible: true,
         },
         rightPriceScale: {
-          borderColor: 'rgba(51, 65, 85, 0.6)',
+          borderColor: 'rgba(74, 85, 104, 0.5)',
         },
       });
       
@@ -64,12 +64,12 @@ export default function TradingChart({
       
       if (chartType === 'candlestick') {
         series = chart.addSeries('candlestick', {
-          upColor: 'rgba(0, 199, 180, 1)', // FlyKrypto teal for up candles
-          downColor: 'rgba(255, 98, 98, 1)', // Bright red for down candles
-          borderUpColor: 'rgba(0, 199, 180, 1)',
-          borderDownColor: 'rgba(255, 98, 98, 1)',
-          wickUpColor: 'rgba(0, 199, 180, 1)',
-          wickDownColor: 'rgba(255, 98, 98, 1)',
+          upColor: 'rgba(72, 187, 120, 1)',
+          downColor: 'rgba(245, 101, 101, 1)',
+          borderUpColor: 'rgba(72, 187, 120, 1)',
+          borderDownColor: 'rgba(245, 101, 101, 1)',
+          wickUpColor: 'rgba(72, 187, 120, 1)',
+          wickDownColor: 'rgba(245, 101, 101, 1)',
         });
         
         if (candlesticks.length > 0) {
@@ -77,7 +77,7 @@ export default function TradingChart({
         }
       } else if (chartType === 'line') {
         series = chart.addSeries('line', {
-          color: 'rgba(0, 199, 180, 1)', // FlyKrypto teal
+          color: 'rgba(66, 153, 225, 1)',
           lineWidth: 2,
         });
         
@@ -91,9 +91,9 @@ export default function TradingChart({
         }
       } else {
         series = chart.addSeries('area', {
-          topColor: 'rgba(0, 199, 180, 0.4)', // FlyKrypto teal with opacity
-          bottomColor: 'rgba(0, 199, 180, 0.05)', // FlyKrypto teal with low opacity
-          lineColor: 'rgba(0, 199, 180, 1)', // FlyKrypto teal
+          topColor: 'rgba(66, 153, 225, 0.56)',
+          bottomColor: 'rgba(66, 153, 225, 0.04)',
+          lineColor: 'rgba(66, 153, 225, 1)',
           lineWidth: 2,
         });
         
@@ -144,7 +144,7 @@ export default function TradingChart({
               <Button
                 size="sm"
                 variant={chartType === 'candlestick' ? 'default' : 'ghost'}
-                className={chartType === 'candlestick' ? 'bg-[#00C7B4] text-white' : 'text-neutral-300 hover:text-white'}
+                className={chartType === 'candlestick' ? 'bg-accent-500 text-white' : 'text-neutral-300 hover:text-white'}
                 onClick={() => onChangeChartType('candlestick')}
               >
                 <BarChart2 className="h-4 w-4 mr-1" />
@@ -153,7 +153,7 @@ export default function TradingChart({
               <Button
                 size="sm"
                 variant={chartType === 'line' ? 'default' : 'ghost'}
-                className={chartType === 'line' ? 'bg-[#00C7B4] text-white' : 'text-neutral-300 hover:text-white'}
+                className={chartType === 'line' ? 'bg-accent-500 text-white' : 'text-neutral-300 hover:text-white'}
                 onClick={() => onChangeChartType('line')}
               >
                 <TrendingUp className="h-4 w-4 mr-1" />
