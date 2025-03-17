@@ -617,7 +617,7 @@ export default function CryptoTrading() {
       {/* Header */}
       <header className="border-b border-primary-700 bg-primary-800 py-3 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+          <Logo />
         </div>
         
         <div className="flex items-center space-x-4">
