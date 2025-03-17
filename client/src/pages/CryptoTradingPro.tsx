@@ -37,8 +37,10 @@ import {
   RefreshCw,
   Zap,
   AlertTriangle,
-  Bell
+  Bell,
+  Loader2
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock trading pairs for crypto
 const cryptoPairs = [
