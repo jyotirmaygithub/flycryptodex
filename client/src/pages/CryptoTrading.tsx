@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
+import { Logo } from "@/components/ui/logo";
 import { useWallet } from "@/hooks/useWallet";
 import { TradingPair } from "@shared/schema";
 import { CandlestickData } from "@shared/schema";
