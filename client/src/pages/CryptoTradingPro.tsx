@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Logo } from "@/components/ui/logo";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TradingPair, CandlestickData } from "@shared/schema";
 import TradingViewChart from "@/components/trading/TradingViewChart";
@@ -596,7 +595,7 @@ export default function CryptoTradingPro() {
       {/* Header */}
       <header className="border-b border-primary-700 bg-primary-800 py-2 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <Logo />
+          <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
           
           <div className="hidden md:flex ml-8 space-x-1">
             <Button 

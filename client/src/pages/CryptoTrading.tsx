@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { Logo } from "@/components/ui/logo";
 import { useWallet } from "@/hooks/useWallet";
 import { TradingPair } from "@shared/schema";
 import { CandlestickData } from "@shared/schema";
@@ -617,7 +616,7 @@ export default function CryptoTrading() {
       {/* Header */}
       <header className="border-b border-primary-700 bg-primary-800 py-3 px-4 sm:px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <Logo />
+          <span className="text-accent-500 text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
         </div>
         
         <div className="flex items-center space-x-4">
