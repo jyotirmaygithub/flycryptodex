@@ -5,6 +5,7 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useWallet } from "@/hooks/useWallet";
+import { Logo } from "@/components/ui/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,7 +52,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
         
         <Link href="/">
           <a className="flex items-center">
-            <span className="text-[#f7a600] text-xl font-bold">Fly<span className="text-white">Crypto</span></span>
+            <Logo />
           </a>
         </Link>
       </div>
