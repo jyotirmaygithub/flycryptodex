@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Logo } from "@/components/ui/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
@@ -141,10 +142,8 @@ export default function ForexTrading() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-6">
               <div className="relative flex items-center">
-                <span className="text-2xl font-bold flex items-center gap-2">
-                  <span className="bg-gradient-to-r from-accent-400 to-accent-600 text-transparent bg-clip-text">
-                    FlyCrypto
-                  </span>
+                <span className="flex items-center gap-2">
+                  <Logo size="lg" />
                   <Badge variant="outline" className="uppercase text-xs font-bold tracking-wider bg-green-500/10 text-green-400 border-green-500/30">
                     Live
                   </Badge>
