@@ -48,22 +48,6 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const demoTrades = pgTable("demo_trades", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  pairId: integer("pair_id").notNull(),
-  entryPrice: real("entry_price").notNull(),
-  exitPrice: real("exit_price"),
-  size: real("size").notNull(),
-  leverage: integer("leverage").notNull(),
-  side: text("side").notNull(), // "buy" or "sell"
-  pnl: real("pnl"),
-  status: text("status").notNull(), // "open", "closed", "liquidated"
-  type: text("type").notNull().default("perpetual"), // "perpetual" for crypto perpetual
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  closedAt: timestamp("closed_at"),
-});
-
 export const aiRecommendations = pgTable("ai_recommendations", {
   id: serial("id").primaryKey(),
   pairId: integer("pair_id").notNull(),
@@ -85,7 +69,6 @@ export const insertBlockchainSchema = createInsertSchema(blockchains).omit({ id:
 export const insertTradingCategorySchema = createInsertSchema(tradingCategories).omit({ id: true });
 export const insertTradingPairSchema = createInsertSchema(tradingPairs).omit({ id: true });
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
-export const insertDemoTradeSchema = createInsertSchema(demoTrades).omit({ id: true, createdAt: true, closedAt: true, pnl: true, exitPrice: true });
 export const insertAiRecommendationSchema = createInsertSchema(aiRecommendations).omit({ id: true, createdAt: true });
 export const insertForexNewsSchema = createInsertSchema(forexNews).omit({ id: true, createdAt: true });
 
@@ -95,7 +78,6 @@ export type InsertBlockchain = z.infer<typeof insertBlockchainSchema>;
 export type InsertTradingCategory = z.infer<typeof insertTradingCategorySchema>;
 export type InsertTradingPair = z.infer<typeof insertTradingPairSchema>;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
-export type InsertDemoTrade = z.infer<typeof insertDemoTradeSchema>;
 export type InsertAiRecommendation = z.infer<typeof insertAiRecommendationSchema>;
 export type InsertForexNews = z.infer<typeof insertForexNewsSchema>;
 
@@ -104,7 +86,6 @@ export type Blockchain = typeof blockchains.$inferSelect;
 export type TradingCategory = typeof tradingCategories.$inferSelect;
 export type TradingPair = typeof tradingPairs.$inferSelect;
 export type Order = typeof orders.$inferSelect;
-export type DemoTrade = typeof demoTrades.$inferSelect;
 export type AiRecommendation = typeof aiRecommendations.$inferSelect;
 export type ForexNews = typeof forexNews.$inferSelect;
 
