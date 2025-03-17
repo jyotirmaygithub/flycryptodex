@@ -193,24 +193,105 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
   const [price, setPrice] = useState<number>(pair.price);
   const [usePostOnly, setUsePostOnly] = useState<boolean>(false);
   const [useReduceOnly, setUseReduceOnly] = useState<boolean>(false);
+  const [stopPrice, setStopPrice] = useState<number>(pair.price);
+  const [leverage, setLeverage] = useState<number>(10);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const userId = 1; // Using the demo user
   
   useEffect(() => {
+    // Update price when pair changes
     setPrice(pair.price);
+    setStopPrice(pair.price);
   }, [pair.price]);
-
-  const handlePlaceOrder = () => {
-    console.log('Placing order:', {
-      pair: pair.name,
-      type: orderType,
-      side: orderSide,
-      amount,
-      price: orderType !== 'Market' ? price : undefined,
-      postOnly: usePostOnly,
-      reduceOnly: useReduceOnly
-    });
-    
-    // Here you would call the API to place the order
-    alert(`Order placed: ${orderSide.toUpperCase()} ${amount} ${pair.name} at ${orderType === 'Market' ? 'market price' : '$' + price}`);
+  
+  const handlePlaceOrder = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      
+      // For demo trading, we'll create a demo trade in case of market order
+      // and create a limit/stop order for other order types
+      if (orderType === 'Market') {
+        // Create a demo trade (position)
+        const response = await fetch('/api/demo-trades', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId,
+            pairId: pair.id,
+            side: orderSide,
+            size: amount,
+            entryPrice: price,
+            leverage,
+            type: orderType,
+            status: 'open'
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create demo trade');
+        }
+        
+        const trade = await response.json();
+        
+        toast({
+          title: 'Position Opened',
+          description: `Successfully opened ${orderSide.toUpperCase()} position of ${amount} ${pair.name} at $${price}`,
+          variant: 'default',
+        });
+        
+      } else {
+        // Create a limit/stop order
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId,
+            pairId: pair.id,
+            type: orderType,
+            side: orderSide,
+            size: amount,
+            price: orderType === 'Stop' ? stopPrice : price,
+            status: 'open'
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create order');
+        }
+        
+        const order = await response.json();
+        
+        toast({
+          title: 'Order Placed',
+          description: `Successfully placed ${orderSide.toUpperCase()} ${orderType} order for ${amount} ${pair.name} at $${orderType === 'Stop' ? stopPrice : price}`,
+          variant: 'default',
+        });
+      }
+      
+      // Reset amount after successful order
+      setAmount(0.01);
+      
+    } catch (err) {
+      console.error('Error placing order:', err);
+      setError(err.message || 'Failed to place order. Please try again.');
+      
+      toast({
+        title: 'Order Failed',
+        description: err.message || 'Failed to place order. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -324,12 +405,26 @@ function CryptoOrderForm({ pair }: { pair: TradingPair }) {
           </div>
         </div>
         
+        {error && (
+          <div className="mb-2 p-2 bg-red-500/20 border border-red-500/30 rounded text-xs text-red-400">
+            {error}
+          </div>
+        )}
+        
         <div className="mt-auto">
           <Button 
             className={`w-full py-2 text-xs ${orderSide === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
             onClick={handlePlaceOrder}
+            disabled={isSubmitting}
           >
-            {orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.baseAsset}
+            {isSubmitting ? (
+              <span className="flex items-center">
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                Placing Order...
+              </span>
+            ) : (
+              <span>{orderSide === 'buy' ? 'Buy / Long' : 'Sell / Short'} {pair.baseAsset}</span>
+            )}
           </Button>
         </div>
       </div>
@@ -445,42 +540,125 @@ function MarketInfo({ pair }: { pair: TradingPair }) {
 }
 
 function RecentTrades() {
-  // Mock recent trades
-  const trades = Array(20).fill(0).map((_, i) => ({
-    id: i,
-    price: 65420.75 + (Math.random() - 0.5) * 100,
-    size: Math.random() * 0.5 + 0.1,
-    time: Date.now() - i * 30000,
-    side: Math.random() > 0.5 ? 'buy' : 'sell'
-  }));
+  const [trades, setTrades] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const userId = 1; // Using the demo user we created
+  
+  // Fetch closed demo trades for the user
+  useEffect(() => {
+    const fetchClosedTrades = async () => {
+      try {
+        setIsLoading(true);
+        // Get all trades for the user
+        const response = await fetch(`/api/demo-trades?userId=${userId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch trade history');
+        }
+        
+        const allTrades = await response.json();
+        
+        // Filter to only show closed trades (those with exitPrice not null)
+        const closedTrades = allTrades.filter((trade: any) => trade.exitPrice !== null);
+        
+        // Get trading pairs to get their names
+        const pairsResponse = await fetch('/api/pairs');
+        if (!pairsResponse.ok) {
+          throw new Error('Failed to fetch trading pairs');
+        }
+        
+        const tradingPairs = await pairsResponse.json();
+        
+        // Format trades for display
+        const formattedTrades = closedTrades.map((trade: any) => {
+          const pair = tradingPairs.find((p: any) => p.id === trade.pairId);
+          return {
+            id: trade.id,
+            pair: pair ? pair.name : `Pair #${trade.pairId}`,
+            side: trade.side,
+            size: trade.size,
+            entryPrice: trade.entryPrice,
+            exitPrice: trade.exitPrice,
+            pnl: trade.pnl,
+            time: new Date(trade.closedAt).getTime(),
+            leverage: trade.leverage
+          };
+        });
+        
+        // Sort by most recent first
+        formattedTrades.sort((a: any, b: any) => b.time - a.time);
+        
+        setTrades(formattedTrades);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching trade history:', err);
+        setError('Failed to load trade history');
+        setTrades([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchClosedTrades();
+    
+    // Refresh data every 10 seconds
+    const intervalId = setInterval(fetchClosedTrades, 10000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <div className="rounded-lg border border-primary-700 bg-primary-800 h-full">
       <div className="border-b border-primary-700 px-4 py-3">
-        <h3 className="font-medium text-sm">Recent Trades</h3>
+        <h3 className="font-medium text-sm">Closed Trades History</h3>
       </div>
       
-      <div className="grid grid-cols-3 text-xs text-neutral-400 p-2 border-b border-primary-700">
-        <div>Price</div>
-        <div className="text-right">Size</div>
-        <div className="text-right">Time</div>
-      </div>
-      
-      <div className="max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
-        {trades.map(trade => (
-          <div key={trade.id} className="grid grid-cols-3 text-xs p-2 hover:bg-primary-700">
-            <div className={trade.side === 'buy' ? 'text-green-500' : 'text-red-500'}>
-              ${trade.price.toFixed(2)}
-            </div>
-            <div className="text-right">
-              {trade.size.toFixed(3)}
-            </div>
-            <div className="text-right text-neutral-400">
-              {new Date(trade.time).toLocaleTimeString()}
-            </div>
+      {isLoading ? (
+        <div className="p-8 text-center">
+          <span className="text-sm text-neutral-400">Loading trade history...</span>
+        </div>
+      ) : error ? (
+        <div className="p-8 text-center">
+          <span className="text-sm text-red-500">{error}</span>
+        </div>
+      ) : trades.length === 0 ? (
+        <div className="p-8 text-center">
+          <span className="text-sm text-neutral-400">No closed trades yet</span>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-5 text-xs text-neutral-400 p-2 border-b border-primary-700">
+            <div>Pair</div>
+            <div>Side</div>
+            <div className="text-right">Entry/Exit</div>
+            <div className="text-right">PnL</div>
+            <div className="text-right">Closed At</div>
           </div>
-        ))}
-      </div>
+          
+          <div className="max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-700">
+            {trades.map(trade => (
+              <div key={trade.id} className="grid grid-cols-5 text-xs p-2 hover:bg-primary-700 border-b border-primary-700/30">
+                <div className="font-medium">
+                  {trade.pair}
+                </div>
+                <div className={trade.side === 'buy' ? 'text-green-500' : 'text-red-500'}>
+                  {trade.side.toUpperCase()}
+                </div>
+                <div className="text-right">
+                  ${trade.entryPrice.toFixed(2)} → ${trade.exitPrice.toFixed(2)}
+                </div>
+                <div className={`text-right ${trade.pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  ${trade.pnl.toFixed(2)}
+                </div>
+                <div className="text-right text-neutral-400">
+                  {new Date(trade.time).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
