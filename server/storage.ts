@@ -1,14 +1,16 @@
 import {
-  users, blockchains, tradingCategories, tradingPairs, orders, aiRecommendations, forexNews,
+  users, blockchains, tradingCategories, tradingPairs, orders, demoTrades, aiRecommendations, forexNews,
   type User, type InsertUser, type Blockchain, type InsertBlockchain,
   type TradingCategory, type InsertTradingCategory, type TradingPair, type InsertTradingPair,
-  type Order, type InsertOrder, type AiRecommendation, type InsertAiRecommendation,
+  type Order, type InsertOrder, type DemoTrade, type InsertDemoTrade,
+  type AiRecommendation, type InsertAiRecommendation,
   type ForexNews, type InsertForexNews,
   type MarketData, type CandlestickData, type OrderBook
 } from "@shared/schema";
 
 export interface IStorage {
   // User operations
+  getUsers(): Promise<User[]>;
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -40,6 +42,14 @@ export interface IStorage {
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 
+  // Demo Trade operations
+  getDemoTrades(userId: number): Promise<DemoTrade[]>;
+  getDemoTradesByPair(userId: number, pairId: number): Promise<DemoTrade[]>;
+  getOpenDemoTrades(userId: number): Promise<DemoTrade[]>;
+  createDemoTrade(trade: InsertDemoTrade): Promise<DemoTrade>;
+  closeDemoTrade(id: number, exitPrice: number): Promise<DemoTrade | undefined>;
+  liquidateDemoTrade(id: number): Promise<DemoTrade | undefined>;
+
   // AI recommendation operations
   getAiRecommendationsByPair(pairId: number, limit?: number): Promise<AiRecommendation[]>;
   createAiRecommendation(recommendation: InsertAiRecommendation): Promise<AiRecommendation>;
@@ -60,6 +70,7 @@ export class MemStorage implements IStorage {
   private tradingCategories: Map<number, TradingCategory>;
   private tradingPairs: Map<number, TradingPair>;
   private orders: Map<number, Order>;
+  private demoTrades: Map<number, DemoTrade>;
   private aiRecommendations: Map<number, AiRecommendation>;
   private forexNews: Map<number, ForexNews>;
   private marketData: Map<string, MarketData>;
@@ -69,6 +80,7 @@ export class MemStorage implements IStorage {
   private categoryId: number;
   private pairId: number;
   private orderId: number;
+  private demoTradeId: number;
   private recommendationId: number;
   private newsId: number;
 
@@ -78,6 +90,7 @@ export class MemStorage implements IStorage {
     this.tradingCategories = new Map();
     this.tradingPairs = new Map();
     this.orders = new Map();
+    this.demoTrades = new Map();
     this.aiRecommendations = new Map();
     this.forexNews = new Map();
     this.marketData = new Map();
@@ -87,6 +100,7 @@ export class MemStorage implements IStorage {
     this.categoryId = 1;
     this.pairId = 1;
     this.orderId = 1;
+    this.demoTradeId = 1;
     this.recommendationId = 1;
     this.newsId = 1;
     
@@ -381,6 +395,116 @@ export class MemStorage implements IStorage {
     const updatedOrder = { ...order, status };
     this.orders.set(id, updatedOrder);
     return updatedOrder;
+  }
+
+  // Demo trade methods
+  async getDemoTrades(userId: number): Promise<DemoTrade[]> {
+    return Array.from(this.demoTrades.values()).filter(
+      (trade) => trade.userId === userId
+    );
+  }
+
+  async getDemoTradesByPair(userId: number, pairId: number): Promise<DemoTrade[]> {
+    return Array.from(this.demoTrades.values()).filter(
+      (trade) => trade.userId === userId && trade.pairId === pairId
+    );
+  }
+
+  async getOpenDemoTrades(userId: number): Promise<DemoTrade[]> {
+    return Array.from(this.demoTrades.values()).filter(
+      (trade) => trade.userId === userId && trade.status === "open"
+    );
+  }
+
+  async createDemoTrade(trade: InsertDemoTrade): Promise<DemoTrade> {
+    const id = this.demoTradeId++;
+    const createdAt = new Date();
+    const newTrade: DemoTrade = { 
+      ...trade, 
+      id, 
+      createdAt, 
+      exitPrice: null, 
+      pnl: null, 
+      closedAt: null 
+    };
+    this.demoTrades.set(id, newTrade);
+    return newTrade;
+  }
+
+  async closeDemoTrade(id: number, exitPrice: number): Promise<DemoTrade | undefined> {
+    const trade = this.demoTrades.get(id);
+    if (!trade) return undefined;
+    
+    const closedAt = new Date();
+    let pnl = 0;
+    
+    // Calculate PNL based on side and leverage
+    if (trade.side === "buy") {
+      pnl = (exitPrice - trade.entryPrice) / trade.entryPrice * trade.size * trade.leverage;
+    } else {
+      pnl = (trade.entryPrice - exitPrice) / trade.entryPrice * trade.size * trade.leverage;
+    }
+    
+    // Round to 2 decimal places
+    pnl = Math.round(pnl * 100) / 100;
+    
+    const updatedTrade: DemoTrade = { 
+      ...trade, 
+      exitPrice, 
+      pnl, 
+      status: "closed",
+      closedAt 
+    };
+    
+    this.demoTrades.set(id, updatedTrade);
+    
+    // Update user balance
+    const user = await this.getUser(trade.userId);
+    if (user) {
+      const newBalance = user.balance + pnl;
+      await this.updateUserBalance(user.id, newBalance);
+    }
+    
+    return updatedTrade;
+  }
+
+  async liquidateDemoTrade(id: number): Promise<DemoTrade | undefined> {
+    const trade = this.demoTrades.get(id);
+    if (!trade) return undefined;
+    
+    const closedAt = new Date();
+    
+    // Calculate liquidation price (full loss of position)
+    const pnl = -trade.size;
+    
+    // Determine liquidation price
+    let exitPrice;
+    if (trade.side === "buy") {
+      // For long positions, liquidation is when price drops by 1/leverage of entry price
+      exitPrice = trade.entryPrice * (1 - 1/trade.leverage);
+    } else {
+      // For short positions, liquidation is when price rises by 1/leverage of entry price
+      exitPrice = trade.entryPrice * (1 + 1/trade.leverage);
+    }
+    
+    const updatedTrade: DemoTrade = { 
+      ...trade, 
+      exitPrice, 
+      pnl, 
+      status: "liquidated",
+      closedAt 
+    };
+    
+    this.demoTrades.set(id, updatedTrade);
+    
+    // Update user balance
+    const user = await this.getUser(trade.userId);
+    if (user) {
+      const newBalance = user.balance + pnl;
+      await this.updateUserBalance(user.id, newBalance);
+    }
+    
+    return updatedTrade;
   }
 
   // AI recommendation methods

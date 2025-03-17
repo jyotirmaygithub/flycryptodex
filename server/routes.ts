@@ -3,10 +3,11 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { z } from "zod";
-import { insertOrderSchema, insertUserSchema } from "@shared/schema";
+import { insertOrderSchema, insertUserSchema, insertDemoTradeSchema } from "@shared/schema";
 
 const clients = new Map<string, WebSocket>();
 let marketUpdateInterval: NodeJS.Timeout;
+let demoTradeMonitoringInterval: NodeJS.Timeout;
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -55,6 +56,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Start market data update simulation
   startMarketDataUpdates();
+  
+  // Start auto-liquidation monitoring for demo trades
+  startDemoTradeMonitoring();
 
   // === API Routes ===
   
@@ -230,6 +234,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Demo Trade routes
+  app.post('/api/demo-trades', async (req, res) => {
+    try {
+      const tradeData = insertDemoTradeSchema.parse(req.body);
+      
+      // Validate additional requirements for crypto perpetual trades
+      if (tradeData.type !== 'perpetual') {
+        return res.status(400).json({ message: 'Only perpetual demo trades are supported' });
+      }
+      
+      if (tradeData.leverage < 1 || tradeData.leverage > 100) {
+        return res.status(400).json({ message: 'Leverage must be between 1 and 100' });
+      }
+      
+      // Check user exists
+      const user = await storage.getUser(tradeData.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Check pair exists and is in crypto category
+      const pair = await storage.getTradingPair(tradeData.pairId);
+      if (!pair) {
+        return res.status(404).json({ message: 'Trading pair not found' });
+      }
+      
+      const cryptoCategory = await storage.getTradingCategory(2); // Assuming Crypto is category ID 2
+      if (pair.categoryId !== cryptoCategory.id) {
+        return res.status(400).json({ message: 'Only crypto perpetual trading pairs are supported for demo trades' });
+      }
+      
+      // Check user has enough balance
+      if (user.balance < tradeData.size) {
+        return res.status(400).json({ message: 'Insufficient balance' });
+      }
+      
+      // Create the demo trade
+      const trade = await storage.createDemoTrade({
+        ...tradeData,
+        status: 'open'
+      });
+      
+      // Deduct the margin (size) from user balance
+      await storage.updateUserBalance(user.id, user.balance - tradeData.size);
+      
+      res.status(201).json(trade);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid trade data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to create demo trade' });
+    }
+  });
+
+  app.get('/api/demo-trades', async (req, res) => {
+    try {
+      const userId = parseInt(req.query.userId as string);
+      const pairId = req.query.pairId ? parseInt(req.query.pairId as string) : undefined;
+      
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
+      
+      const trades = pairId 
+        ? await storage.getDemoTradesByPair(userId, pairId)
+        : await storage.getDemoTrades(userId);
+        
+      res.json(trades);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch demo trades' });
+    }
+  });
+  
+  app.get('/api/demo-trades/open', async (req, res) => {
+    try {
+      const userId = parseInt(req.query.userId as string);
+      
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
+      
+      const trades = await storage.getOpenDemoTrades(userId);
+      res.json(trades);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch open demo trades' });
+    }
+  });
+  
+  app.post('/api/demo-trades/:id/close', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { exitPrice } = req.body;
+      
+      if (!exitPrice || typeof exitPrice !== 'number') {
+        return res.status(400).json({ message: 'Exit price is required' });
+      }
+      
+      const closedTrade = await storage.closeDemoTrade(id, exitPrice);
+      
+      if (!closedTrade) {
+        return res.status(404).json({ message: 'Demo trade not found' });
+      }
+      
+      res.json(closedTrade);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to close demo trade' });
+    }
+  });
+  
+  app.post('/api/demo-trades/:id/liquidate', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      const liquidatedTrade = await storage.liquidateDemoTrade(id);
+      
+      if (!liquidatedTrade) {
+        return res.status(404).json({ message: 'Demo trade not found' });
+      }
+      
+      res.json(liquidatedTrade);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to liquidate demo trade' });
+    }
+  });
+
   return httpServer;
 }
 
@@ -348,4 +477,66 @@ function startMarketDataUpdates() {
       console.error('Error updating market data:', error);
     }
   }, 2000); // Update every 2 seconds
+}
+
+// Function to monitor demo trades for liquidation
+function startDemoTradeMonitoring() {
+  if (demoTradeMonitoringInterval) {
+    clearInterval(demoTradeMonitoringInterval);
+  }
+
+  demoTradeMonitoringInterval = setInterval(async () => {
+    try {
+      // Get all users with open demo trades
+      const users = await storage.getUsers();
+      
+      for (const user of users) {
+        // Get open demo trades for this user
+        const openTrades = await storage.getOpenDemoTrades(user.id);
+        
+        if (openTrades.length === 0) continue;
+        
+        // Check each trade for liquidation
+        for (const trade of openTrades) {
+          // Get current price for the trading pair
+          const pair = await storage.getTradingPair(trade.pairId);
+          if (!pair) continue;
+          
+          // Calculate liquidation price
+          let liquidationPrice;
+          if (trade.side === 'buy') {
+            // For long positions, liquidation is when price drops by 1/leverage of entry price
+            liquidationPrice = trade.entryPrice * (1 - 1/trade.leverage);
+          } else {
+            // For short positions, liquidation is when price rises by 1/leverage of entry price
+            liquidationPrice = trade.entryPrice * (1 + 1/trade.leverage);
+          }
+          
+          // Check if current price has crossed liquidation threshold
+          const shouldLiquidate = (trade.side === 'buy' && pair.price <= liquidationPrice) || 
+                                 (trade.side === 'sell' && pair.price >= liquidationPrice);
+          
+          if (shouldLiquidate) {
+            console.log(`Liquidating trade ${trade.id} for user ${user.id} at price ${pair.price}`);
+            await storage.liquidateDemoTrade(trade.id);
+            
+            // Notify client via WebSocket if they're connected
+            clients.forEach((client, id) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                  type: 'tradeLiquidated',
+                  userId: user.id,
+                  tradeId: trade.id,
+                  pair: pair.name,
+                  price: pair.price
+                }));
+              }
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error monitoring demo trades:', error);
+    }
+  }, 5000); // Check every 5 seconds
 }
